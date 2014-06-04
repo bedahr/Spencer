@@ -1,0 +1,504 @@
+<?xml version="1.0" encoding="ISO-8859-15"?>
+<languageDefinition xsi:noNamespaceSchemaLocation="http://tugraz.at/schema/spencer_nlp.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <attributes>
+    <attribute type="uncountable">
+      <actOn>Hersteller</actOn>
+      <names>
+	<name>Hersteller</name>
+	<name>HERSTELLER</name>
+	<name>MARKE</name>
+      </names>
+    </attribute>
+    <attribute type="uncountable">
+      <actOn>Modell</actOn>
+      <names>
+	<name>Modell</name>
+	<name>AUSFÜHRUNG</name>
+	<name>DESIGN</name>
+	<name>BAUWEISE</name>
+	<name>MODELL</name>
+        <name>PRODUKT</name>
+        <name>FARBE</name>
+        <name>KAMERA</name>
+      </names>
+    </attribute>
+    <attribute type="uncountable">
+      <actOn>Sensor Typ</actOn>
+      <names>
+	<name>Sensor Typ</name>
+	<name>SENSOR TYP</name>
+      </names>
+    </attribute>
+    <attribute type="countable">
+      <actOn>Preis (€)</actOn>
+      <names>
+	<name>Preis</name>
+	<name>PREIS</name>
+	<name>KOSTEN</name>
+	<name>(\d+ ?[,.]? ?\d*)? ?EURO</name>
+      </names>
+    </attribute>
+    <attribute type="countable">
+      <actOn>Größe (BxHxT)</actOn>
+      <names>
+	<name>GRÖSSE</name>
+	<name>Größe</name>
+      </names>
+    </attribute>
+    <attribute type="countable">
+      <actOn>Sensor Größe (Zoll)</actOn>
+      <names>
+	<name>Sensor Größe</name>
+	<name>SENSOR GRÖSSE</name>
+	<name>SENSOR</name>
+	<name>(\d* ?[,.]? ?\d*)? ?ZOLL</name>
+      </names>
+    </attribute>
+    <attribute type="countable">
+      <actOn>Auflösung (Megapixel)</actOn>
+      <names>
+	<name>Auflösung</name>
+	<name>AUFLÖSUNG</name>
+	<name>(\d+ ?[,.]? ?\d*)? ?MEGAPIXEL</name>
+      </names>
+    </attribute>
+    <attribute type="mitable">
+      <actOn>Auflösung (Megapixel)</actOn>
+      <names>
+	<name>(\d+ ?[,.]? ?\d*)? ?MEGAPIXEL</name>
+      </names>
+    </attribute>
+    <attribute type="countable">
+      <actOn>Optischer Zoom (X)</actOn>
+      <names>
+	<name>Optischer Zoom</name>
+        <name>OPTISCHER ZOOM</name>
+        <name>OPTISCHEN ZOOM</name>
+        <name>ZOOM</name>
+	<name>ECHTEN ZOOM</name>
+	<name>(\d+ ?[,.]? ?\d*)? ?FACHE?N? OPTISCHEN ZOOM</name>
+	<name>(\d+ ?[,.]? ?\d*)? ?FACHE?N? ZOOM</name>
+      </names>
+    </attribute>
+    <attribute type="mitable">
+      <actOn>Optischer Zoom (X)</actOn>
+      <names>
+	<name>(\d+ ?[,.]? ?\d*)? ?FACHE?N? OPTISCHEN ZOOM</name>
+	<name>(\d+ ?[,.]? ?\d*)? ?FACHE?N? ZOOM</name>
+      </names>
+    </attribute>
+    <attribute type="countable">
+      <actOn>Digitaler Zoom (X)</actOn>
+      <names>
+	<name>Digitaler Zoom</name>
+	<name>DIGITALER ZOOM</name>
+	<name>DIGITALE ZOOM</name>
+	<name>DIGITALEN ZOOM</name>
+	<name>DIGITALEM ZOOM</name>
+	<name>(\d+ ?[,.]? ?\d*)? ?FACHE?N? DIGITALEM ZOOM</name>
+      </names>
+    </attribute>
+    <attribute type="mitable">
+      <actOn>Digitaler Zoom (X)</actOn>
+      <names>
+	<name>(\d+ ?[,.]? ?\d*)? ?FACHE?N? DIGITALEM ZOOM</name>
+      </names>
+    </attribute>
+    <attribute type="countable">
+      <actOn>Gewicht (Gramm)</actOn>
+      <names>
+	<name>Gewicht</name>
+	<name>GEWICHT</name>
+	<name>GRAMM</name>
+	<name>(\d+ ?[,.]? ?\d*)? ?GRAMM</name>
+      </names>
+    </attribute>
+    <attribute type="countable">
+      <actOn>Interner Speicher (MB)</actOn>
+      <names>
+	<name>Interner Speicher</name>
+	<name>INTERNER SPEICHER</name>
+	<name>INTERNEN SPEICHER</name>
+	<name>INTERNE SPEICHER</name>
+	<name>INTERNEM SPEICHER</name>
+	<name>INTEGRIERTEM SPEICHER</name>
+	<name>MEGABYTE</name>
+	<name>(\d+ ?[,.]? ?\d*)? ?MEGABYTE</name>
+	<name>INTEGRIERTEN SPEICHER</name>
+      </names>
+    </attribute>
+    <attribute type="mitable">
+      <actOn>Interner Speicher (MB)</actOn>
+      <names>
+	<name>(\d+ ?[,.]? ?\d*)? ?MEGABYTE</name>
+      </names>
+    </attribute>
+  </attributes>
+  <modifiers>
+    <modifier on="countable,uncountable" binding="pre">
+      <names>
+	<name>BEIBEHALTEN</name>
+	<name>BLEIBEN</name>
+	<name>(\d+ ?[,.]? ?\d*)</name>
+      </names>
+      <relationship>Equal</relationship>
+    </modifier>
+    <modifier on="countable,uncountable" binding="pre">
+      <names>
+        <name>ÄNDERN</name>
+        <name>UNGLEICH ?(\d+ ?[,.]? ?\d*)?</name>
+	<name>WECHSELN</name>
+      </names>
+      <relationship>Inequal</relationship>
+    </modifier>
+    <modifier on="countable,uncountable" binding="post">
+      <names>
+	<name>GLEICH ?(\d+ ?[,.]? ?\d*)?</name>
+	<name>GLEICHE</name>
+	<name>GLEICHES</name>
+	<name>GLEICHER</name>
+	<name>GLEICHEM</name>
+        <name>GLEICHEN</name>
+        <name>SELBE</name>
+        <name>UM</name>
+	<name>SELBER</name>
+	<name>SELBEN</name>
+	<name>SELBES</name>
+      </names>
+      <relationship>Equal</relationship>
+    </modifier>
+    <modifier on="mitable" binding="post">
+      <names>
+	<name>MIT</name>
+      </names>
+      <relationship>Equal</relationship>
+    </modifier>
+    
+    <modifier on="countable,uncountable" binding="post" default="Modell">
+      <names>
+	<name>ANDERE</name>
+	<name>ANDERER</name>
+	<name>ANDERES</name>
+	<name>ANDEREN</name>
+      </names>
+      <relationship>Inequal</relationship>
+    </modifier>
+    
+    
+    <modifier on="countable" binding="pre,post">
+      <names>
+      <name>MEHR ALS (\d+ ?[,.]? ?\d*)</name>
+      <name>MEHR WIE (\d+ ?[,.]? ?\d*)</name>
+      <name>HÖHER ALS (\d+ ?[,.]? ?\d*)</name>
+      <name>HÖHER WIE (\d+ ?[,.]? ?\d*)</name>
+      <name>MEHR</name>
+      </names>
+      <relationship>LargerThan</relationship>
+    </modifier>
+    <modifier on="countable" binding="pre">
+      <names>
+      <name>ERHÖHEN</name>
+      <name>HÖHER</name>
+      <name>ZU WENIG</name>
+      <name>ZU NIEDRIG</name>
+      </names>
+      <relationship>LargerThan</relationship>
+    </modifier>
+      
+    <modifier on="countable" binding="post">
+      <names>
+	<name>HÖHERES</name>
+	<name>MINDESTENS</name>
+	<name>ÜBER</name>
+	<name>WENIGSTENS</name>
+	<name>ZUMINDEST</name>
+      </names>
+      <relationship>LargerThan</relationship>
+    </modifier>
+	
+    <modifier on="countable" binding="post" default="Größe (BxHxT)">
+      <names>
+	<name>HÖHEREN</name>
+	<name>HÖHERE</name>
+	<name>HÖHERER</name>
+	<name>HÖHERERE</name>
+	<name>GRÖSSERE</name>
+	<name>GRÖSSERER</name>
+	<name>GRÖSSEREM</name>
+	<name>GRÖSSEREN</name>
+	<name>GRÖSSER</name>
+      </names>
+      <relationship>LargerThan</relationship>
+    </modifier>
+    
+    
+    <modifier on="countable" binding="pre,post">
+      <names>
+      <name>WENIGER ALS (\d+ ?[,.]? ?\d*)</name>
+      <name>NIEDRIGER ALS (\d+ ?[,.]? ?\d*)</name>
+      <name>WENIGER WIE (\d+ ?[,.]? ?\d*)</name>
+      <name>NIEDRIGER WIE (\d+ ?[,.]? ?\d*)</name>
+      <name>WENIGER</name>
+      </names>
+      <relationship>SmallerThan</relationship>
+    </modifier>
+    
+    <modifier on="countable" binding="pre">
+      <names>
+      <name>VERRINGERN</name>
+      <name>NIEDRIGER</name>
+      <name>ZU HOCH</name>
+      <name>ZU VIEL</name>
+      </names>
+      <relationship>SmallerThan</relationship>
+    </modifier>
+    <modifier on="countable" binding="post">
+      <names>
+	<name>UNTER ?(\d+ ?[,.]? ?\d*)?</name>
+	<name>GERINGERES</name>
+	<name>GERINGERER</name>
+	<name>GERINGERERE</name>
+	<name>GERINGEREN</name>
+	<name>MAXIMAL ?(\d+ ?[,.]? ?\d*)?</name>
+	<name>HÖCHSTENS ?(\d+ ?[,.]? ?\d*)?</name>
+      </names>
+      <relationship>SmallerThan</relationship>
+    </modifier>
+    <modifier on="countable" binding="post" default="Größe (BxHxT)">
+      <names>
+	<name>NIEDRIGERE</name>
+	<name>NIEDRIGERES</name>
+	<name>NIEDRIGEREN</name>
+	<name>NIEDRIGERER</name>
+	<name>KLEINER</name>
+	<name>KLEINERE</name>
+	<name>KLEINEREN</name>
+	<name>KLEINERER</name>
+	<name>KLEINEREM</name>
+        <name>KLEINE</name>
+      </names>
+      <relationship>SmallerThan</relationship>
+    </modifier>
+  </modifiers>
+  
+  <metaModifiers>
+    <metaModifier>
+      <names>
+	<name>1 BISSCHEN</name>
+	<name>1 WENIG</name>
+	<name>ETWAS</name>
+	<name>1 BISSERL</name>
+	<name>MARGINAL</name>
+      </names>
+      <factor>0.2</factor>
+    </metaModifier>
+    <metaModifier>
+      <names>
+	<name>VIEL</name>
+	<name>ORDENTLICH</name>
+	<name>SIGNIFIKANT</name>
+	<name>WESENTLICH</name>
+	<name>DEUTLICH</name>
+	<name>KOMPLETT</name>
+      </names>
+      <factor>2.0</factor>
+    </metaModifier>
+    <metaModifier>
+      <names>
+        <name>NICHT</name>
+        <name>AUSSER</name>
+        <name>KEINE</name>
+      </names>
+      <factor>-1</factor>
+    </metaModifier>
+  </metaModifiers>
+  
+  <commands>
+    <command>
+      <names>
+	<name>GÜNSTIGES</name>
+	<name>GÜNSTIGER</name>
+	<name>GÜNSTIGERE</name>
+	<name>GÜNSTIGERES</name>
+	<name>BILLIGE</name>
+	<name>BILLIGER</name>
+	<name>BILLIGERE</name>
+	<name>BILLIGERES</name>
+	<name>PREISWERTER</name>
+	<name>PREISWERTERE</name>
+	<name>PREISWERTERES</name>
+	<name>BESSEREN PREIS</name>
+	<name>BESSERER PREIS</name>
+	<name>ZU TEUER</name>
+      </names>
+      <actions>
+	<action>
+	<attribute>Preis (€)</attribute>
+	<relationship>SmallerThan</relationship>
+        </action>
+      </actions>
+    </command>
+    <command>
+      <names>
+	<name>WEITER</name>
+	<name>ALTERNATIVE</name>
+	<name>GEFÄLLT MIR.* NICHT</name>
+      </names>
+      <actions>
+	<action>
+	<attribute>Modell</attribute>
+	<relationship>Inequal</relationship>
+        </action>
+      </actions>
+    </command>
+    <command>
+      <names>
+	<name>ZU BILLIGE</name>
+	<name>ZU BILLIG</name>
+        <name>ZU GÜNSTIG</name>
+        <name>TEURER</name>
+        <name>TEUER</name>
+	<name>TEURERES</name>
+	<name>TEURERE</name>
+	<name>HOCHWERTIGER</name>
+	<name>HOCHWERTIGERE</name>
+	<name>HOCHWERTIGERES</name>
+	<name>HOCHWERTIGEREN</name>
+	<name>WERTIGEREN</name>
+	<name>WERTIGERE</name>
+	<name>WERTIGE</name>
+	<name>WERTIG</name>
+	<name>WERTIGEN</name>
+	<name>BESSERES</name>
+	<name>BESSERE</name>
+      </names>
+      <actions>
+	<action>
+	<attribute>Preis (€)</attribute>
+	<relationship>LargerThan</relationship>
+	</action>
+      </actions>
+    </command>
+    <command>
+      <names>
+	<name>ZIERLICHER</name>
+	<name>ZIERLICHERE</name>
+	<name>KOMPAKT</name>
+	<name>KOMPAKTE</name>
+	<name>KOMPAKTER</name>
+	<name>KOMPAKTERE</name>
+	<name>SCHMALERE</name>
+	<name>SCHMALER</name>
+	<name>SCHMALE</name>
+	<name>DÜNNE</name>
+	<name>DÜNNERE</name>
+	<name>DÜNNER</name>
+	<name>FLACHER</name>
+	<name>ZU RIESIG</name>
+	<name>ZU GROSS</name>
+	<name>ZU BREIT</name>
+	<name>ZU KLOBIG</name>
+	<name>ZU DICK</name>
+      </names>
+      <actions>
+	<action>
+	<attribute>Größe (BxHxT)</attribute>
+	<relationship>SmallerThan</relationship>
+	</action>
+      </actions>
+    </command>
+    <command>
+      <names>
+	<name>STABILER</name>
+	<name>STABILERE</name>
+	<name>BREITERE</name>
+	<name>BREITER</name>
+	<name>DICKERE</name>
+	<name>DICKER</name>
+	<name>ZU KLEIN</name>
+	<name>ZU KOMPAKT</name>
+	<name>ZU KOMPAKTE</name>
+	<name>ZU ZIERLICH</name>
+	<name>ZU DÜNN</name>
+	<name>ZU SCHMAL</name>
+	<name>KLOBIG</name>
+	<name>STABIL</name>
+      </names>
+      <actions>
+	<action>
+	<attribute>Größe (BxHxT)</attribute>
+	<relationship>LargerThan</relationship>
+	</action>
+      </actions>
+    </command>
+    <command>
+      <names>
+	<name>ZU LEICHT</name>
+	<name>SCHWER</name>
+	<name>SCHWERER</name>
+	<name>SCHWERERE</name>
+      </names>
+      <actions>
+	<action>
+	<attribute>Gewicht (Gramm)</attribute>
+	<relationship>LargerThan</relationship>
+	</action>
+      </actions>
+    </command>
+    <command>
+      <names>
+	<name>ZU SCHWER</name>
+	<name>LEICHT</name>
+	<name>LEICHTER</name>
+	<name>LEICHTERE</name>
+      </names>
+      <actions>
+	<action>
+	<attribute>Gewicht (Gramm)</attribute>
+	<relationship>SmallerThan</relationship>
+	</action>
+      </actions>
+    </command>
+    <command>
+      <names>
+        <name>(AgfaPhoto|BenQ|Canon|Casio|Fujifilm|Kodak|Leica|Nikon|Olympus|Panasonic|Pentax|Ricoh|Rollei|Sigma|Pentacon|Sony|Samsung|Sonstige)</name>
+      </names>
+      <actions>
+        <action>
+        <attribute>Hersteller</attribute>
+        <relationship>Equal</relationship>
+        </action>
+      </actions>
+    </command>
+    <command>
+      <names>
+        <name>(CCD|CMOS)</name>
+      </names>
+      <actions>
+        <action>
+        <attribute>Sensor Typ</attribute>
+        <relationship>Equal</relationship>
+        </action>
+      </actions>
+    </command>
+    <command>
+      <names>
+        <name>ZURÜCK</name>
+        <name>LÖSCHEN</name>
+        <name>LETZTE KAMERA</name>
+        <name>VORHERIGEN KAMERA</name>
+        <name>VORHERIGE KAMERA</name>
+        <name>VORIGEN KAMERA</name>
+        <name>VORIGE KAMERA</name>
+        <name>VORHERIGES MODELL</name>
+        <name>VORIGES MODELL</name>
+	<name>VERGISS DAS</name>
+	<name>VERGESSEN</name>
+	<name>DOCH NICHT</name>
+      </names>
+      <actions>
+	<action special="BACK" />
+      </actions>
+    </command>
+  </commands>
+</languageDefinition>

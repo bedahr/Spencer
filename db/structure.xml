@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="ISO-8859-15"?>
+<structure xsi:noNamespaceSchemaLocation="http://serendipity.ucd.ie/schema/structure_v1.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<case category="camera">
+                <feature nr="0">
+			<name>Hersteller</name>
+			<type>
+				<symbol>
+				</symbol>
+			</type>
+		</feature>
+                <feature nr="1">
+			<name>Modell</name>
+			<type>
+				<symbol>
+				</symbol>
+				
+			</type>
+		</feature>
+                <feature nr="2">
+			<name>Preis (€)</name>
+			<type>
+				<double>
+					<minInclusiveValue>1</minInclusiveValue>
+					<maxInclusiveValue>2928</maxInclusiveValue>
+				</double>
+			</type>
+		</feature>
+                <feature nr="3">
+			<name>Auflösung (Megapixel)</name>
+			<type>
+				<double>
+					<minInclusiveValue>0.3</minInclusiveValue>
+					<maxInclusiveValue>46</maxInclusiveValue>
+				</double>
+			</type>
+		</feature>
+                <feature nr="4">
+			<name>Optischer Zoom (X)</name>
+			<type>
+				<double>
+					<minInclusiveValue>1</minInclusiveValue>
+					<maxInclusiveValue>50</maxInclusiveValue>
+				</double>
+			</type>
+		</feature>
+                <feature nr="5" internal="true">
+			<name>Digitaler Zoom (X)</name>
+			<type>
+				<double>
+					<minInclusiveValue>1</minInclusiveValue>
+					<maxInclusiveValue>200</maxInclusiveValue>
+				</double>
+			</type>
+		</feature>
+                <feature nr="6">
+			<name>Gewicht (Gramm)</name>
+			<type>
+				<double>
+					<minInclusiveValue>63</minInclusiveValue>
+					<maxInclusiveValue>905</maxInclusiveValue>
+				</double>
+			</type>
+		</feature>
+                <feature nr="7" internal="true">
+			<name>Bild</name>
+			<type acceptOutOfVocab="true">
+				<symbol />
+			</type>
+		</feature>
+                <feature nr="8">
+			<name>Größe (BxHxT)</name>
+			<type>
+			  <compound separator="x" type="double">
+				<minInclusiveValue>0</minInclusiveValue>
+				<maxInclusiveValue>150</maxInclusiveValue>
+			  </compound>
+			</type>
+		</feature>
+                <feature nr="10">
+			<name>Sensor Typ</name>
+			<type>
+				<symbol />
+			</type>
+		</feature>
+                <feature nr="9">
+			<name>Sensor Größe (Zoll)</name>
+			<type>
+				<double>
+					<minInclusiveValue>0.31</minInclusiveValue>
+					<maxInclusiveValue>1.5</maxInclusiveValue>
+				</double>
+			</type>
+		</feature>
+                <feature nr="11" internal="true">
+			<name>Interner Speicher (MB)</name>
+			<type>
+				<double>
+					<minInclusiveValue>0</minInclusiveValue>
+					<maxInclusiveValue>10000</maxInclusiveValue>
+				</double>
+			</type>
+		</feature>
+                <feature nr="12" internal="true">
+			<name>Externer Speicher</name>
+			<type>
+				<symbol />
+			</type>
+		</feature>
+                <feature internal="true" nr="15">
+			<name>Rang</name>
+			<type>
+			  <double />
+			</type>
+		</feature>
+	</case>
+</structure>
