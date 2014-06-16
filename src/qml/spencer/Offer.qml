@@ -2,20 +2,7 @@ import QtQuick 2.2
 import QtMultimedia 5.0
 
 Item {
-    Audio {
-        id: bong
-        source: "/usr/share/sounds/warning.wav"
-    }
-    Audio {
-        id: bing
-        source: "/usr/share/sounds/info.wav"
-    }
-    Audio {
-        id: bang
-        source: "/usr/share/sounds/email.wav"
-    }
     function displayRecognizing() {
-        bong.play()
     }
 
     function recommend(title, image, attributes)

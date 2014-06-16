@@ -240,7 +240,10 @@ void Avatar::processQueue() {
     if (taskQueue.isEmpty()) {
         currentTaskDirectory = getTaskDirectory(AvatarTask(AvatarTask::Idle));
     } else {
-        currentTaskDirectory = getTaskDirectory(taskQueue.takeFirst());
+        AvatarTask task = taskQueue.takeFirst();
+        if (task.e == AvatarTask::Intro)
+            QTimer::singleShot(25500, Qt::CoarseTimer, this, SLOT(minimizeAvatar()));
+        currentTaskDirectory = getTaskDirectory(task);
     }
     audioPlayer->setMedia(QUrl::fromLocalFile(currentTaskDirectory+"/audio.wav"));
     audioPlayer->play();
@@ -262,6 +265,16 @@ void Avatar::updateAvatar()
         imageCache.insert(imageSrc, img);
         mediaPlayer->present(*img);
     }
+}
+
+void Avatar::maximizeAvatar()
+{
+    QMetaObject::invokeMethod(ui, "maximize");
+}
+
+void Avatar::minimizeAvatar()
+{
+    QMetaObject::invokeMethod(ui, "minimize");
 }
 
 void Avatar::mediaStatusChanged(QMediaPlayer::MediaStatus status) {

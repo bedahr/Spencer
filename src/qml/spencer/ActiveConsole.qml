@@ -5,6 +5,11 @@ AnimatedItem {
     property string mode
 
     Avatar {
+        state : "minimized"
+    }
+
+    Offer {
         anchors.fill: parent
     }
+
 }

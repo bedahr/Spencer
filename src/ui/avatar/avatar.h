@@ -48,6 +48,8 @@ private:
 private slots:
     void updateAvatar();
     void mediaStatusChanged(QMediaPlayer::MediaStatus status);
+    void maximizeAvatar();
+    void minimizeAvatar();
 
 };
 

@@ -32,5 +32,6 @@ void DialogManager::greet()
 {
     qDebug() << "Greeting";
     //emit elicit(AvatarTask(AvatarTask::Intro), true);
-    emit elicit(AvatarTask(AvatarTask::Custom, "Das ist jetzt ja aber wirklich einmal eine positive Überraschung. So schlecht sieht das nämlich gar nicht aus, oder?"), true);
+    //emit elicit(AvatarTask(AvatarTask::Custom, "Das ist jetzt ja aber wirklich einmal eine positive Überraschung. So schlecht sieht das nämlich gar nicht aus, oder?"), true);
+    //emit elicit(AvatarTask(AvatarTask::Custom, "Hallo du Ei"), true);
 }
