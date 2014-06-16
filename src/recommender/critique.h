@@ -1,7 +1,7 @@
 #ifndef CRITIQUE_H
 #define CRITIQUE_H
 
-#include "relationship.h"
+#include "domainbase/relationship.h"
 
 class Offer;
 

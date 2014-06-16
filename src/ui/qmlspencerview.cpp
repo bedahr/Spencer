@@ -20,9 +20,9 @@
 #include "qmlspencerview.h"
 #include "settings.h"
 #include "spencer.h"
-#include "recommender/offer.h"
+#include "domainbase/offer.h"
+#include "domainbase/attributemodel.h"
 #include "ui/avatar/avatar.h"
-#include "recommender/attributemodel.h"
 #include <QMediaPlayer>
 #include <QMediaObject>
 #include <QQuickImageProvider>

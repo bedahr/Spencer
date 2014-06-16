@@ -2,7 +2,7 @@
  *   Copyright (C) 2011-2013 Peter Grasch <me@bedahr.org>
  *
  *   This program is free software; you can redistribute it and/or modify
- *   it under the terms of the GNU General Public License version 2,
+ *   it under the terms of the GNU `neral Public License version 2,
  *   or (at your option) any later version, as published by the Free
  *   Software Foundation
  *

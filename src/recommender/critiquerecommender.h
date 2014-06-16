@@ -2,7 +2,7 @@
 #define CRITIQUERECOMMENDER_H
 
 #include "critique.h"
-#include "offer.h"
+#include "domainbase/offer.h"
 
 class CritiqueRecommender : public QObject
 {

@@ -6,12 +6,10 @@
 
 class CritiqueRecommender;
 class Offer;
-class AttributeFactory;
 class Relationship;
 class Offer;
-class Token;
-class ModifierToken;
-class AttributeToken;
+class AttributeFactory;
+class NLU;
 
 class Spencer : public QObject
 {
@@ -24,7 +22,10 @@ signals:
 public:
     explicit Spencer(QObject *parent = 0);
     ~Spencer();
-    AttributeFactory* getAttributeFactory() const;
+
+    AttributeFactory* getAttributeFactory() const {
+        return m_attributeFactory;
+    }
 
 public slots:
     /// Initialize spencer
@@ -37,23 +38,15 @@ public slots:
     QString critique(const QString& command);
 
 private:
-    CritiqueRecommender *m_recommender;
     AttributeFactory *m_attributeFactory;
-    QList<Token*> m_acceptedTokens;
+    NLU *m_nlu;
+    CritiqueRecommender *m_recommender;
     const Offer *m_currentRecommendation;
 
     /// parses the database of offers from the given casebase XML file
     /// and returns the list of found offers; if an error occured,
     /// *okay will be set to false
     QList<Offer*> parseCasebase(const QString& path, const QString& imageBasePath, bool* okay) const;
-
-    /// Reads the given nlp.xml to build the internal
-    /// representation of the target language
-    bool setupLanguage(const QString& path);
-
-    Relationship* buildRelationship(const Offer *offer, const AttributeToken* attributeToken,
-                                    const QString &attributeValue,
-                                    const ModifierToken* modifierToken, double modifierFactor) const;
 
 
 private slots:

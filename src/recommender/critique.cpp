@@ -1,5 +1,5 @@
 #include "critique.h"
-#include "offer.h"
+#include "domainbase/offer.h"
 
 Critique::~Critique()
 {

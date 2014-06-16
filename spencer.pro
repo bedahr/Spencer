@@ -26,45 +26,53 @@ OTHER_FILES += \
 SOURCES += src/main.cpp \
         src/spencer.cpp \
         src/spencersettings.cpp \
-        src/recommender/numericalattribute.cpp \
-        src/recommender/stringattribute.cpp \
-        src/recommender/relationship.cpp \
-        src/recommender/critique.cpp \
-        src/recommender/offer.cpp \
-        src/recommender/valueattribute.cpp \
+        src/domainbase/numericalattribute.cpp \
+        src/domainbase/stringattribute.cpp \
+        src/domainbase/relationship.cpp \
+        src/domainbase/offer.cpp \
+        src/domainbase/valueattribute.cpp \
+        src/domainbase/attributemodel.cpp \
+        src/domainbase/attributefactory.cpp \
+        src/domainbase/compoundattribute.cpp \
+        src/domainbase/attribute.cpp \
         src/recommender/critiquerecommender.cpp \
-        src/recommender/attributemodel.cpp \
-        src/recommender/attributefactory.cpp \
-        src/recommender/compoundattribute.cpp \
-        src/recommender/attribute.cpp \
+        src/recommender/critique.cpp \
         src/dialogmanager/dialogmanager.cpp \
         src/ui/spencerview.cpp \
         src/ui/qmlspencerview.cpp \
         src/ui/avatar/avatar.cpp \
         src/ui/avatar/avatartask.cpp \
-        src/ui/avatar/player.cpp
+        src/ui/avatar/player.cpp \
+        src/nlu/nlu.cpp \
+        src/nlu/statement.cpp \
+        src/nlu/commandstatement.cpp \
+        src/nlu/constraintstatement.cpp
 
 HEADERS += \
         src/spencer.h \
         src/spencersettings.h \
-        src/recommender/attribute.h \
-        src/recommender/numericalattribute.h \
-        src/recommender/stringattribute.h \
-        src/recommender/relationship.h \
+        src/domainbase/attribute.h \
+        src/domainbase/numericalattribute.h \
+        src/domainbase/stringattribute.h \
+        src/domainbase/relationship.h \
+        src/domainbase/offer.h \
+        src/domainbase/valueattribute.h \
+        src/domainbase/attributemodel.h \
+        src/domainbase/attributefactory.h \
+        src/domainbase/compoundattribute.h \
+        src/domainbase/attributecreators.h \
         src/recommender/critique.h \
-        src/recommender/offer.h \
-        src/recommender/valueattribute.h \
         src/recommender/critiquerecommender.h \
-        src/recommender/attributemodel.h \
-        src/recommender/attributefactory.h \
-        src/recommender/compoundattribute.h \
-        src/recommender/attributecreators.h \
         src/dialogmanager/dialogmanager.h \
         src/ui/spencerview.h \
-        src/ui/qmlspencerview.h \ 
+        src/ui/qmlspencerview.h \
         src/ui/avatar/avatar.h \
         src/ui/avatar/avatartask.h \
-        src/ui/avatar/player.h
+        src/ui/avatar/player.h \
+        src/nlu/nlu.h \
+        src/nlu/statement.h \
+        src/nlu/commandstatement.h \
+        src/nlu/constraintstatement.h
 
 
 INCLUDEPATH += ../BBSimoneShared $${BBSIMONECOMMONIPATH} src/
