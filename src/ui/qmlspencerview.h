@@ -27,7 +27,6 @@
 class QQuickView;
 class Spencer;
 class QMLSpencerImageProvider;
-class AttributeModel;
 class Avatar;
 
 class QMLSpencerView : public SpencerView
@@ -64,14 +63,12 @@ public slots:
     void resumeUpdates();
 
     void displayRecommendation(const Offer* offer, const QString &explanation);
-    void displayNoMatch(const QString& description);
 
     void actOut(const AvatarTask& avatarTask, bool immediately);
 
 private:
     QQuickView *viewer;
     QMLSpencerImageProvider *viewerImageCache;
-    AttributeModel *attributeModel;
     ConnectionState state;
     bool skipNonEssentialUIUpdates;
 

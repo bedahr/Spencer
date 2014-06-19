@@ -4,6 +4,7 @@ Item {
     id: outerText
     property alias text: primaryText.text
     property alias font: primaryText.font
+    property alias horizontalAlignment : primaryText.horizontalAlignment
 
     property string targetText : ""
     height: primaryText.height
@@ -45,5 +46,7 @@ Item {
 
     Text {
         id: primaryText
+        anchors.left: parent.left
+        anchors.right: parent.right
     }
 }

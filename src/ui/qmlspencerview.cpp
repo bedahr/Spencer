@@ -74,7 +74,6 @@ QMLSpencerView::QMLSpencerView(Spencer *spencer, bool voiceControlled, QObject *
     SpencerView(voiceControlled, parent),
     viewer(new QQuickView()),
     viewerImageCache(new QMLSpencerImageProvider),
-    attributeModel(new AttributeModel(spencer->getAttributeFactory(), this)),
     state(Unconnected),
     skipNonEssentialUIUpdates(false)
 {
@@ -82,7 +81,6 @@ QMLSpencerView::QMLSpencerView(Spencer *spencer, bool voiceControlled, QObject *
     //viewer->setOrientation(QmlApplicationViewer::ScreenOrientationAuto);
     viewer->rootContext()->setContextProperty("spencerView", this);
     viewer->rootContext()->setContextProperty("spencer", spencer);
-    viewer->rootContext()->setContextProperty("attributeModel", attributeModel);
     viewer->rootContext()->setContextProperty("avatarPlayer", avatar->getPlayer());
     viewer->setSource(QUrl::fromLocalFile("app/native/res/qml/spencer/main.qml"));
     viewer->engine()->addImageProvider(QLatin1String("SpencerImages"), viewerImageCache);
@@ -100,7 +98,6 @@ QMLSpencerView::QMLSpencerView(Spencer *spencer, bool voiceControlled, QObject *
 QMLSpencerView::~QMLSpencerView()
 {
     delete viewer;
-    delete attributeModel;
     //delete viewerImageCache; deleted by engine
 }
 
@@ -287,27 +284,43 @@ QObject* QMLSpencerView::speakLabel()
 void QMLSpencerView::displayRecommendation(const Offer* offer, const QString& explanation)
 {
     //qDebug() << "Displaying recommendation";
-    static QString oldId;
-    if (!oldId.isNull()) {
+    static QStringList oldIds;
+    foreach (const QString& oldId, oldIds) {
         //qDebug() << "Removing: " << oldId;
         viewerImageCache->remove(oldId);
     }
 
-    oldId = viewerImageCache->add(offer->getImage());
-    qDebug() << oldId;
-    attributeModel->setAttributes(offer->getAttributeNames(), offer->getAttributes());
-    //QVariantMap attributes;
-    //foreach (const QString& key, offer.getAttributes().keys())
-      //  attributes.insert(key, offer.getAttribute(key)->toString());
-    /*
+    oldIds.clear();
+
+    QStringList cachedImageSrcs;
+
+    foreach (const QString& imageSrc, offer->getImages()) {
+        QString imageCachePath = viewerImageCache->add(QPixmap(imageSrc));
+        cachedImageSrcs << QLatin1String("image://SpencerImages/") + imageCachePath;
+        oldIds.append(imageCachePath);
+    }
+
+    QVariantList labels;
+    QVariantList attributes;
+    foreach (const QString& key, offer->getRecords().keys()) {
+        Record r(offer->getRecord(key));
+        if (r.second->getInternal())
+            continue;
+        labels << r.first;
+        attributes << r.second->toString();
+    }
+
+    qDebug() << "This sentiment: " << offer->getUserSentiment();
+
     QMetaObject::invokeMethod(viewer->rootObject()->findChild<QObject*>("currentRecommendation"),
                               "recommend",
                               Q_ARG(QVariant, QVariant::fromValue(offer->getName())),
-                              Q_ARG(QVariant,
-                                    QVariant::fromValue(QLatin1String("image://SpencerImages/")+oldId)),
-                              Q_ARG(QVariant, QVariant::fromValue(attributeModel))
+                              Q_ARG(QVariant, QVariant::fromValue(offer->getPrice())),
+                              Q_ARG(QVariant, QVariant::fromValue(cachedImageSrcs)),
+                              Q_ARG(QVariant, QVariant::fromValue(labels)),
+                              Q_ARG(QVariant, QVariant::fromValue(attributes))
                               );
-                              */
+
     displayExecutedAction(explanation);
 }
 
@@ -316,10 +329,4 @@ void QMLSpencerView::actOut(const AvatarTask& avatarTask, bool immediately)
     if (immediately)
         avatar->interrupt();
     avatar->queue(avatarTask);
-}
-
-void QMLSpencerView::displayNoMatch(const QString& description)
-{
-    //QMetaObject::invokeMethod(viewer->rootObject()->findChild<QObject*>("noMatchDialog"),
-    //                          "show", Q_ARG(QVariant, description));
 }

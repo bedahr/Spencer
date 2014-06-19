@@ -37,44 +37,41 @@ int main(int argc, char *argv[])
     else
         connector = 0;
 
-    Spencer spencer;
-    DialogManager dialogManager;
-    QMLSpencerView view(&spencer, voiceControlled);
+    Spencer* spencer = new Spencer;
+    QMLSpencerView* view = new QMLSpencerView(spencer, voiceControlled);
 
     if (voiceControlled) {
-        QObject::connect(&view, SIGNAL(connectToServer()), connector, SLOT(connectToServer()));
-        QObject::connect(&view, SIGNAL(disconnectFromServer()), connector, SLOT(disconnectFromServer()));
-        QObject::connect(&view, SIGNAL(startRecording()), connector, SLOT(startRecording()));
-        QObject::connect(&view, SIGNAL(commitRecording()), connector, SLOT(commitRecording()));
-        QObject::connect(&view, SIGNAL(configurationChanged()), connector, SLOT(configurationChanged()));
+        QObject::connect(view, SIGNAL(connectToServer()), connector, SLOT(connectToServer()));
+        QObject::connect(view, SIGNAL(disconnectFromServer()), connector, SLOT(disconnectFromServer()));
+        QObject::connect(view, SIGNAL(startRecording()), connector, SLOT(startRecording()));
+        QObject::connect(view, SIGNAL(commitRecording()), connector, SLOT(commitRecording()));
+        QObject::connect(view, SIGNAL(configurationChanged()), connector, SLOT(configurationChanged()));
 
-        QObject::connect(connector, SIGNAL(connectionState(ConnectionState)), &view, SLOT(displayConnectionState(ConnectionState)));
-        QObject::connect(connector, SIGNAL(status(QString)), &view, SLOT(displayStatus(QString)));
-        QObject::connect(connector, SIGNAL(error(QString)), &view, SLOT(displayError(QString)));
-        QObject::connect(connector, SIGNAL(listening()), &view, SLOT(displayListening()));
-        QObject::connect(connector, SIGNAL(recognizing()), &view, SLOT(displayRecognizing()));
-        QObject::connect(connector, SIGNAL(microphoneLevel(int,int,int)), &view, SLOT(displayMicrophoneLevel(int,int,int)));
-        //QObject::connect(connector, SIGNAL(recognized(QString)), &view, SLOT(displayExecutedAction(QString)));
+        QObject::connect(connector, SIGNAL(connectionState(ConnectionState)), view, SLOT(displayConnectionState(ConnectionState)));
+        QObject::connect(connector, SIGNAL(status(QString)), view, SLOT(displayStatus(QString)));
+        QObject::connect(connector, SIGNAL(error(QString)), view, SLOT(displayError(QString)));
+        QObject::connect(connector, SIGNAL(listening()), view, SLOT(displayListening()));
+        QObject::connect(connector, SIGNAL(recognizing()), view, SLOT(displayRecognizing()));
+        QObject::connect(connector, SIGNAL(microphoneLevel(int,int,int)), view, SLOT(displayMicrophoneLevel(int,int,int)));
+        //QObject::connect(connector, SIGNAL(recognized(QString)), view, SLOT(displayExecutedAction(QString)));
     }
 
-    QObject::connect(connector, SIGNAL(recognized(QString)), &dialogManager, SLOT(userInput(QString)));
-    QObject::connect(&dialogManager, SIGNAL(elicit(AvatarTask, bool)), &view, SLOT(actOut(AvatarTask, bool)));
+    QObject::connect(connector, SIGNAL(recognized(QString)), spencer, SLOT(userInput(QString)));
+    QObject::connect(spencer, SIGNAL(elicit(AvatarTask, bool)), view, SLOT(actOut(AvatarTask, bool)));
 
-    //QObject::connect(connector, SIGNAL(recognized(QString)), &spencer, SLOT(critique(QString)));
+    QObject::connect(spencer, SIGNAL(recommend(const Offer*, QString)), view, SLOT(displayRecommendation(const Offer*, QString)));
 
-    QObject::connect(&spencer, SIGNAL(recommend(const Offer*, QString)), &view, SLOT(displayRecommendation(const Offer*, QString)));
-    QObject::connect(&spencer, SIGNAL(noMatchFor(QString)), &view, SLOT(displayNoMatch(QString)));
-
-    view.show();
+    view->show();
     if (voiceControlled)
         connector->init();
-    if (!spencer.init()) {
+    if (!spencer->init()) {
         qWarning() << "Failed to initialize Spencer; Aborting";
         return -1;
     }
-    dialogManager.init();
 
     int ret = app.exec();
+    delete spencer;
+    delete view;
     delete connector;
     return ret;
 }

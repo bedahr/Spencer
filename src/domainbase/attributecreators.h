@@ -2,8 +2,11 @@
 #define ATTRIBUTECREATORS_H
 #include "numericalattribute.h"
 #include "stringattribute.h"
+#include "booleanattribute.h"
 #include "compoundattribute.h"
+#include "listattribute.h"
 #include <QStringList>
+#include <QVariantList>
 
 class AttributeCreator
 {
@@ -19,9 +22,9 @@ protected:
 class NumericalAttributeCreator : public AttributeCreator
 {
 public:
-    NumericalAttributeCreator(bool internal, bool minSet, double min, bool maxSet, double max) :
+    NumericalAttributeCreator(bool internal, const QString& format, double multiplier) :
         AttributeCreator(internal),
-        m_minSet(minSet), m_min(min), m_maxSet(maxSet), m_max(max)
+        m_format(format), m_multiplier(multiplier)
     {}
 
     virtual QSharedPointer<Attribute> getAttribute(const QVariant& data) const {
@@ -53,21 +56,15 @@ public:
             value = data.toDouble();
             okay = true;
         }
+        value *= m_multiplier;
 
-        return (okay) ? QSharedPointer<NumericalAttribute>(new NumericalAttribute(m_internal, value, m_minSet, m_min, m_maxSet, m_max)) : QSharedPointer<NumericalAttribute>();
+        return (okay) ? QSharedPointer<NumericalAttribute>(new NumericalAttribute(m_internal, value, m_format)) : QSharedPointer<NumericalAttribute>();
     }
 
-    bool getMinSet() const { return m_minSet; }
-    bool getMaxSet() const { return m_maxSet; }
-    double getMin() const { return m_min; }
-    double getMax() const { return m_max; }
 
 protected:
-    bool m_minSet;
-    double m_min;
-
-    bool m_maxSet;
-    double m_max;
+    QString m_format;
+    double m_multiplier;
 };
 
 class StringAttributeCreator : public AttributeCreator
@@ -84,16 +81,29 @@ public:
     }
 };
 
+class BooleanAttributeCreator : public AttributeCreator
+{
+public:
+    BooleanAttributeCreator(bool internal) :
+        AttributeCreator(internal)
+    {}
+
+    virtual QSharedPointer<Attribute> getAttribute(const QVariant& data) const {
+        if (!data.canConvert(QVariant::Bool)) {
+            qDebug() << "Can not convert to bool: " << data.toString();
+            return QSharedPointer<Attribute>();
+        }
+        return QSharedPointer<Attribute>(new BooleanAttribute(m_internal, data.toBool()));
+    }
+};
+
+
 class CompoundAttributeCreator : public AttributeCreator
 {
 public:
-    CompoundAttributeCreator(bool internal, bool minSet, double min, bool maxSet, double max, const QString& separator, const QString& type) :
-        AttributeCreator(internal), m_separator(separator), m_type(type)
+    CompoundAttributeCreator(bool internal, const QString& separator, AttributeCreator* childCreator) :
+        AttributeCreator(internal), m_separator(separator), m_childCreator(childCreator)
     {
-        if (m_type == "double")
-            m_childCreator = new NumericalAttributeCreator(true, minSet, min, maxSet, max);
-        else if (m_type == "symbol")
-            m_childCreator = new StringAttributeCreator(true);
     }
     ~CompoundAttributeCreator() {
         delete m_childCreator;
@@ -103,40 +113,52 @@ public:
         if (!data.canConvert(QVariant::String) || !m_childCreator)
             return QSharedPointer<Attribute>();
         QList<QSharedPointer<Attribute> > childCommands;
+        Relationship::Type relationships;
         foreach (const QString& childCommandString, data.toString().split(m_separator)) {
             QSharedPointer<Attribute> child = m_childCreator->getAttribute(childCommandString);
             if (!child)
                 return QSharedPointer<Attribute>();
             childCommands.append(child);
+            relationships |= child->getDefinedFor();
         }
         // build
-        return QSharedPointer<Attribute>(new CompoundAttribute(m_internal, m_separator, m_type, childCommands));
+        return QSharedPointer<Attribute>(new CompoundAttribute(m_internal, m_separator, relationships, childCommands));
     }
 
-    bool getMinSet() const {
-        NumericalAttributeCreator *num = dynamic_cast<NumericalAttributeCreator*>(m_childCreator);
-        if (num) return num->getMinSet();
-        return false;
+private:
+    QString m_separator;
+    AttributeCreator *m_childCreator;
+};
+
+
+class ListAttributeCreator : public AttributeCreator
+{
+public:
+    ListAttributeCreator(bool internal, QList<AttributeCreator *> childCreators) :
+        AttributeCreator(internal), m_childCreators(childCreators)
+    {
     }
-    bool getMaxSet() const {
-        NumericalAttributeCreator *num = dynamic_cast<NumericalAttributeCreator*>(m_childCreator);
-        if (num) return num->getMaxSet();
-        return false;
+    ~ListAttributeCreator() {
+        qDeleteAll(m_childCreators);
     }
-    double getMin() const {
-        NumericalAttributeCreator *num = dynamic_cast<NumericalAttributeCreator*>(m_childCreator);
-        if (num) return num->getMin();
-        return 0;
-    }
-    double getMax() const {
-        NumericalAttributeCreator *num = dynamic_cast<NumericalAttributeCreator*>(m_childCreator);
-        if (num) return num->getMax();
-        return 0;
+
+    virtual QSharedPointer<Attribute> getAttribute(const QVariant& data) const {
+        if (!data.canConvert<QVariantList>() || m_childCreators.contains(0))
+            return QSharedPointer<Attribute>();
+        QVariantList childDescriptions = data.value<QVariantList>();
+        if (childDescriptions.size() % m_childCreators.size() != 0)
+            return QSharedPointer<Attribute>();
+
+        QList<QSharedPointer<Attribute> > childCommands;
+        int i = 0;
+        foreach (const QVariant& data, childDescriptions) {
+            childCommands << m_childCreators[i % m_childCreators.count()]->getAttribute(data);
+            ++i;
+        }
+        return QSharedPointer<Attribute>(new ListAttribute(m_internal, childCommands));
     }
 private:
-    AttributeCreator *m_childCreator;
-    QString m_separator;
-    QString m_type;
+    QList<AttributeCreator *> m_childCreators;
 };
 
 

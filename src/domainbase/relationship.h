@@ -19,8 +19,8 @@ public:
     };
     Q_DECLARE_FLAGS(Type, TypeE)
 
-    Relationship(const QString& name, Type type, QSharedPointer<Attribute> attribute, double modifierFactor=1.0) :
-        m_name(name), m_type(type), m_attribute(attribute), m_modifierFactor(modifierFactor)
+    Relationship(const QString& id, Type type, QSharedPointer<Attribute> attribute, double modifierFactor=1.0) :
+        m_id(id), m_type(type), m_attribute(attribute), m_modifierFactor(modifierFactor)
     {}
 
     QString toString() const;
@@ -34,8 +34,8 @@ public:
     virtual ~Relationship() {}
 
 protected:
-    /// attribute name
-    QString m_name;
+    /// attribute id
+    QString m_id;
 
     /// type of this relationship
     Type m_type;

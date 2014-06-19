@@ -1,4 +1,6 @@
 #include "critiquerecommender.h"
+#include "appliedcritique.h"
+#include "recommendation.h"
 #include "float.h"
 #include <limits>
 #include <QDebug>
@@ -17,7 +19,6 @@ void CritiqueRecommender::init()
 {
     qDeleteAll(m_critiques);
     m_critiques.clear();
-    suggestOffer();
 }
 
 bool CritiqueRecommender::critique(Critique* critique)
@@ -76,7 +77,6 @@ void CritiqueRecommender::undo()
              ++i;
         }
     }
-    suggestOffer();
 }
 
 void CritiqueRecommender::feedbackCycleComplete()
@@ -90,25 +90,25 @@ void CritiqueRecommender::feedbackCycleComplete()
         } else
             ++i;
     }
-    suggestOffer();
 }
 
-void CritiqueRecommender::suggestOffer() const
+Recommendation* CritiqueRecommender::suggestOffer() const
 {
     // apply m_critiques to m_offers to find best offer
     const Offer* bestOffer = 0;
     float bestUtility = -std::numeric_limits<float>::max();
+    QList<AppliedCritique> bestOfferExplanations;
 
     //qDebug() << "Complete db: ";
     //foreach (Critique *c, m_critiques)
     //    qDebug() << c->getDescription();
 
-    // at least one of the last given constraint(s) *must* be matched for
-    // the product to be considered in this iteration
     QList<Offer*> consideredProducts;
 
     QString explanation;
     int currentAge = INT_MAX;
+    //build "considered Products" that are all the products, that match at least one of
+    // the constraints added in the last critiquing round
     for (int i = m_critiques.count() - 1; (i >= 0) && (m_critiques[i]->getAge() <= currentAge); --i) {
         Critique *c = m_critiques[i];
         if (c->getIsInternal())
@@ -123,24 +123,36 @@ void CritiqueRecommender::suggestOffer() const
         }
     }
 
+    // out of consideredProducts (or the whole set, if we have none of those)
+    // select the one offer with the highest combined utility
     foreach (const Offer* o, (currentAge == INT_MAX) ? m_offers : consideredProducts) {
         double thisUtility = o->priorPropability();
-        foreach (const Critique* c, m_critiques)
-            thisUtility += c->utility(*o);
+        QList<AppliedCritique> thisExplanations;
+        foreach (const Critique* c, m_critiques) {
+            AppliedCritique ac(c, *o);
+            thisExplanations << ac;
+            thisUtility += ac.utility();
+        }
 
         //qDebug() << "Offer " << o->getName() << thisUtility;
 
         if (thisUtility > bestUtility ||
                 ((thisUtility == bestUtility) &&
                  //prefer cheaper models
-                 (bestOffer->getAttribute(QString::fromUtf8("Preis (€)"))->distance(*o->getAttribute(QString::fromUtf8("Preis (€)"))) < 0))) {
+                 (bestOffer->getPrice() > o->getPrice()))) {
             bestUtility = thisUtility;
+            bestOfferExplanations = thisExplanations;
             bestOffer = o;
         }
     }
 
     if (bestOffer) {
         qDebug() << "Recommending " << bestOffer->getName() << bestUtility;
-        emit recommend(bestOffer, explanation.trimmed());
-    }
+        double overallScore = bestUtility / (m_critiques.size() + 1.0);
+        //emit recommend(bestOffer, explanation.trimmed());
+        return new Recommendation(bestOffer, overallScore, bestOfferExplanations);
+    } else
+        qWarning() << "No best offer!";
+
+    return 0;
 }

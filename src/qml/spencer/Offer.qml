@@ -1,27 +1,64 @@
 import QtQuick 2.2
 import QtMultimedia 5.0
+import "AttributeDisplay.js" as AttrDisplay
 
 Item {
+    id: offer
+
+    property int currentImageIndex : 0
+    property variant currentImages : []
+    anchors.margins: 30
+
+    Timer {
+        id: imageCycleTimer
+        interval: 2000; running: true; repeat: true
+        onTriggered: updatePicture()
+    }
+
     function displayRecognizing() {
     }
 
-    function recommend(title, image, attributes)
-    {
-        if (title === teName.text)
-            bang.play()
-        else
-            bing.play()
-        teName.changeText(title)
-        aiDetails.state = "hidden"
+    function updatePicture() {
+        if (currentImageIndex > currentImages.length) {
+            return;
+        }
 
         imImageFader.source = imImage.source
         imImageFader.opacity = 1
         imImage.opacity = 0
-        imImage.source = image
+        imImage.source = currentImages[currentImageIndex]
         naFadeImages.start()
+        currentImageIndex = (currentImageIndex+1) % currentImages.length
 
-        //TODO: nice animation
-        attributeDisplay.model = attributeModel
+    }
+
+    Component.onCompleted: console.log(" ready for creating dynamics]");
+    /*
+
+    QMetaObject::invokeMethod(viewer->rootObject()->findChild<QObject*>("currentRecommendation"),
+                              "recommend",
+                              Q_ARG(QVariant, QVariant::fromValue(offer->getName())),
+                              Q_ARG(QVariant, QVariant::fromValue(offer->getPrice())),
+                              Q_ARG(QVariant,
+                                    QVariant::fromValue(QLatin1String("image://SpencerImages/"))),
+                              Q_ARG(QVariant, oldIds)),
+                              Q_ARG(QVariant, QVariant::fromValue(offer->getRecords()))*/
+    function recommend(title, price, images, labels, attributes)
+    {
+        imageCycleTimer.stop()
+        teName.changeText(title)
+        tePrice.changeText("€ " + price)
+
+        aiDetails.state = "hidden"
+
+        for (var i = 0; i < labels.length; ++i) {
+            AttrDisplay.createDetails(coDetails, labels[i], attributes[i])
+
+        }
+
+        currentImages = images
+        updatePicture()
+        imageCycleTimer.start()
     }
     ParallelAnimation {
         id: naFadeImages
@@ -52,8 +89,8 @@ Item {
         id: imImage
         anchors.top: parent.top
         anchors.right: parent.right
-        width: 256
-        height: 256
+        width: 347
+        height: 347
         smooth: true
         fillMode: Image.PreserveAspectFit
         z: 5
@@ -73,12 +110,23 @@ Item {
 
     AnimatedText {
         id: teName
-        font.pointSize: 18
+        font.pointSize: 20
         text: ""
         anchors.left: parent.left
         anchors.right: imImage.left
         anchors.rightMargin: 20
         anchors.top: parent.top
+    }
+
+    AnimatedText {
+        id: tePrice
+        font.pointSize: 20
+        anchors.top: imImage.bottom
+        anchors.left: imImage.left
+        anchors.right: imImage.right
+        anchors.topMargin: 10
+        horizontalAlignment: Text.AlignHCenter
+
     }
 
 
@@ -91,12 +139,22 @@ Item {
             right: teName.right
             bottom: parent.bottom
         }
+        Flickable {
+            anchors.fill : parent
+            contentHeight: coDetails.height
+            Column {
+                id: coDetails
+                spacing: 5
+            }
+        }
+
+        /*
         ListView {
             id: attributeDisplay
             anchors.fill: parent
 
             delegate: AttributeDelegate {}
-        }
+        } */
     }
 
 }

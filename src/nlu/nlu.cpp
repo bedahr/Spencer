@@ -28,7 +28,7 @@ if (x) { \
 #define FINALIZE_PENDING_ATTRIBUTE(x)  \
 if (x) { \
     if (!matchedAttributeForPendingAttribute.isEmpty() && x) { \
-        QSharedPointer<Attribute> attribute = m_attributeFactory->getAttribute(x->getTarget(), matchedAttributeForPendingAttribute); \
+        QSharedPointer<Attribute> attribute = m_attributeFactory->getAttribute(x->getTarget(), matchedAttributeForPendingAttribute).second; \
         if (!attribute.isNull()) {\
     qDebug() << "Adding relationship based on pending attribute" << x->getNames().first().pattern(); \
             relationships << new Relationship(x->getTarget(), Relationship::Equality, attribute, factor); \
@@ -198,35 +198,36 @@ Relationship* NLU::buildRelationship(const Offer *offer,
         qWarning() << "Incomplete type" << attributeToken->getNames().first().pattern() << attributeValue;
         return 0;
     }
-    QString attributeName;
+    QString attributeId;
     if (attributeToken)
-        attributeName = attributeToken->getTarget();
+        attributeId = attributeToken->getTarget();
     else if (!modifierToken->getDefaultTarget().isEmpty()) {
         // "Modifier has a default attribute, so let's create that one if possible";
-        attributeName = modifierToken->getDefaultTarget();
+        attributeId = modifierToken->getDefaultTarget();
     } else
         qDebug() << "No attribute and empty default target";
 
-    if (attributeName.isEmpty()) {
+    if (attributeId.isEmpty()) {
         qWarning() << "Invalid target attribute" << modifierToken->getNames().first().pattern();
         return 0;
     }
 
     QSharedPointer<Attribute> attribute;
     if (attributeValue.isNull())
-        attribute = offer->getAttribute(attributeName);
+        attribute = offer->getRecord(attributeId).second;
     else {
         qDebug() << "Attribute value: " << attributeValue;
-        attribute = m_attributeFactory->getAttribute(attributeName, attributeValue);
+        Record r = m_attributeFactory->getAttribute(attributeId, attributeValue);
+        attribute = r.second;
         qDebug() << "Got attribute value: " << attribute->toString();
     }
     if (!attribute) {
-        qWarning() << "Offer has no attribute " << attributeName;
+        qWarning() << "Offer has no attribute " << attributeId;
         return 0;
     }
 
     Relationship::Type relationshipType = getRelationshipType(modifierToken->getRelationship());
-    return new Relationship(attributeName, relationshipType, attribute, modifierFactor);
+    return new Relationship(attributeId, relationshipType, attribute, modifierFactor);
 }
 
 
@@ -367,9 +368,9 @@ QList<Statement*> NLU::interpret(const Offer *currentRecommendation, const QStri
 
                         QSharedPointer<Attribute> attribute;
                         if (!matchedAttribute.isEmpty())
-                            attribute = m_attributeFactory->getAttribute(a.m_on, matchedAttribute);
+                            attribute = m_attributeFactory->getAttribute(a.m_on, matchedAttribute).second;
                         else
-                            attribute = currentRecommendation->getAttribute(a.m_on);
+                            attribute = currentRecommendation->getRecord(a.m_on).second;
                         if (!attribute) {
                             qWarning() << "Offer has no attribute " << a.m_on;
                             continue;

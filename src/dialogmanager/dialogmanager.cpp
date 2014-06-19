@@ -1,4 +1,7 @@
 #include "dialogmanager.h"
+#include "nlu/statement.h"
+#include "recommender/critiquerecommender.h"
+#include "recommender/recommendation.h"
 #include <QDebug>
 
 /*
@@ -6,7 +9,52 @@
  * TODO
  */
 
-DialogManager::DialogManager()
+/*
+ * Potentials:
+    Display Birghtness
+    Display Size
+    Viewing Angles
+    Display-Resolution
+    Picture Quality
+    Display
+    Main Memory
+    Processor
+    Graphics Card
+    Speed
+    Ports
+    Touchscreen
+    Mouse
+    Keyboard
+    Input Devices
+    Usage
+    Packaging
+    Features
+    Support
+    Drive
+    Sound
+    Looks
+    Windows
+    OS
+    Documentation
+    Battery
+    Hard Drive
+    Workmanship
+    Name
+    Weight
+    Cooling
+    Included Software
+    Charger
+    Connectivity
+    Mainboard
+    Webcam
+    Size
+    Brand
+    Price
+    Upgradeability
+    Card Reader
+ */
+
+DialogManager::DialogManager() : recommender(0), consecutiveMisunderstandingCounter(0)
 {
     // set up dialog strategy
     QState *initState = new QState();
@@ -14,24 +62,63 @@ DialogManager::DialogManager()
     dialogStateMachine.setInitialState(initState);
 
     connect(initState, SIGNAL(entered()), this, SLOT(greet()));
-
 }
 
-void DialogManager::userInput(const QString& input)
+void DialogManager::userInput(const QList<Statement*> statements)
 {
-    qDebug() << "Dialog input: " << input;
+    qDebug() << "Misunderstanding counter: " << consecutiveMisunderstandingCounter;
+    if (!statements.isEmpty())
+        consecutiveMisunderstandingCounter = 0;
+    else ++consecutiveMisunderstandingCounter;
+
+    if (statements.isEmpty()) {
+        emit elicit(AvatarTask(AvatarTask::Misunderstood));
+        return;
+    }
+
+    foreach (Statement *s, statements) {
+        if (!s->act(recommender)) {
+            qWarning() << "No match for " << s->toString();
+            emit elicit(AvatarTask(AvatarTask::Custom, tr("Leider konnte ich kein passendes Produkt finden mit %1").arg(s->toString())));
+        }
+        // FIXME: explanation!
+        qDebug() << "Processed: " << s->toString();
+    }
+    recommender->feedbackCycleComplete();
+    completeTurn();
 }
 
-void DialogManager::init()
+void DialogManager::completeTurn()
 {
+    Recommendation* r = recommender->suggestOffer();
+
+    if (r) {
+        QString explanation = "Explanations not implemented yet."; // TODO
+
+        emit elicit(AvatarTask(AvatarTask::PresentItem), false);
+        emit recommendation(r->offer(), explanation);
+    } else {
+        qDebug() << "No recommendation at this point";
+        // TODO: Ask domain questions
+    }
+
+    //based on the assumption that the user wouldn't have critizised the
+    // model if he was interested in it, add a *slight* bias against it
+    //m_recommender->critique(new Critique(new Relationship(modelName,
+    //               Relationship::Inequality, m_currentRecommendation->getAttribute(modelName)), 0.1));
+}
+
+void DialogManager::init(CritiqueRecommender *recommender)
+{
+    this->recommender = recommender;
     qDebug() << "Starting state machine";
     dialogStateMachine.start();
+    completeTurn();
 }
 
 void DialogManager::greet()
 {
     qDebug() << "Greeting";
     //emit elicit(AvatarTask(AvatarTask::Intro), true);
-    //emit elicit(AvatarTask(AvatarTask::Custom, "Das ist jetzt ja aber wirklich einmal eine positive Überraschung. So schlecht sieht das nämlich gar nicht aus, oder?"), true);
     //emit elicit(AvatarTask(AvatarTask::Custom, "Hallo du Ei"), true);
 }

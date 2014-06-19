@@ -35,6 +35,7 @@ public:
         return m_value;
     }
 
+    virtual Relationship::Type definedRelationships()=0;
 
 protected:
     T m_value;

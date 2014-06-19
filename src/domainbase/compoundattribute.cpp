@@ -1,5 +1,4 @@
 #include "compoundattribute.h"
-#include "numericalattribute.h"
 #include <math.h>
 #include <float.h>
 #include <QStringList>

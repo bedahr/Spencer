@@ -63,6 +63,7 @@ QVariant AttributeModel::data(const QModelIndex &index, int role) const
 
     case Qt::UserRole + 3:
         return thisAttribute->value();
+        /*
     case Qt::UserRole + 4: {
         AttributeCreator *c = m_factory->getCreator(name);
         if (c && dynamic_cast<NumericalAttributeCreator*>(c)) {
@@ -90,7 +91,7 @@ QVariant AttributeModel::data(const QModelIndex &index, int role) const
                 return ca->getMax();
         }
         break;
-    }
+    }*/
     }
     return QVariant();
 }

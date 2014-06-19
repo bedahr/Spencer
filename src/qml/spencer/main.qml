@@ -88,6 +88,7 @@ Item {
             objectName: "btDisconnect"
             width: 250
             text: qsTr("Disconnect")
+            visible:false
         }
     }
 

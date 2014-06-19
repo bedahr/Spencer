@@ -1,15 +1,15 @@
-#ifndef COMPOUNDATTRIBUTE_H
-#define COMPOUNDATTRIBUTE_H
+#ifndef LISTATTRIBUTE_H
+#define LISTATTRIBUTE_H
 
 #include <QList>
 #include <QSharedPointer>
 #include "attribute.h"
 
-class CompoundAttribute : public Attribute
+class ListAttribute : public Attribute
 {
 public:
-    CompoundAttribute(bool internal, const QString& separator, Relationship::Type relationships, const QList<QSharedPointer<Attribute> > children) :
-        Attribute(relationships, internal), m_separator(separator), m_supportedRelationships(relationships), m_children(children)
+    ListAttribute(bool internal, const QList<QSharedPointer<Attribute> > children) :
+        Attribute(definedRelationships(), internal), m_children(children)
     {
     }
 
@@ -22,13 +22,12 @@ public:
     double value() const;
 
     Relationship::Type definedRelationships() {
-        return m_supportedRelationships;
+        return Relationship::Equality|Relationship::Inequality|Relationship::LargerThan|Relationship::SmallerThan;
     }
 
 private:
-    QString m_separator;
-    Relationship::Type m_supportedRelationships;
     QList<QSharedPointer<Attribute> > m_children;
 };
 
-#endif // COMPOUNDATTRIBUTE_H
+
+#endif // LISTATTRIBUTE_H

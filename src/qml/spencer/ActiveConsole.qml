@@ -9,6 +9,7 @@ AnimatedItem {
     }
 
     Offer {
+        objectName: "currentRecommendation"
         anchors.fill: parent
     }
 

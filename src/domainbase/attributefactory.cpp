@@ -15,21 +15,74 @@ AttributeFactory::AttributeFactory()
 }
 AttributeFactory::~AttributeFactory()
 {
-    qDeleteAll(m_creators);
+    foreach (AttributeCreatorInfo i, m_creators.values())
+        delete i.second;
+}
+
+static AttributeCreator* createAttributeCreator(const QDomElement& typeElem, bool internal)
+{
+    //"symbol" => StringAttribute
+    //"number" => NumericalAttribute
+    //"bool" => BooleanAttribute
+    //"compound" => CompoundAttribute
+    //"list" => ListAttribute
+    QString type = typeElem.tagName();
+    if (type == "symbol") {
+        return new StringAttributeCreator(internal);
+    } else if (type == "bool") {
+        return new BooleanAttributeCreator(internal);
+    } else if (type == "number") {
+        QString format;
+        double multiplier = 1;
+        QDomElement formatElem = typeElem.firstChildElement("format");
+        QDomElement multiplierElem = typeElem.firstChildElement("multiplier");
+
+        if (!formatElem.isNull())
+            format = formatElem.text();
+        if (!multiplierElem.isNull())
+            multiplier = multiplierElem.text().toDouble();
+
+        return new NumericalAttributeCreator(internal, format, multiplier);
+    } else if (type == "compound") {
+        QString separator = typeElem.attribute("separator");
+        AttributeCreator *child = createAttributeCreator(typeElem.firstChildElement(), true);
+        if (!child) {
+            qWarning() << "Failed to deserialize child of compound creator";
+            return 0;
+        }
+        return new CompoundAttributeCreator(internal, separator, child);
+    } else if (type == "list") {
+        QDomElement subTypeElement = typeElem.firstChildElement();
+        QList<AttributeCreator*> subCreators;
+        while (!subTypeElement.isNull()) {
+            subCreators << createAttributeCreator(subTypeElement, true);
+            subTypeElement = subTypeElement.nextSiblingElement();
+        }
+        if (subCreators.contains(0)) {
+            qDeleteAll(subCreators);
+            return 0;
+        }
+        return new ListAttributeCreator(internal, subCreators);
+    }
+
+    qWarning() << "Unknown type " << type;
+    return 0;
 }
 
 bool AttributeFactory::parseStructure(const QString& path)
 {
-    qDeleteAll(m_creators);
+    foreach (AttributeCreatorInfo i, m_creators.values())
+        delete i.second;
     m_creators.clear();
 
     QDomDocument doc;
     QFile f(path);
+
     if (!f.open(QIODevice::ReadOnly)) {
         qWarning() << "Failed to open file: " << path;
         return false;
     }
-    if (!doc.setContent(f.readAll())) {
+    if (!doc.setContent(QString::fromUtf8(f.readAll()))) {
         qWarning() << "Failed to parse XML at " << path;
         return false;
     }
@@ -44,38 +97,22 @@ bool AttributeFactory::parseStructure(const QString& path)
     QHash<int, QString> attributes;
     QDomElement featureElement = caseElement.firstChildElement("feature");
     while (!featureElement.isNull()) {
+        QDomElement idElem = featureElement.firstChildElement("id");
         QDomElement nameElem = featureElement.firstChildElement("name");
         QDomElement typeElem = featureElement.firstChildElement("type").firstChildElement();
 
+        QString id = idElem.text();
         QString name = nameElem.text();
-        QString type = typeElem.tagName();
-        attributes.insert(featureElement.attribute("nr").toInt(), name);
         bool internal = featureElement.attribute("internal") == "true";
         //qDebug() << "Name: " << name << " type: " << type;
 
-        //"symbol" => StringAttribute
-        //"double" => NumericalAttribute
-        if (type == "symbol") {
-            m_creators.insert(name, new StringAttributeCreator(internal));
-        } else {
-            QDomElement minElem = typeElem.firstChildElement("minInclusiveValue");
-            QDomElement maxElem = typeElem.firstChildElement("maxInclusiveValue");
-            bool minSet = !minElem.isNull();
-            bool maxSet = !maxElem.isNull();
-            double min = minElem.text().toDouble();
-            double max = maxElem.text().toDouble();
-            if (type == "double") {
-                m_creators.insert(name, new NumericalAttributeCreator(internal, minSet, min,
-                                                                  maxSet, max));
-            } else if (type == "compound") {
-                QString subType = typeElem.attribute("type");
-                QString separator = typeElem.attribute("separator");
-                m_creators.insert(name, new CompoundAttributeCreator(internal, minSet, min, maxSet, max,
-                                                                     separator, subType));
-            } else {
-                qWarning() << "Unknown type " << type << " for attribute " << name;
-                return false;
-            }
+        AttributeCreator *creator = createAttributeCreator(typeElem, internal);
+        if (creator) {
+            attributes.insert(featureElement.attribute("nr").toInt(), id);
+            AttributeCreatorInfo creatorInfo;
+            creatorInfo.first = name;
+            creatorInfo.second = creator;
+            m_creators.insert(id, creatorInfo);
         }
 
         featureElement = featureElement.nextSiblingElement("feature");
@@ -89,15 +126,18 @@ bool AttributeFactory::parseStructure(const QString& path)
     return true;
 }
 
-QSharedPointer<Attribute> AttributeFactory::getAttribute(const QString& name, const QVariant& data) const
+Record AttributeFactory::getAttribute(const QString& name, const QVariant& data) const
 {
     if (!m_creators.contains(name))
-        return QSharedPointer<Attribute>();
+        return Record(QString(), QSharedPointer<Attribute>());
 
-    return m_creators.value(name)->getAttribute(data);
+    AttributeCreatorInfo creatorInfo = m_creators.value(name);
+    AttributeCreator* creator = creatorInfo.second;
+    QSharedPointer<Attribute> att = creator->getAttribute(data);
+    return Record(creatorInfo.first, att);
 }
 
-AttributeCreator* AttributeFactory::getCreator(const QString& name) const
+AttributeCreator* AttributeFactory::getCreator(const QString& id) const
 {
-    return m_creators.value(name);
+    return m_creators.value(id).second;
 }

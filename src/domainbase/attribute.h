@@ -3,7 +3,11 @@
 
 #include <QDebug>
 #include <QString>
+#include <QSharedPointer>
+#include <QPair>
 #include "relationship.h"
+
+typedef QPair<QString /*name */, QSharedPointer<Attribute> > Record;
 
 class Attribute
 {

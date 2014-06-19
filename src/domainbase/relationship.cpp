@@ -5,7 +5,7 @@
 
 float Relationship::utility(const Offer& offer) const
 {
-    const QSharedPointer<Attribute> offerAttribute = offer.getAttribute(m_name);
+    const QSharedPointer<Attribute> offerAttribute = offer.getRecord(m_id).second;
     if (!offerAttribute)
         return 0.0; // doesn't even have this attribute
 
@@ -59,7 +59,7 @@ float Relationship::utility(const Offer& offer) const
 
 bool Relationship::supersedes(const Relationship& other) const
 {
-    if (other.m_name != m_name) {
+    if (other.m_id != m_id) {
         return false;
     }
     if (other.m_type != m_type) {
@@ -123,5 +123,5 @@ QString Relationship::toString() const
     else if (m_modifierFactor > 1)
         modifierStr = QObject::tr("signifikant ");
 
-    return QString("%1 %2%3 %4").arg(m_name).arg(modifierStr).arg(strType.join(QObject::tr(" und "))).arg(m_attribute->toString());
+    return QString("%1 %2%3 %4").arg(m_id).arg(modifierStr).arg(strType.join(QObject::tr(" und "))).arg(m_attribute->toString());
 }

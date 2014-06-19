@@ -1,5 +1,48 @@
 import QtQuick 2.2
 
+/*
+Rectangle {
+    property string key
+    property string value
+    color: "red"; width: 20; height: 20
+    Text {
+        id: label
+        anchors.left: parent.left
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        width: 60
+        text: key
+    }
+}
+*/
+Item {
+    width: 800
+    height: Math.max(label.height, val.height)
+
+    property alias key : label.text
+    property alias value : val.text
+
+    Text {
+        id: label
+        anchors.top: parent.top
+
+        anchors.left: parent.left
+        width: 280
+        font.pixelSize: 18
+        font.bold: true
+        horizontalAlignment: Text.AlignRight
+        wrapMode : Text.WordWrap
+    }
+    Text {
+        id: val
+        anchors.right: parent.right
+        width: parent.width - 320
+        wrapMode : Text.WordWrap
+        font.pixelSize: 18
+    }
+}
+
+/*
 Item {
     function escapeBrackets(input) {
         return input.replace(" \(.*\)", "")
@@ -93,3 +136,4 @@ Item {
         }
     }
 }
+*/

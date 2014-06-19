@@ -65,7 +65,6 @@ public slots:
     virtual void displayRecognizing()=0;
 
     virtual void displayRecommendation(const Offer* offer, const QString &explanation)=0;
-    virtual void displayNoMatch(const QString& description)=0;
 
     virtual void actOut(const AvatarTask& avatarTask, bool immediately)=0;
 

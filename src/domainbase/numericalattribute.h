@@ -8,14 +8,10 @@
 class NumericalAttribute : public ValueAttribute<double>
 {
 public:
-    NumericalAttribute(bool internal, double value, bool minSet, double min, bool maxSet, double max) :
-        ValueAttribute<double>(Relationship::Equality|Relationship::Inequality|Relationship::LargerThan|Relationship::SmallerThan,
-                               internal, value), m_minSet(minSet), m_min(min), m_maxSet(maxSet), m_max(max)
+    NumericalAttribute(bool internal, double value, const QString& format) :
+        ValueAttribute<double>(definedRelationships(),
+                               internal, value), m_format(format)
     {
-        if (minSet && value < min)
-            m_value = min;
-        if (maxSet && value > max)
-            m_value = max;
     }
     bool operator <(const Attribute& other) const;
     bool operator >(const Attribute& other) const;
@@ -23,14 +19,14 @@ public:
     QString toString() const;
     double value() const { return m_value; }
 
+    Relationship::Type definedRelationships() {
+        return Relationship::Equality|Relationship::Inequality|Relationship::LargerThan|Relationship::SmallerThan;
+    }
+
 protected:
-    bool m_minSet;
-    double m_min;
+    QString m_format;
 
-    bool m_maxSet;
-    double m_max;
-
-    static double distance(double a, double b, bool minSet, double min, bool maxSet, double max);
+    static double distance(double a, double b);
 };
 
 #endif // NUMERICALATTRIBUTE_H

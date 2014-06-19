@@ -4,11 +4,13 @@
 class QString;
 class QVariant;
 class AttributeCreator;
-class Attribute;
 
+#include "attribute.h"
 #include <QHash>
 #include <QStringList>
 #include <QSharedPointer>
+
+typedef QPair<QString /* attribute name */, AttributeCreator*> AttributeCreatorInfo;
 
 class AttributeFactory
 {
@@ -26,16 +28,16 @@ public:
     /// name set to provided data. Data may be set to null if the attribute
     /// does not require it.
     /// The returned attribute is null if an error occured
-    QSharedPointer<Attribute> getAttribute(const QString& name, const QVariant& data) const;
+    Record getAttribute(const QString& name, const QVariant& data) const;
 
     /// Returns the list of attribute names; Sorted as per sorting criteria
     /// defined in the db structure
     QStringList getAttributeNames() const { return m_attributeNames; }
-    AttributeCreator* getCreator(const QString& name) const;
 
 private:
     QStringList m_attributeNames;
-    QHash<QString /* attribute name */, AttributeCreator*> m_creators;
+    QHash<QString /* attribute id */, AttributeCreatorInfo> m_creators;
+    AttributeCreator* getCreator(const QString& id) const;
 };
 
 #endif // ATTRIBUTEFACTORY_H

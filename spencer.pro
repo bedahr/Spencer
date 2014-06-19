@@ -21,7 +21,8 @@ OTHER_FILES += \
         src/qml/spencer/Offer.qml \
         src/qml/spencer/AttributeDelegate.qml \
         src/qml/spencer/AnimatedText.qml \
-        src/qml/spencer/Avatar.qml
+        src/qml/spencer/Avatar.qml \
+    src/qml/spencer/AttributeDisplay.js
 
 SOURCES += src/main.cpp \
         src/spencer.cpp \
@@ -46,7 +47,10 @@ SOURCES += src/main.cpp \
         src/nlu/nlu.cpp \
         src/nlu/statement.cpp \
         src/nlu/commandstatement.cpp \
-        src/nlu/constraintstatement.cpp
+        src/nlu/constraintstatement.cpp \
+    src/databaseconnector.cpp \
+    src/domainbase/booleanattribute.cpp \
+    src/domainbase/listattribute.cpp
 
 HEADERS += \
         src/spencer.h \
@@ -72,8 +76,14 @@ HEADERS += \
         src/nlu/nlu.h \
         src/nlu/statement.h \
         src/nlu/commandstatement.h \
-        src/nlu/constraintstatement.h
+        src/nlu/constraintstatement.h \
+    src/recommender/recommendation.h \
+    src/recommender/appliedcritique.h \
+    src/databaseconnector.h \
+    src/domainbase/booleanattribute.h \
+    src/domainbase/listattribute.h
 
 
 INCLUDEPATH += ../BBSimoneShared $${BBSIMONECOMMONIPATH} src/
-LIBS += -L$${BBSIMONECOMMONPATH} -lSimoneShared
+LIBS += -L$${BBSIMONECOMMONPATH} -lSimoneShared -lmongoclient -lboost_thread -lboost_system -lboost_filesystem
+QMAKE_CXXFLAGS += -std=c++11

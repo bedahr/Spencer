@@ -1,116 +1,423 @@
 <?xml version="1.0" encoding="ISO-8859-15"?>
 <structure xsi:noNamespaceSchemaLocation="http://serendipity.ucd.ie/schema/structure_v1.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<case category="camera">
-                <feature nr="0">
-			<name>Hersteller</name>
-			<type>
-				<symbol>
-				</symbol>
-			</type>
-		</feature>
-                <feature nr="1">
-			<name>Modell</name>
-			<type>
-				<symbol>
-				</symbol>
-				
-			</type>
-		</feature>
-                <feature nr="2">
-			<name>Preis (€)</name>
-			<type>
-				<double>
-					<minInclusiveValue>1</minInclusiveValue>
-					<maxInclusiveValue>2928</maxInclusiveValue>
-				</double>
-			</type>
-		</feature>
-                <feature nr="3">
-			<name>Auflösung (Megapixel)</name>
-			<type>
-				<double>
-					<minInclusiveValue>0.3</minInclusiveValue>
-					<maxInclusiveValue>46</maxInclusiveValue>
-				</double>
-			</type>
-		</feature>
-                <feature nr="4">
-			<name>Optischer Zoom (X)</name>
-			<type>
-				<double>
-					<minInclusiveValue>1</minInclusiveValue>
-					<maxInclusiveValue>50</maxInclusiveValue>
-				</double>
-			</type>
-		</feature>
-                <feature nr="5" internal="true">
-			<name>Digitaler Zoom (X)</name>
-			<type>
-				<double>
-					<minInclusiveValue>1</minInclusiveValue>
-					<maxInclusiveValue>200</maxInclusiveValue>
-				</double>
-			</type>
-		</feature>
-                <feature nr="6">
-			<name>Gewicht (Gramm)</name>
-			<type>
-				<double>
-					<minInclusiveValue>63</minInclusiveValue>
-					<maxInclusiveValue>905</maxInclusiveValue>
-				</double>
-			</type>
-		</feature>
-                <feature nr="7" internal="true">
-			<name>Bild</name>
-			<type acceptOutOfVocab="true">
-				<symbol />
-			</type>
-		</feature>
-                <feature nr="8">
-			<name>Größe (BxHxT)</name>
-			<type>
-			  <compound separator="x" type="double">
-				<minInclusiveValue>0</minInclusiveValue>
-				<maxInclusiveValue>150</maxInclusiveValue>
-			  </compound>
-			</type>
-		</feature>
-                <feature nr="10">
-			<name>Sensor Typ</name>
-			<type>
-				<symbol />
-			</type>
-		</feature>
-                <feature nr="9">
-			<name>Sensor Größe (Zoll)</name>
-			<type>
-				<double>
-					<minInclusiveValue>0.31</minInclusiveValue>
-					<maxInclusiveValue>1.5</maxInclusiveValue>
-				</double>
-			</type>
-		</feature>
-                <feature nr="11" internal="true">
-			<name>Interner Speicher (MB)</name>
-			<type>
-				<double>
-					<minInclusiveValue>0</minInclusiveValue>
-					<maxInclusiveValue>10000</maxInclusiveValue>
-				</double>
-			</type>
-		</feature>
-                <feature nr="12" internal="true">
-			<name>Externer Speicher</name>
-			<type>
-				<symbol />
-			</type>
-		</feature>
-                <feature internal="true" nr="15">
-			<name>Rang</name>
-			<type>
-			  <double />
-			</type>
-		</feature>
+	<case category="laptops">
+    <feature nr="0" internal="true">
+      <id>_id</id>
+      <name>ID</name>
+      <type>
+        <symbol />
+      </type>
+    </feature>
+    <feature nr="1" internal="true">
+      <id>name</id>
+      <name>Name</name>
+      <type>
+        <symbol />
+      </type>
+    </feature>
+    <feature nr="2">
+      <id>price</id>
+      <name>Preis</name>
+      <type>
+        <number optimality="min">
+          <format>EUR %.2f</format>
+          <multiplier>0.01</multiplier>
+        </number>
+      </type>
+    </feature>
+    
+    <feature nr="3">
+      <id>rating</id>
+      <name>Rating</name>
+      <type>
+        <number optimality="max">
+          <format>%.1f / 5</format>
+          <multiplier>0.1</multiplier>
+        </number>
+      </type>
+    </feature>
+    <feature nr="4">
+      <id>manufacturer</id>
+      <name>Hersteller</name>
+      <type>
+        <symbol />
+      </type>
+    </feature>
+    <feature nr="5">
+      <id>model</id>
+      <name>Modell</name>
+      <type>
+        <symbol />
+      </type>
+    </feature>
+    <feature nr="6">
+      <id>operatingSystem</id>
+      <name>Betriebssystem</name>
+      <type>
+        <symbol />
+      </type>
+    </feature>>
+    <feature nr="7">
+      <id>processorType</id>
+      <name>Prozessortyp</name>
+      <type>
+        <symbol />
+      </type>
+    </feature>
+    <feature nr="8">
+      <id>procesorFrequency</id>
+      <name>Prozessortakt</name>
+      <type>
+        <number optimality="max">
+          <format>%.2f GHz</format>
+          <multiplier>0.001</multiplier>
+        </number>
+      </type>
+    </feature>
+    <feature nr="9">
+      <id>processorName</id>
+      <name>Prozessor</name>
+      <type>
+        <symbol />
+      </type>
+    </feature>
+    <feature nr="10">
+      <id>mainMemoryCapacity</id>
+      <name>HauptspeicherkapazitÃ€t</name>
+      <type>
+        <number optimality="max">
+          <format>%.2f GB</format>
+          <multiplier>0.0009765625</multiplier>
+        </number>
+      </type>
+    </feature>
+    <feature nr="11">
+      <id>graphicsType</id>
+      <name>Grafikkartentyp</name>
+      <type>
+        <symbol />
+      </type>
+    </feature>
+    <feature nr="12">
+      <id>graphicsModel</id>
+      <name>Grafikkarte</name>
+      <type>
+        <symbol />
+      </type>
+    </feature>
+    <feature nr="13">
+      <id>dedicatedGraphicsMemoryCapacity</id>
+      <name>Dedizierter Grafikkartenspeicher</name>
+      <type>
+        <number optimality="max">
+          <format>%.2f GB</format>
+          <multiplier>0.0009765625</multiplier>
+        </number>
+      </type>
+    </feature>
+    <feature nr="14">
+      <id>screenSize</id>
+      <name>Bildschirmdiagonale</name>
+      <type>
+        <number optimality="max">
+          <format>%.1f"</format>
+          <multiplier>0.1</multiplier>
+        </number>
+      </type>
+    </feature>
+    <feature nr="15">
+      <id>screenHResolution</id>
+      <name>Horizontale AuflÃ¶sung</name>
+      <type>
+        <number />
+      </type>
+    </feature>
+    <feature nr="16">
+      <id>screenVResolution</id>
+      <name>Vertikale AuflÃ¶sung</name>
+      <type>
+        <number />
+      </type>
+    </feature>
+    <feature nr="17">
+      <id>screenTouchMode</id>
+      <name>Touchscreen Typ</name>
+      <type>
+        <symbol />
+      </type>
+    </feature>
+    <feature nr="18">
+      <id>screenAntiGlareCoated</id>
+      <name>Entspiegelt</name>
+      <type>
+        <bool />
+      </type>
+    </feature>
+    <feature nr="19">
+      <id>screenPanelType</id>
+      <name>Display Panel Type</name>
+      <type>
+        <symbol />
+      </type>
+    </feature>
+    <feature nr="20">
+      <id>screenIsHardened</id>
+      <name>GehÃ€rteter Bildschirm</name>
+      <type>
+        <bool />
+      </type>
+    </feature>
+    <feature nr="21">
+      <id>digitizerSupport</id>
+      <name>Digitizer</name>
+      <type>
+        <bool />
+      </type>
+    </feature>
+    <feature nr="25">
+      <id>batteryType</id>
+      <name>Akkuart</name>
+      <type>
+        <symbol />
+      </type>
+    </feature>
+    <feature nr="26">
+      <id>batteryCells</id>
+      <name>Akkuzellen</name>
+      <type>
+        <number />
+      </type>
+    </feature>
+    <feature nr="28">
+      <id>weight</id>
+      <name>Gewicht</name>
+      <type>
+        <number>
+          <format>%.1f kg</format>
+          <multiplier>0.001</multiplier>
+        </number>
+      </type>
+    </feature>
+    <feature nr="29">
+      <id>width</id>
+      <name>Breite</name>
+      <type>
+        <number>
+          <format>%.0f mm</format>
+        </number>
+      </type>
+    </feature>
+    <feature nr="30">
+      <id>length</id>
+      <name>LÃ€nge</name>
+      <type>
+        <number>
+          <format>%.0f mm</format>
+        </number>
+      </type>
+    </feature>
+    <feature nr="31">
+      <id>height</id>
+      <name>HÃ¶he</name>
+      <type>
+        <number>
+          <format>%.0f mm</format>
+        </number>
+      </type>
+    </feature>
+    <feature nr="32">
+      <id>warrantyDuration</id>
+      <name>Garantiedauer</name>
+      <type>
+        <number>
+          <format>%.0f Jahre</format>
+        </number>
+      </type>
+    </feature>
+    <feature nr="33">
+      <id>warrantyType</id>
+      <name>Garantieart</name>
+      <type>
+        <symbol />
+      </type>
+    </feature>
+    <feature nr="34">
+      <id>webcamResolution</id>
+      <name>Webcam AuflÃ¶sung</name>
+      <type>
+        <number>
+          <format>%.1f Megapixel</format>
+        </number>
+      </type>
+    </feature>
+    <feature nr="36">
+      <id>hasNumblock</id>
+      <name>Nummernblock</name>
+      <type>
+        <bool />
+      </type>
+    </feature>
+    <feature nr="37">
+      <id>hasPointingStick</id>
+      <name>Trackpoint</name>
+      <type>
+        <bool />
+      </type>
+    </feature>
+    <feature nr="38">
+      <id>litKeybaord</id>
+      <name>Beleuchtete Tastatur</name>
+      <type>
+        <bool />
+      </type>
+    </feature>
+    <feature nr="39">
+      <id>fingerPrintReader</id>
+      <name>Fingerabdruckleser</name>
+      <type>
+        <bool />
+      </type>
+    </feature>
+    <feature nr="40">
+      <id>convertible</id>
+      <name>Konvertierbar</name>
+      <type>
+        <bool />
+      </type>
+    </feature>
+    <feature nr="41" internal="true">
+      <id>description</id>
+      <name>Beschreibung</name>
+      <type>
+        <symbol />
+      </type>
+    </feature>
+    <feature nr="42">
+      <id>Chip Set Manufacturer</id>
+      <name>Chipsatzhersteller</name>
+      <type>
+        <symbol />
+      </type>
+    </feature>
+    <feature nr="43">
+      <id>Bestseller Rank</id>
+      <name>Verkaufsrang</name>
+      <type>
+        <number />
+      </type>
+    </feature>
+    <feature nr="44">
+      <id>Plattform</id>
+      <name>Plattform</name>
+      <type>
+        <symbol />
+      </type>
+    </feature>
+    <feature nr="45" internal="true">
+      <id>Product Weight including Packaging</id>
+      <name>Produktgewicht inklusive Verpackung</name>
+      <type>
+        <number>
+          <format>%.1f kg</format>
+          <multiplier>0.001</multiplier>
+        </number>
+      </type>
+    </feature>
+    <feature nr="46">
+      <id>Hard Drive Interface</id>
+      <name>Festplatteninterface</name>
+      <type>
+        <symbol />
+      </type>
+    </feature>
+    <feature nr="47">
+      <id>Form Factor</id>
+      <name>Formfaktor</name>
+      <type>
+        <symbol />
+      </type>
+    </feature>
+    <feature nr="48" internal="true">
+      <id>Available Since</id>
+      <name>VerfÃŒgbar seit</name>
+      <type>
+        <symbol />
+      </type>
+    </feature>
+    <feature nr="49" internal="true">
+      <id>ASIN</id>
+      <name>ASIN</name>
+      <type>
+        <symbol />
+      </type>
+    </feature>
+    <feature nr="50">
+      <id>Main Memory Type</id>
+      <name>Hauptspeichertyp</name>
+      <type>
+        <symbol />
+      </type>
+    </feature>
+    <feature nr="51">
+      <id>storageMedia</id>
+      <name>Storage Media</name>
+      <type>
+        <list>
+          <list>
+            <symbol />
+            <number>
+              <format>%.0f GB</format>
+              <multiplier>1</multiplier>
+            </number>
+          </list>
+        </list>
+      </type>
+    </feature>
+    <feature nr="52">
+      <id>averageRuntimeOnBattery</id>
+      <name>Durchschnittliche Akkulaufzeit</name>
+      <type>
+        <number>
+          <format>%.1f Stunden</format>
+          <multiplier>0.1</multiplier>
+        </number>
+      </type>
+    </feature>
+    <feature nr="53">
+      <id>opticalMediaTypes</id>
+      <name>Optische Medien</name>
+      <type>
+        <list>
+          <symbol />
+        </list>
+      </type>
+    </feature>
+    <feature nr="54">
+      <id>connectivity</id>
+      <name>KonnektivitÃ€t</name>
+      <type>
+        <list>
+          <symbol />
+        </list>
+      </type>
+    </feature>
+    <feature nr="55">
+      <id>ports</id>
+      <name>Ports</name>
+      <type>
+        <list>
+          <symbol />
+        </list>
+      </type>
+    </feature>
+    <feature nr="56">
+      <id>memoryCardTypes</id>
+      <name>Speicherkarten</name>
+      <type>
+        <list>
+          <symbol />
+        </list>
+      </type>
+    </feature>
 	</case>
 </structure>

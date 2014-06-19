@@ -3,50 +3,62 @@
 
 #include "attribute.h"
 #include "stringattribute.h"
+#include "numericalattribute.h"
 #include <QString>
 #include <QPixmap>
 #include <QHash>
 #include <QSharedPointer>
+#include <QStringList>
 #include <QMetaType>
 #include <QObject>
 
+typedef QHash<QString, Record> RecordMap;
+typedef QHash<QString, double> SentimentMap;
 class Offer : public QObject
 {
 public:
-    Offer(const QString& name, float priorPropability, const QPixmap& image,
-          const QStringList& attributeNames, const QHash<QString, QSharedPointer<Attribute> > attributes);
+    Offer(QSharedPointer<Attribute> name, QSharedPointer<Attribute> price,
+          int priorRank, const QStringList &images,
+          const RecordMap records,
+          const SentimentMap& userSentiment);
     ~Offer();
 
-    /// returns a pointer to the attribute with the given name
-    /// or 0 if there is no such attribute
-    const QSharedPointer<Attribute> getAttribute(const QString& name) const;
+    /// returns an attribute record or an invalid one if there is no such attribute
+    Record getRecord(const QString& id) const;
 
-    QString getName() const { return m_name->getValue(); }
-    QPixmap getImage() const { return m_image; }
-    float priorPropability() const { return m_priorPropability; }
-    QHash<QString, QSharedPointer<Attribute> > getAttributes() const { return m_attributes; }
-    QStringList getAttributeNames() const { return m_attributeNames; }
+    QString getName() const;
+    double getPrice() const { return static_cast<NumericalAttribute*>(m_price.data())->getValue(); }
+    QStringList getImages() const { return m_images; }
+    float priorPropability() const;
+    RecordMap getRecords() const { return m_records; }
+    SentimentMap getUserSentiment() const { return m_userSentiment; }
 
 private:
     /// User visible name of the offer (product)
-    QSharedPointer<StringAttribute> m_name;
+    QSharedPointer<Attribute> m_name;
+    /// User visible name of the offer (product)
+    QSharedPointer<Attribute> m_price;
 
-    /// prior propability of this item; Can be used
+    /// prior rank of this item; Can be used
     /// to give more initial weight to certain offers
     /// (e.g. for promotion);
-    /// Will determine the initially presented product
-    float m_priorPropability;
+    /// Lower is better
+    int m_priorRank;
 
-    /// Product image
-    QPixmap m_image;
-
-    /// Sorted list of attribute names
-    QStringList m_attributeNames;
+    /// Product images
+    QStringList m_images;
 
     /// other attributes
-    QHash<QString /* name */, QSharedPointer<Attribute> > m_attributes;
+    RecordMap m_records;
+
+    /// user sentiment
+    SentimentMap m_userSentiment;
+
+    static int maxRank;
 };
 
 Q_DECLARE_METATYPE(const Offer*)
+Q_DECLARE_METATYPE(RecordMap)
+Q_DECLARE_METATYPE(SentimentMap)
 
 #endif // OFFER_H

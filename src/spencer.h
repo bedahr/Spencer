@@ -1,6 +1,7 @@
 #ifndef SPENCER_H
 #define SPENCER_H
 
+#include "ui/avatar/avatartask.h"
 #include <QObject>
 #include <QList>
 
@@ -10,6 +11,8 @@ class Relationship;
 class Offer;
 class AttributeFactory;
 class NLU;
+class DialogManager;
+class DatabaseConnector;
 
 class Spencer : public QObject
 {
@@ -17,36 +20,31 @@ class Spencer : public QObject
 
 signals:
     void recommend(const Offer* offer, const QString& description);
-    void noMatchFor(const QString& critique);
+    void elicit(AvatarTask, bool immediately);
 
 public:
     explicit Spencer(QObject *parent = 0);
     ~Spencer();
-
-    AttributeFactory* getAttributeFactory() const {
-        return m_attributeFactory;
-    }
 
 public slots:
     /// Initialize spencer
     bool init();
     void reset();
 
-    /// Parses the given voice command to one or more
-    /// critiques
-    /// Returns the interpretation (user presentable)
-    QString critique(const QString& command);
+    void userInput(const QString& input);
 
 private:
+    DatabaseConnector *m_databaseConnector;
     AttributeFactory *m_attributeFactory;
     NLU *m_nlu;
+    DialogManager *m_dialogManager;
     CritiqueRecommender *m_recommender;
     const Offer *m_currentRecommendation;
 
     /// parses the database of offers from the given casebase XML file
     /// and returns the list of found offers; if an error occured,
     /// *okay will be set to false
-    QList<Offer*> parseCasebase(const QString& path, const QString& imageBasePath, bool* okay) const;
+    QList<Offer*> parseCasebase(bool* okay) const;
 
 
 private slots:

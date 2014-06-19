@@ -4,12 +4,11 @@
 #include "critique.h"
 #include "domainbase/offer.h"
 
+class Recommendation;
+
 class CritiqueRecommender : public QObject
 {
     Q_OBJECT
-
-signals:
-    void recommend(const Offer* offer, const QString& explanation) const;
 
 public:
     CritiqueRecommender();
@@ -35,11 +34,14 @@ public slots:
     /// new critiques may be added in one feedback cycle)
     void feedbackCycleComplete();
 
+    /// Yield a recommendation based on the current, potentially
+    /// empty, user model
+    Recommendation* suggestOffer() const;
+
 private:
     QList<Critique*> m_critiques;
     QList<Offer*> m_offers;
 
-    void suggestOffer() const;
 
 };
 
