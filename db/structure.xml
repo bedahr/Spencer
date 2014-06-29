@@ -25,8 +25,8 @@
         </number>
       </type>
     </feature>
-    
-    <feature nr="3">
+
+    <feature nr="3" internal="true">
       <id>rating</id>
       <name>Rating</name>
       <type>
@@ -36,35 +36,35 @@
         </number>
       </type>
     </feature>
-    <feature nr="4">
+    <feature nr="4" internal="true">
       <id>manufacturer</id>
       <name>Hersteller</name>
       <type>
         <symbol />
       </type>
     </feature>
-    <feature nr="5">
+    <feature nr="5" internal="true">
       <id>model</id>
       <name>Modell</name>
       <type>
         <symbol />
       </type>
     </feature>
-    <feature nr="6">
+    <feature nr="6" shownByDefault="true">
       <id>operatingSystem</id>
       <name>Betriebssystem</name>
       <type>
         <symbol />
       </type>
     </feature>>
-    <feature nr="7">
+    <feature nr="7" shownByDefault="true">
       <id>processorType</id>
       <name>Prozessortyp</name>
       <type>
         <symbol />
       </type>
     </feature>
-    <feature nr="8">
+    <feature nr="8" shownByDefault="true">
       <id>procesorFrequency</id>
       <name>Prozessortakt</name>
       <type>
@@ -74,16 +74,16 @@
         </number>
       </type>
     </feature>
-    <feature nr="9">
+    <feature nr="9" shownByDefault="true">
       <id>processorName</id>
       <name>Prozessor</name>
       <type>
         <symbol />
       </type>
     </feature>
-    <feature nr="10">
+    <feature nr="10" shownByDefault="true">
       <id>mainMemoryCapacity</id>
-      <name>Hauptspeicherkapazität</name>
+      <name>Hauptspeicher</name>
       <type>
         <number optimality="max">
           <format>%.2f GB</format>
@@ -91,14 +91,14 @@
         </number>
       </type>
     </feature>
-    <feature nr="11">
+    <feature nr="11" shownByDefault="true">
       <id>graphicsType</id>
       <name>Grafikkartentyp</name>
       <type>
         <symbol />
       </type>
     </feature>
-    <feature nr="12">
+    <feature nr="12" shownByDefault="true">
       <id>graphicsModel</id>
       <name>Grafikkarte</name>
       <type>
@@ -115,7 +115,7 @@
         </number>
       </type>
     </feature>
-    <feature nr="14">
+    <feature nr="14" shownByDefault="true">
       <id>screenSize</id>
       <name>Bildschirmdiagonale</name>
       <type>
@@ -125,18 +125,22 @@
         </number>
       </type>
     </feature>
-    <feature nr="15">
+    <feature nr="15" shownByDefault="true">
       <id>screenHResolution</id>
       <name>Horizontale Auflösung</name>
       <type>
-        <number />
+        <number optimality="max">
+          <format>%.0f</format>
+        </number>
       </type>
     </feature>
-    <feature nr="16">
+    <feature nr="16" shownByDefault="true">
       <id>screenVResolution</id>
       <name>Vertikale Auflösung</name>
       <type>
-        <number />
+        <number optimality="max">
+          <format>%.0f</format>
+        </number>
       </type>
     </feature>
     <feature nr="17">
@@ -185,14 +189,14 @@
       <id>batteryCells</id>
       <name>Akkuzellen</name>
       <type>
-        <number />
+        <number optimality="max"/>
       </type>
     </feature>
     <feature nr="28">
       <id>weight</id>
       <name>Gewicht</name>
       <type>
-        <number>
+        <number optimality="min">
           <format>%.1f kg</format>
           <multiplier>0.001</multiplier>
         </number>
@@ -202,7 +206,7 @@
       <id>width</id>
       <name>Breite</name>
       <type>
-        <number>
+        <number optimality="min">
           <format>%.0f mm</format>
         </number>
       </type>
@@ -211,7 +215,7 @@
       <id>length</id>
       <name>Länge</name>
       <type>
-        <number>
+        <number optimality="min">
           <format>%.0f mm</format>
         </number>
       </type>
@@ -220,7 +224,7 @@
       <id>height</id>
       <name>Höhe</name>
       <type>
-        <number>
+        <number optimality="min">
           <format>%.0f mm</format>
         </number>
       </type>
@@ -229,7 +233,7 @@
       <id>warrantyDuration</id>
       <name>Garantiedauer</name>
       <type>
-        <number>
+        <number optimality="max">
           <format>%.0f Jahre</format>
         </number>
       </type>
@@ -245,7 +249,7 @@
       <id>webcamResolution</id>
       <name>Webcam Auflösung</name>
       <type>
-        <number>
+        <number optimality="max">
           <format>%.1f Megapixel</format>
         </number>
       </type>
@@ -303,7 +307,7 @@
       <id>Bestseller Rank</id>
       <name>Verkaufsrang</name>
       <type>
-        <number />
+        <number optimality="max" />
       </type>
     </feature>
     <feature nr="44">
@@ -317,7 +321,7 @@
       <id>Product Weight including Packaging</id>
       <name>Produktgewicht inklusive Verpackung</name>
       <type>
-        <number>
+        <number optimality="max">
           <format>%.1f kg</format>
           <multiplier>0.001</multiplier>
         </number>
@@ -358,14 +362,14 @@
         <symbol />
       </type>
     </feature>
-    <feature nr="51">
+    <feature nr="51" shownByDefault="true">
       <id>storageMedia</id>
       <name>Storage Media</name>
       <type>
         <list>
           <list>
             <symbol />
-            <number>
+            <number optimality="max">
               <format>%.0f GB</format>
               <multiplier>1</multiplier>
             </number>
@@ -373,11 +377,11 @@
         </list>
       </type>
     </feature>
-    <feature nr="52">
+    <feature nr="52" shownByDefault="true">
       <id>averageRuntimeOnBattery</id>
-      <name>Durchschnittliche Akkulaufzeit</name>
+      <name>Akkulaufzeit</name>
       <type>
-        <number>
+        <number optimality="max">
           <format>%.1f Stunden</format>
           <multiplier>0.1</multiplier>
         </number>
