@@ -12,7 +12,7 @@
 
 /*
  * Potentials:
-    Display Birghtness
+    Display Brightness
     Display Size
     Viewing Angles
     Display-Resolution
@@ -129,8 +129,6 @@ void DialogManager::completeTurn()
 
             description << new RecommendationAttribute(name, value, expressedUserInterest, sentiment);
         }
-
-        qDebug() << "s: " << o->getUserSentiment();
         emit recommendation(o, o->getName(), o->getPrice(), o->getRating(), o->getImages(),
                             description, o->getUserSentiment(), explanation);
     } else {

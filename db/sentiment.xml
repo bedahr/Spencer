@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<aspects category="laptops">
+  <aspect>
+    <id>Display</id>
+    <name>Bildschirm</name>
+    <children>
+      <aspect>
+        <id>Display Brightness</id>
+        <name>Bildschirm Helligkeit</name>
+        <children />
+      </aspect>
+      <aspect>
+        <id>Viewing Angles</id>
+        <name>Betrachtungswinkel</name>
+        <children />
+      </aspect>
+      <aspect>
+        <id>Viewing Angles</id>
+        <name>Betrachtungswinkel</name>
+        <children />
+      </aspect>
+      <aspect>
+        <id>Display Size</id>
+        <name>Bildschirmgrösse</name>
+        <children />
+      </aspect>
+      <aspect>
+        <id>Display-Resolution</id>
+        <name>Bildschirmauflösung</name>
+        <children />
+      </aspect>
+      <aspect>
+        <id>Picture Quality</id>
+        <name>Bildqualität</name>
+        <children />
+      </aspect>
+    </children>
+  </aspect>
+  <aspect>
+    <id>Speed</id>
+    <name>Geschwindigkeit</name>
+    <children>
+      <aspect>
+        <id>Main Memory</id>
+        <name>Hauptspeicher</name>
+        <children />
+      </aspect>
+      <aspect>
+        <id>Processor</id>
+        <name>Prozessor</name>
+        <children />
+      </aspect>
+      <aspect>
+        <id>Graphics Card</id>
+        <name>Grafikkarte</name>
+        <children />
+      </aspect>
+    </children>
+  </aspect>
+  <aspect>
+    <id>Ports</id>
+    <name>Schnittstellen</name>
+    <children />
+  </aspect>
+
+  <aspect>
+    <id>Usage</id>
+    <name>Bedienung</name>
+    <children>
+      <aspect>
+        <id>Input Devices</id>
+        <name>Eingabegeräte</name>
+        <children>
+          <aspect>
+            <id>Touchscreen</id>
+            <name>Touchscreen</name>
+            <children />
+          </aspect>
+          <aspect>
+            <id>Mouse</id>
+            <name>Maus</name>
+            <children />
+          </aspect>
+          <aspect>
+            <id>Keyboard</id>
+            <name>Tastatur</name>
+            <children />
+          </aspect>
+        </children>
+      </aspect>
+    </children>
+  </aspect>
+  <aspect>
+    <id>Packaging</id>
+    <name>Verpackung</name>
+    <children />
+  </aspect>
+  <aspect>
+    <id>Features</id>
+    <name>Ausstattung</name>
+    <children />
+  </aspect>
+  <aspect>
+    <id>Support</id>
+    <name>Support</name>
+    <children />
+  </aspect>
+  <aspect>
+    <id>Drive</id>
+    <name>Laufwerk</name>
+    <children />
+  </aspect>
+  <aspect>
+    <id>Sound</id>
+    <name>Sound</name>
+    <children />
+  </aspect>
+  <aspect>
+    <id>Looks</id>
+    <name>Aussehen</name>
+    <children />
+  </aspect>
+  <aspect>
+    <id>OS</id>
+    <name>Betriebssystem</name>
+    <children>
+      <aspect>
+        <id>Windows</id>
+        <name>Windows</name>
+        <children />
+      </aspect>
+    </children>
+  </aspect>
+  <aspect>
+    <id>Documentation</id>
+    <name>Dokumentation</name>
+    <children />
+  </aspect>
+  <aspect>
+    <id>Hard Drive</id>
+    <name>Festplatte</name>
+    <children />
+  </aspect>
+  <aspect>
+    <id>Workmanship</id>
+    <name>Verarbeitung</name>
+    <children />
+  </aspect>
+  <aspect>
+    <id>Name</id>
+    <name>Name</name>
+    <children />
+  </aspect>
+  <aspect>
+    <id>Cooling</id>
+    <name>Kühlung</name>
+    <children />
+  </aspect>
+  <aspect>
+    <id>Included Software</id>
+    <name>Inkludierte Software</name>
+    <children />
+  </aspect>
+  <aspect>
+    <id>Charger</id>
+    <name>Ladegerät</name>
+    <children />
+  </aspect>
+  <aspect>
+    <id>Connectivity</id>
+    <name>Konnektivität</name>
+    <children />
+  </aspect>
+  <aspect>
+    <id>Mainboard</id>
+    <name>Mainboard</name>
+    <children />
+  </aspect>
+  <aspect>
+    <id>Webcam</id>
+    <name>Webcam</name>
+    <children />
+  </aspect>
+  <aspect>
+    <id>Portability</id>
+    <name>Portabilität</name>
+    <children>
+      <aspect>
+        <id>Weight</id>
+        <name>Gewicht</name>
+        <children />
+      </aspect>
+      <aspect>
+        <id>Size</id>
+        <name>Größe</name>
+        <children />
+      </aspect>
+      <aspect>
+        <id>Battery</id>
+        <name>Akku</name>
+        <children />
+      </aspect>
+    </children>
+  </aspect>
+  <aspect>
+    <id>Brand</id>
+    <name>Marke</name>
+    <children />
+  </aspect>
+  <aspect>
+    <id>Price</id>
+    <name>Preis</name>
+    <children />
+  </aspect>
+  <aspect>
+    <id>Upgradeability</id>
+    <name>Aufrüstbarkeit</name>
+    <children />
+  </aspect>
+  <aspect>
+    <id>Card Reader</id>
+    <name>Kartenleser</name>
+    <children />
+  </aspect>
+</aspects>

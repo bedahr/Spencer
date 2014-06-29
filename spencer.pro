@@ -55,7 +55,9 @@ SOURCES += src/main.cpp \
     src/databaseconnector.cpp \
     src/domainbase/booleanattribute.cpp \
     src/domainbase/listattribute.cpp \
-    src/domainbase/recommendationattribute.cpp
+    src/domainbase/recommendationattribute.cpp \
+    src/domainbase/aspectfactory.cpp \
+    src/domainbase/aspect.cpp
 
 HEADERS += \
         src/spencer.h \
@@ -87,7 +89,9 @@ HEADERS += \
     src/databaseconnector.h \
     src/domainbase/booleanattribute.h \
     src/domainbase/listattribute.h \
-    src/domainbase/recommendationattribute.h
+    src/domainbase/recommendationattribute.h \
+    src/domainbase/aspectfactory.h \
+    src/domainbase/aspect.h
 
 
 INCLUDEPATH += ../BBSimoneShared $${BBSIMONECOMMONIPATH} src/

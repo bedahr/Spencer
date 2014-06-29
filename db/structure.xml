@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="ISO-8859-15"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <structure xsi:noNamespaceSchemaLocation="http://serendipity.ucd.ie/schema/structure_v1.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<case category="laptops">
     <feature nr="0" internal="true">

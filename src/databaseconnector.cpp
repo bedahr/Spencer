@@ -1,5 +1,7 @@
 #include "databaseconnector.h"
 #include "domainbase/offer.h"
+#include "domainbase/aspect.h"
+#include "domainbase/aspectfactory.h"
 #include "domainbase/attributefactory.h"
 #include <QString>
 
@@ -186,7 +188,7 @@ QList<Offer*> DatabaseConnector::loadOffers(bool* okay) const
             imageSrcs << QString::fromStdString((*i).String());
         }
 
-        QHash<QString, double> extractedSentiment;
+        SentimentMap extractedSentiment;
         mongo::BSONObj userSentiments = l.getObjectField("userSentiment");
         std::set<std::string> extractedSentimentFieldNames;
         userSentiments.getFieldNames(extractedSentimentFieldNames);
@@ -198,7 +200,12 @@ QList<Offer*> DatabaseConnector::loadOffers(bool* okay) const
             else if (!optionalSentimentDimensions.contains(key))
                 continue;
 
-            extractedSentiment.insert(key, userSentiments.getField(*i).numberDouble());
+            Aspect* thisAspect(AspectFactory::getInstance()->getAspect(key));
+            double value = userSentiments.getField(*i).numberDouble();
+            if (thisAspect)
+                extractedSentiment.insert(Aspect(*thisAspect), value);
+            else
+                qWarning() << "Skipping unknown aspect: " << key;
         }
         QSharedPointer<Attribute> name (new StringAttribute(true, false, QString("%1 %2").arg(
                                                                 records.take("manufacturer").second->toString()).arg(

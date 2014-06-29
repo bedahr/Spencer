@@ -1,5 +1,6 @@
 #include "spencer.h"
 #include "databaseconnector.h"
+#include "domainbase/aspectfactory.h"
 #include "nlu/nlu.h"
 #include "nlu/statement.h"
 #include "recommender/critiquerecommender.h"
@@ -46,6 +47,8 @@ Spencer::~Spencer()
 bool Spencer::init()
 {
     if (!AttributeFactory::getInstance()->parseStructure(dbPath + "structure.xml"))
+        return false;
+    if (!AspectFactory::getInstance()->parseStructure(dbPath + "sentiment.xml"))
         return false;
     if (!m_nlu->setupLanguage(dbPath + "nlp.xml"))
         return false;

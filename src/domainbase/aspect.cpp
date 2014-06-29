@@ -1,5 +1,7 @@
 #include "aspect.h"
+#include <QHash>
+#include <QDebug>
 
-Aspect::Aspect()
-{
+uint qHash(const Aspect& a) {
+    return qHash(a.id());
 }

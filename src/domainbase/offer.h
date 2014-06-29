@@ -2,6 +2,7 @@
 #define OFFER_H
 
 #include "attribute.h"
+#include "aspect.h"
 #include "stringattribute.h"
 #include "numericalattribute.h"
 #include <QString>
@@ -13,7 +14,7 @@
 #include <QObject>
 
 typedef QHash<QString, Record> RecordMap;
-typedef QHash<QString, double> SentimentMap;
+typedef QHash<Aspect, double> SentimentMap;
 class Offer : public QObject
 {
 public:

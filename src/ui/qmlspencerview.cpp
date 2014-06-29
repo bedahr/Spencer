@@ -56,7 +56,6 @@ public:
 
     QString add(const QPixmap& pixmap) {
         QString id = QUuid::createUuid().toString().mid(1, 36);
-        qDebug() << "Adding image to provider: " + id;
         m_pixmapCache.insert(id, pixmap);
         return id;
     }
@@ -306,9 +305,9 @@ void QMLSpencerView::displayRecommendationPrivate(const QString& offerName, doub
         offerList << QVariant::fromValue(a);
 
     QVariantMap userSentimentMap;
-    foreach (const QString& s, userSentiment.keys())
-        userSentimentMap.insert(s, userSentiment.value(s));
-
+    foreach (const Aspect& a, userSentiment.keys()) {
+        userSentimentMap.insert(a.name(), userSentiment.value(a));
+    }
     qDebug() << "Rating: " << rating;
 
     QMetaObject::invokeMethod(viewer->rootObject()->findChild<QObject*>("currentRecommendation"),
