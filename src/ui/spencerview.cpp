@@ -74,6 +74,31 @@ void SpencerView::displayRecommendation(const QString& offerName, double price, 
         else if (a->getName() == QObject::tr("Dedizierter Grafikkartenspeicher"))
             graphicsMemoryAttribute = a;
     }
+    if (graphicsTypeAttribute && graphicsModelAttribute) {
+        sanitizedOffer.removeAll(graphicsTypeAttribute);
+        sanitizedOffer.removeAll(graphicsModelAttribute);
+        sanitizedOffer.removeAll(graphicsMemoryAttribute);
+
+        float expressedUserInterest = qMax(qMax(graphicsTypeAttribute->getExpressedUserInterest(),
+                                                graphicsModelAttribute->getExpressedUserInterest()),
+                                           graphicsMemoryAttribute ? graphicsMemoryAttribute->getExpressedUserInterest() : 0);
+        float reviewSentiment =  (graphicsTypeAttribute->getReviewSentiment() +
+                                  graphicsModelAttribute->getReviewSentiment()) / 2;
+
+        QString value = graphicsMemoryAttribute ? "%1 %2 (%3)" : "%1 %2";
+        value = value.arg(graphicsTypeAttribute->getValue().toString())
+                .arg(graphicsModelAttribute->getValue().toString());
+
+        if (graphicsMemoryAttribute) {
+            value = value.arg(graphicsMemoryAttribute->getValue().toString());
+        }
+
+        sanitizedOffer.insert(0, new RecommendationAttribute(QObject::tr("Grafikkarte"),
+                                                         value, expressedUserInterest, reviewSentiment));
+        delete graphicsTypeAttribute;
+        delete graphicsModelAttribute;
+        delete graphicsMemoryAttribute;
+    }
     if (processorTypeAttribute && processorNameAttribute && processorFrequencyAttribute) {
         sanitizedOffer.removeAll(processorTypeAttribute);
         sanitizedOffer.removeAll(processorNameAttribute);
@@ -86,7 +111,7 @@ void SpencerView::displayRecommendation(const QString& offerName, double price, 
                                   processorNameAttribute->getReviewSentiment()+
                                   processorFrequencyAttribute->getReviewSentiment()) / 3;
 
-        sanitizedOffer.append(new RecommendationAttribute(QObject::tr("Prozessor"),
+        sanitizedOffer.insert(0, new RecommendationAttribute(QObject::tr("Prozessor"),
                                                           QString("%1 %2 (%3)").arg(processorTypeAttribute->getValue().toString())
                                                                                .arg(processorNameAttribute->getValue().toString())
                                                                                .arg(processorFrequencyAttribute->getValue().toString()),
@@ -108,7 +133,7 @@ void SpencerView::displayRecommendation(const QString& offerName, double price, 
                                   screenSizeHResolutionAttribute->getReviewSentiment()+
                                   screenSizeVResolutionAttribute->getReviewSentiment()) / 3;
 
-        sanitizedOffer.append(new RecommendationAttribute(QObject::tr("Bildschirm"),
+        sanitizedOffer.insert(0, new RecommendationAttribute(QObject::tr("Bildschirm"),
                                                           QString("%1 (%2x%3)").arg(screenSizeAttribute->getValue().toString())
                                                                                .arg(screenSizeHResolutionAttribute->getValue().toString())
                                                                                .arg(screenSizeVResolutionAttribute->getValue().toString()),
@@ -117,31 +142,6 @@ void SpencerView::displayRecommendation(const QString& offerName, double price, 
         delete screenSizeAttribute;
         delete screenSizeHResolutionAttribute;
         delete screenSizeVResolutionAttribute;
-    }
-    if (graphicsTypeAttribute && graphicsModelAttribute) {
-        sanitizedOffer.removeAll(graphicsTypeAttribute);
-        sanitizedOffer.removeAll(graphicsModelAttribute);
-        sanitizedOffer.removeAll(graphicsMemoryAttribute);
-
-        float expressedUserInterest = qMax(qMax(graphicsTypeAttribute->getExpressedUserInterest(),
-                                                graphicsModelAttribute->getExpressedUserInterest()),
-                                           graphicsMemoryAttribute ? graphicsMemoryAttribute->getExpressedUserInterest() : 0);
-        float reviewSentiment =  (graphicsTypeAttribute->getReviewSentiment() +
-                                  graphicsModelAttribute->getReviewSentiment()) / 2;
-
-        QString value = graphicsMemoryAttribute ? "%1 %2 (%3)" : "%1 %2";
-        value = value.arg(graphicsTypeAttribute->getValue().toString())
-                .arg(graphicsModelAttribute->getValue().toString());
-
-        if (graphicsMemoryAttribute) {
-            value = value.arg(graphicsMemoryAttribute->getValue().toString());
-        }
-
-        sanitizedOffer.append(new RecommendationAttribute(QObject::tr("Grafikkarte"),
-                                                         value, expressedUserInterest, reviewSentiment));
-        delete graphicsTypeAttribute;
-        delete graphicsModelAttribute;
-        delete graphicsMemoryAttribute;
     }
 
     displayRecommendationPrivate(offerName, price, rating, images, sanitizedOffer, userSentiment, explanation);

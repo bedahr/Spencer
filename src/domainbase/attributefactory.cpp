@@ -10,6 +10,8 @@
 #include <QDebug>
 #include "attributecreators.h"
 
+AttributeFactory* AttributeFactory::instance = 0;
+
 AttributeFactory::AttributeFactory()
 {
 }
@@ -125,11 +127,11 @@ bool AttributeFactory::parseStructure(const QString& path)
 
         featureElement = featureElement.nextSiblingElement("feature");
     }
-    m_attributeNames.clear();
+    m_attributeKeys.clear();
     QList<int> attributeNumbers(attributes.keys());
     qSort(attributeNumbers);
     foreach (int nr, attributeNumbers) {
-        m_attributeNames << attributes[nr];
+        m_attributeKeys << attributes[nr];
     }
     return true;
 }

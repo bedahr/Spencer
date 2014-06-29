@@ -1,5 +1,6 @@
 #include "dialogmanager.h"
 #include "nlu/statement.h"
+#include "domainbase/attributefactory.h"
 #include "recommender/critiquerecommender.h"
 #include "recommender/recommendation.h"
 #include <QDebug>
@@ -100,8 +101,11 @@ void DialogManager::completeTurn()
         const Offer *o = r->offer();
         QList<RecommendationAttribute*> description;
 
-        foreach (const QString& key, o->getRecords().keys()) {
+        foreach (const QString& key, AttributeFactory::getInstance()->getAttributeIds()) {
             Record r(o->getRecord(key));
+            if (!r.second)
+                continue;
+
             if (r.second->getInternal())
                 continue;
             QString name = r.first;

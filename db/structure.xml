@@ -50,7 +50,7 @@
         <symbol />
       </type>
     </feature>
-    <feature nr="6" shownByDefault="true">
+    <feature nr="60" shownByDefault="true">
       <id>operatingSystem</id>
       <name>Betriebssystem</name>
       <type>

@@ -26,8 +26,7 @@ static const QString imageName = "Bild";
 Spencer::Spencer(QObject *parent) :
     QObject(parent),
     m_databaseConnector(new DatabaseConnector),
-    m_attributeFactory(new AttributeFactory),
-    m_nlu(new NLU(m_attributeFactory)),
+    m_nlu(new NLU),
     m_dialogManager(new DialogManager),
     m_recommender(new CritiqueRecommender),
     m_currentRecommendation(0)
@@ -46,7 +45,7 @@ Spencer::~Spencer()
 
 bool Spencer::init()
 {
-    if (!m_attributeFactory->parseStructure(dbPath + "structure.xml"))
+    if (!AttributeFactory::getInstance()->parseStructure(dbPath + "structure.xml"))
         return false;
     if (!m_nlu->setupLanguage(dbPath + "nlp.xml"))
         return false;
@@ -78,7 +77,7 @@ void Spencer::userInput(const QString& input)
 
 QList<Offer*> Spencer::parseCasebase(bool* okay) const
 {
-    return m_databaseConnector->loadOffers(m_attributeFactory, okay);
+    return m_databaseConnector->loadOffers(okay);
 }
 
 void Spencer::reset()

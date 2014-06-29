@@ -14,7 +14,7 @@ class DatabaseConnector
 public:
     DatabaseConnector();
     bool init();
-    QList<Offer*> loadOffers(AttributeFactory *factory, bool *okay) const;
+    QList<Offer*> loadOffers(bool *okay) const;
 
 private:
     mongo::DBClientConnection* c;

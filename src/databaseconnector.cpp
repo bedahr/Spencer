@@ -60,7 +60,7 @@ static QStringList buildOptionalSentimentDimensions() {
     return out;
 }
 
-QList<Offer*> DatabaseConnector::loadOffers(AttributeFactory* factory, bool* okay) const
+QList<Offer*> DatabaseConnector::loadOffers(bool* okay) const
 {
     QList<Offer*> availableOffers;
     QStringList  essentialSentimentDimensions = buildEssentialSentimentDimensions();
@@ -107,7 +107,7 @@ QList<Offer*> DatabaseConnector::loadOffers(AttributeFactory* factory, bool* oka
             default:
                 qWarning() << "Unhandled data type: " << property.type();
             }
-            Record record = factory->getAttribute(fieldName, data);
+            Record record = AttributeFactory::getInstance()->getAttribute(fieldName, data);
             if (record.second.isNull()) {
                 //qWarning() << "Failed to deserialize: " << fieldName << data;
                 continue;
@@ -130,7 +130,7 @@ QList<Offer*> DatabaseConnector::loadOffers(AttributeFactory* factory, bool* oka
             extractedStorageElements.append(QVariant::fromValue(extractedStorageElement));
 
         }
-        Record storageElementsRecord = factory->getAttribute("storageMedia", QVariant::fromValue(extractedStorageElements));
+        Record storageElementsRecord = AttributeFactory::getInstance()->getAttribute("storageMedia", QVariant::fromValue(extractedStorageElements));
         records.insert("storageMedia", storageElementsRecord);
 
         QVariantList opticalDrives;
@@ -140,7 +140,7 @@ QList<Offer*> DatabaseConnector::loadOffers(AttributeFactory* factory, bool* oka
         for (std::list<mongo::BSONElement>::const_iterator i = opticalDrivesElements.begin(); i != opticalDrivesElements.end(); ++i) {
             opticalDrives << QString::fromStdString((*i).String());
         }
-        records.insert("opticalMediaTypse", factory->getAttribute("opticalMediaTypes", QVariant::fromValue(opticalDrives)));
+        records.insert("opticalMediaTypse", AttributeFactory::getInstance()->getAttribute("opticalMediaTypes", QVariant::fromValue(opticalDrives)));
 
         QVariantList connectivity;
         mongo::BSONObj connectivityObjects = l.getObjectField("connectivity");
@@ -149,7 +149,7 @@ QList<Offer*> DatabaseConnector::loadOffers(AttributeFactory* factory, bool* oka
         for (std::list<mongo::BSONElement>::const_iterator i = connectivityElements.begin(); i != connectivityElements.end(); ++i) {
             connectivity << QString::fromStdString((*i).String());
         }
-        records.insert("connectivity", factory->getAttribute("connectivity", QVariant::fromValue(connectivity)));
+        records.insert("connectivity", AttributeFactory::getInstance()->getAttribute("connectivity", QVariant::fromValue(connectivity)));
 
         QVariantList ports;
         mongo::BSONObj portsObjects = l.getObjectField("ports");
@@ -158,7 +158,7 @@ QList<Offer*> DatabaseConnector::loadOffers(AttributeFactory* factory, bool* oka
         for (std::list<mongo::BSONElement>::const_iterator i = portsElements.begin(); i != portsElements.end(); ++i) {
             ports << QString::fromStdString((*i).String());
         }
-        records.insert("ports", factory->getAttribute("ports", QVariant::fromValue(ports)));
+        records.insert("ports", AttributeFactory::getInstance()->getAttribute("ports", QVariant::fromValue(ports)));
 
         QVariantList memoryCardTypes;
         mongo::BSONObj memoryCardTypeObjects = l.getObjectField("memoryCardTypes");
@@ -167,7 +167,7 @@ QList<Offer*> DatabaseConnector::loadOffers(AttributeFactory* factory, bool* oka
         for (std::list<mongo::BSONElement>::const_iterator i = memoryCardElements.begin(); i != memoryCardElements.end(); ++i) {
             memoryCardTypes << QString::fromStdString((*i).String());
         }
-        records.insert("memoryCardTypes", factory->getAttribute("memoryCardTypes", QVariant::fromValue(memoryCardTypes)));
+        records.insert("memoryCardTypes", AttributeFactory::getInstance()->getAttribute("memoryCardTypes", QVariant::fromValue(memoryCardTypes)));
 
         /*
          * Really don't need the reviews here

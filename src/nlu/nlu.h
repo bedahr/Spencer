@@ -7,7 +7,6 @@
 class Token;
 class ModifierToken;
 class AttributeToken;
-class AttributeFactory;
 class Statement;
 class Relationship;
 class Offer;
@@ -15,7 +14,7 @@ class Offer;
 class NLU
 {
 public:
-    NLU(AttributeFactory *attributeFactory);
+    NLU();
 
     /// Reads the given nlp.xml to build the internal
     /// representation of the target language
@@ -23,7 +22,6 @@ public:
 
     QList<Statement*> interpret(const Offer *currentRecommendation, const QString& userInput);
 private:
-    AttributeFactory *m_attributeFactory;
     QList<Token*> m_acceptedTokens;
 
 

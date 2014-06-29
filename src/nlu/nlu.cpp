@@ -28,7 +28,7 @@ if (x) { \
 #define FINALIZE_PENDING_ATTRIBUTE(x)  \
 if (x) { \
     if (!matchedAttributeForPendingAttribute.isEmpty() && x) { \
-        QSharedPointer<Attribute> attribute = m_attributeFactory->getAttribute(x->getTarget(), matchedAttributeForPendingAttribute).second; \
+        QSharedPointer<Attribute> attribute = AttributeFactory::getInstance()->getAttribute(x->getTarget(), matchedAttributeForPendingAttribute).second; \
         if (!attribute.isNull()) {\
     qDebug() << "Adding relationship based on pending attribute" << x->getNames().first().pattern(); \
             relationships << new Relationship(x->getTarget(), Relationship::Equality, attribute, factor); \
@@ -217,7 +217,7 @@ Relationship* NLU::buildRelationship(const Offer *offer,
         attribute = offer->getRecord(attributeId).second;
     else {
         qDebug() << "Attribute value: " << attributeValue;
-        Record r = m_attributeFactory->getAttribute(attributeId, attributeValue);
+        Record r = AttributeFactory::getInstance()->getAttribute(attributeId, attributeValue);
         attribute = r.second;
         qDebug() << "Got attribute value: " << attribute->toString();
     }
@@ -316,7 +316,7 @@ bool NLU::setupLanguage(const QString& path)
     return true;
 }
 
-NLU::NLU(AttributeFactory* attributeFactory) : m_attributeFactory(attributeFactory)
+NLU::NLU()
 {
 }
 
@@ -368,7 +368,7 @@ QList<Statement*> NLU::interpret(const Offer *currentRecommendation, const QStri
 
                         QSharedPointer<Attribute> attribute;
                         if (!matchedAttribute.isEmpty())
-                            attribute = m_attributeFactory->getAttribute(a.m_on, matchedAttribute).second;
+                            attribute = AttributeFactory::getInstance()->getAttribute(a.m_on, matchedAttribute).second;
                         else
                             attribute = currentRecommendation->getRecord(a.m_on).second;
                         if (!attribute) {

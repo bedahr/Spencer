@@ -15,7 +15,6 @@ typedef QPair<QString /* attribute name */, AttributeCreator*> AttributeCreatorI
 class AttributeFactory
 {
 public:
-    AttributeFactory();
     ~AttributeFactory();
 
     /// Reads the given structure.xml to build the internal
@@ -30,14 +29,24 @@ public:
     /// The returned attribute is null if an error occured
     Record getAttribute(const QString& name, const QVariant& data) const;
 
-    /// Returns the list of attribute names; Sorted as per sorting criteria
+    /// Returns the list of attribute ids; Sorted as per sorting criteria
     /// defined in the db structure
-    QStringList getAttributeNames() const { return m_attributeNames; }
+    QStringList getAttributeIds() const { return m_attributeKeys; }
+
+    /// Instance method for the Singleton
+    static AttributeFactory* getInstance() {
+        if (!instance) instance = new AttributeFactory;
+        return instance;
+    }
 
 private:
-    QStringList m_attributeNames;
+    static AttributeFactory* instance;
+
+    QStringList m_attributeKeys;
     QHash<QString /* attribute id */, AttributeCreatorInfo> m_creators;
     AttributeCreator* getCreator(const QString& id) const;
+
+    AttributeFactory();
 };
 
 #endif // ATTRIBUTEFACTORY_H

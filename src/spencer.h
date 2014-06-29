@@ -11,7 +11,6 @@
 class CritiqueRecommender;
 class Offer;
 class Relationship;
-class AttributeFactory;
 class NLU;
 class DialogManager;
 class DatabaseConnector;
@@ -39,7 +38,6 @@ public slots:
 
 private:
     DatabaseConnector *m_databaseConnector;
-    AttributeFactory *m_attributeFactory;
     NLU *m_nlu;
     DialogManager *m_dialogManager;
     CritiqueRecommender *m_recommender;
