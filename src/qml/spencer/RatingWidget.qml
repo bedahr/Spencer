@@ -20,7 +20,6 @@ Item {
                 images[i].source = ratingA
             --rating
         }
-        console.log("Set rating to " + rating)
     }
     Image {
         id: star1

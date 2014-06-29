@@ -29,8 +29,6 @@ Item {
         currentImageIndex = (currentImageIndex+1) % currentImages.length
     }
 
-    Component.onCompleted: console.log(" ready for creating dynamics]");
-
     function sortHelper(a, b) {
         var out = b["value"] - a["value"]
         return out
@@ -38,7 +36,6 @@ Item {
 
     function displaySentiment(parent, data, mode) {
         for (var i = 0; i < data.length; ++i) {
-            console.log("Displaying " + data[i]["aspect"] + " : " + data[i]["value"])
             currentSentiment.push(SentimentDisplay.createSentimentDisplay(parent, data[i]["aspect"], data[i]["value"], mode))
         }
     }
@@ -47,8 +44,8 @@ Item {
     {
         for (var item in currentDetails)
             item.destroy()
-        for (var item in currentSentiment)
-            item.destroy()
+        for (var si in currentSentiment)
+            si.destroy()
 
         imageCycleTimer.stop()
         teName.changeText(title)
@@ -61,7 +58,8 @@ Item {
         var pos_sentiment = []
         var neg_sentiment = []
         for (var aspect in sentiment) {
-            console.log(aspect + " = " + sentiment[aspect])
+
+            console.log("Aspect sentiment..." + aspect + " = " + sentiment[aspect])
             var value = sentiment[aspect]
             if (value > 0.01) {
                 data = Math.min(value, 1)
@@ -157,85 +155,99 @@ Item {
             }
         }
     }
-
     Item {
-        id: aiDetails
+        id:body
         anchors {
             top: header.bottom
-            topMargin: 30
-            left: parent.left
+            topMargin: 40
+            left: header.left
             right: header.right
-        }
-        height: teDetailsHeader.height + coDetails.height
-        Text {
-            id: teDetailsHeader
-            anchors.left: parent.left
-            anchors.top: parent.top
-            font.pixelSize: 18
-            font.bold: true
-            text: "Details"
-        }
-        Flickable {
-            anchors {
-                left: parent.left
-                top: teDetailsHeader.bottom
-                topMargin: 20
-                right: parent.right
-                bottom: parent.bottom
-            }
-            contentHeight: coDetails.height
-            Column {
-                id: coDetails
-                spacing: 5
-            }
-        }
-    }
-
-
-    Item {
-        id: aiUserSentiment
-        anchors {
-            top: aiDetails.bottom
-            topMargin: 50
-            left: parent.left
-            right: header.right
+            leftMargin: 60
+            rightMargin: 60
             bottom: parent.bottom
         }
 
-        Text {
-            id: teSentimentHeader
-            anchors.left: parent.left
-            anchors.top: parent.top
-            font.pixelSize: 18
-            font.bold: true
-            text: "Kundenmeinungen"
-        }
-        Row {
-            spacing: 40
+        Item {
+            id: aiDetails
             anchors {
+                top: parent.top
                 left: parent.left
-                top: teSentimentHeader.bottom
-                topMargin: 20
+                right: parent.right
+            }
+            height: teDetailsHeader.height + coDetails.height
+            Text {
+                id: teDetailsHeader
+                anchors.left: parent.left
+                anchors.top: parent.top
+                font.pixelSize: 18
+                font.bold: true
+                text: "Details"
+            }
+            Flickable {
+                anchors {
+                    left: parent.left
+                    top: teDetailsHeader.bottom
+                    topMargin: 20
+                    right: parent.right
+                    bottom: parent.bottom
+                }
+                contentHeight: coDetails.height
+                Column {
+                    id: coDetails
+                    spacing: 5
+                }
+            }
+        }
+
+
+        Item {
+            id: aiUserSentiment
+            anchors {
+                top: aiDetails.bottom
+                topMargin: 50
+                left: parent.left
                 right: parent.right
                 bottom: parent.bottom
             }
-            Column {
-                id: coSentimentNeg
-                spacing: 5
+
+            Text {
+                id: teSentimentHeader
+                anchors.left: parent.left
+                anchors.top: parent.top
+                font.pixelSize: 18
+                font.bold: true
+                text: "Kundenmeinungen"
             }
-            Column {
-                id: coSentimentPos
-                spacing: 5
+            Row {
+                spacing: 40
+                anchors {
+                    left: parent.left
+                    top: teSentimentHeader.bottom
+                    topMargin: 20
+                    right: parent.right
+                    bottom: parent.bottom
+                }
+                Column {
+                    width: 280
+                    id: coSentimentNeg
+                    spacing: 5
+                }
+                Column {
+                    width: 280
+                    id: coSentimentPos
+                    spacing: 5
+                }
             }
+
+            /*
+            ListView {
+                id: attributeDisplay
+                anchors.fill: parent
+
+                delegate: AttributeDelegate {}
+            } */
         }
-
-        /*
-        ListView {
-            id: attributeDisplay
-            anchors.fill: parent
-
-            delegate: AttributeDelegate {}
-        } */
     }
+
 
 }
