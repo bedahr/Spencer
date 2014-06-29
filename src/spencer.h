@@ -2,13 +2,15 @@
 #define SPENCER_H
 
 #include "ui/avatar/avatartask.h"
+#include "domainbase/offer.h"
+#include "domainbase/recommendationattribute.h"
 #include <QObject>
 #include <QList>
+#include <QStringList>
 
 class CritiqueRecommender;
 class Offer;
 class Relationship;
-class Offer;
 class AttributeFactory;
 class NLU;
 class DialogManager;
@@ -19,7 +21,9 @@ class Spencer : public QObject
     Q_OBJECT
 
 signals:
-    void recommend(const Offer* offer, const QString& description);
+    void recommend(const QString &offerName, double price, double rating, const QStringList &images,
+                   const QList<RecommendationAttribute*>& offer, SentimentMap userSentiment,
+                   const QString& description);
     void elicit(AvatarTask, bool immediately);
 
 public:
@@ -48,7 +52,9 @@ private:
 
 
 private slots:
-    void recommendationChanged(const Offer *o, const QString &explanation);
+    void recommendationChanged(const Offer *currentOffer,
+                               const QString &offerName, double price, double rating, const QStringList &images,
+                               const QList<RecommendationAttribute *> &offer, SentimentMap userSentiment, const QString &explanation);
     
 };
 

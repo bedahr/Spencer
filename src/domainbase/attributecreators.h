@@ -11,20 +11,23 @@
 class AttributeCreator
 {
 public:
-    AttributeCreator(bool internal) : m_internal(internal)
+    AttributeCreator(bool internal, bool shownByDefault) :
+        m_internal(internal), m_shownByDefault(shownByDefault)
     {}
     virtual ~AttributeCreator() {}
     virtual QSharedPointer<Attribute> getAttribute(const QVariant& data) const = 0;
 protected:
     bool m_internal;
+    bool m_shownByDefault;
 };
 
 class NumericalAttributeCreator : public AttributeCreator
 {
 public:
-    NumericalAttributeCreator(bool internal, const QString& format, double multiplier) :
-        AttributeCreator(internal),
-        m_format(format), m_multiplier(multiplier)
+    NumericalAttributeCreator(bool internal, bool shownByDefault, const QString& format,
+                              NumericalAttribute::Optimality optimality, double multiplier) :
+        AttributeCreator(internal, shownByDefault),
+        m_format(format), m_optimality(optimality), m_multiplier(multiplier)
     {}
 
     virtual QSharedPointer<Attribute> getAttribute(const QVariant& data) const {
@@ -58,34 +61,37 @@ public:
         }
         value *= m_multiplier;
 
-        return (okay) ? QSharedPointer<NumericalAttribute>(new NumericalAttribute(m_internal, value, m_format)) : QSharedPointer<NumericalAttribute>();
+        return (okay) ? QSharedPointer<NumericalAttribute>(new NumericalAttribute(m_internal, m_shownByDefault,
+                                                                                  value, m_format, m_optimality))
+                      : QSharedPointer<NumericalAttribute>();
     }
 
 
 protected:
     QString m_format;
+    NumericalAttribute::Optimality m_optimality;
     double m_multiplier;
 };
 
 class StringAttributeCreator : public AttributeCreator
 {
 public:
-    StringAttributeCreator(bool internal) :
-        AttributeCreator(internal)
+    StringAttributeCreator(bool internal, bool shownByDefault) :
+        AttributeCreator(internal, shownByDefault)
     {}
 
     virtual QSharedPointer<Attribute> getAttribute(const QVariant& data) const {
         if (!data.canConvert(QVariant::String))
             return QSharedPointer<Attribute>();
-        return QSharedPointer<Attribute>(new StringAttribute(m_internal, data.toString()));
+        return QSharedPointer<Attribute>(new StringAttribute(m_internal, m_shownByDefault, data.toString()));
     }
 };
 
 class BooleanAttributeCreator : public AttributeCreator
 {
 public:
-    BooleanAttributeCreator(bool internal) :
-        AttributeCreator(internal)
+    BooleanAttributeCreator(bool internal, bool shownByDefault) :
+        AttributeCreator(internal, shownByDefault)
     {}
 
     virtual QSharedPointer<Attribute> getAttribute(const QVariant& data) const {
@@ -93,7 +99,7 @@ public:
             qDebug() << "Can not convert to bool: " << data.toString();
             return QSharedPointer<Attribute>();
         }
-        return QSharedPointer<Attribute>(new BooleanAttribute(m_internal, data.toBool()));
+        return QSharedPointer<Attribute>(new BooleanAttribute(m_internal, m_shownByDefault, data.toBool()));
     }
 };
 
@@ -101,8 +107,8 @@ public:
 class CompoundAttributeCreator : public AttributeCreator
 {
 public:
-    CompoundAttributeCreator(bool internal, const QString& separator, AttributeCreator* childCreator) :
-        AttributeCreator(internal), m_separator(separator), m_childCreator(childCreator)
+    CompoundAttributeCreator(bool internal, bool shownByDefault, const QString& separator, AttributeCreator* childCreator) :
+        AttributeCreator(internal, shownByDefault), m_separator(separator), m_childCreator(childCreator)
     {
     }
     ~CompoundAttributeCreator() {
@@ -122,7 +128,7 @@ public:
             relationships |= child->getDefinedFor();
         }
         // build
-        return QSharedPointer<Attribute>(new CompoundAttribute(m_internal, m_separator, relationships, childCommands));
+        return QSharedPointer<Attribute>(new CompoundAttribute(m_internal, m_shownByDefault, m_separator, relationships, childCommands));
     }
 
 private:
@@ -134,8 +140,8 @@ private:
 class ListAttributeCreator : public AttributeCreator
 {
 public:
-    ListAttributeCreator(bool internal, QList<AttributeCreator *> childCreators) :
-        AttributeCreator(internal), m_childCreators(childCreators)
+    ListAttributeCreator(bool internal, bool shownByDefault, QList<AttributeCreator *> childCreators) :
+        AttributeCreator(internal, shownByDefault), m_childCreators(childCreators)
     {
     }
     ~ListAttributeCreator() {
@@ -155,7 +161,7 @@ public:
             childCommands << m_childCreators[i % m_childCreators.count()]->getAttribute(data);
             ++i;
         }
-        return QSharedPointer<Attribute>(new ListAttribute(m_internal, childCommands));
+        return QSharedPointer<Attribute>(new ListAttribute(m_internal, m_shownByDefault, childCommands));
     }
 private:
     QList<AttributeCreator *> m_childCreators;

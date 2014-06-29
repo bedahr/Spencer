@@ -19,7 +19,7 @@ AttributeFactory::~AttributeFactory()
         delete i.second;
 }
 
-static AttributeCreator* createAttributeCreator(const QDomElement& typeElem, bool internal)
+static AttributeCreator* createAttributeCreator(const QDomElement& typeElem, bool internal, bool shownByDefault)
 {
     //"symbol" => StringAttribute
     //"number" => NumericalAttribute
@@ -28,9 +28,9 @@ static AttributeCreator* createAttributeCreator(const QDomElement& typeElem, boo
     //"list" => ListAttribute
     QString type = typeElem.tagName();
     if (type == "symbol") {
-        return new StringAttributeCreator(internal);
+        return new StringAttributeCreator(internal, shownByDefault);
     } else if (type == "bool") {
-        return new BooleanAttributeCreator(internal);
+        return new BooleanAttributeCreator(internal, shownByDefault);
     } else if (type == "number") {
         QString format;
         double multiplier = 1;
@@ -42,27 +42,34 @@ static AttributeCreator* createAttributeCreator(const QDomElement& typeElem, boo
         if (!multiplierElem.isNull())
             multiplier = multiplierElem.text().toDouble();
 
-        return new NumericalAttributeCreator(internal, format, multiplier);
+        NumericalAttribute::Optimality optimality;
+        if (typeElem.attribute("optimality") == "max")
+            optimality = NumericalAttribute::Max;
+        else
+            optimality = NumericalAttribute::Max;
+
+        return new NumericalAttributeCreator(internal, shownByDefault, format,
+                                             optimality, multiplier);
     } else if (type == "compound") {
         QString separator = typeElem.attribute("separator");
-        AttributeCreator *child = createAttributeCreator(typeElem.firstChildElement(), true);
+        AttributeCreator *child = createAttributeCreator(typeElem.firstChildElement(), true, false);
         if (!child) {
             qWarning() << "Failed to deserialize child of compound creator";
             return 0;
         }
-        return new CompoundAttributeCreator(internal, separator, child);
+        return new CompoundAttributeCreator(internal, shownByDefault, separator, child);
     } else if (type == "list") {
         QDomElement subTypeElement = typeElem.firstChildElement();
         QList<AttributeCreator*> subCreators;
         while (!subTypeElement.isNull()) {
-            subCreators << createAttributeCreator(subTypeElement, true);
+            subCreators << createAttributeCreator(subTypeElement, true, false);
             subTypeElement = subTypeElement.nextSiblingElement();
         }
         if (subCreators.contains(0)) {
             qDeleteAll(subCreators);
             return 0;
         }
-        return new ListAttributeCreator(internal, subCreators);
+        return new ListAttributeCreator(internal, shownByDefault, subCreators);
     }
 
     qWarning() << "Unknown type " << type;
@@ -104,9 +111,10 @@ bool AttributeFactory::parseStructure(const QString& path)
         QString id = idElem.text();
         QString name = nameElem.text();
         bool internal = featureElement.attribute("internal") == "true";
+        bool shownByDefault = featureElement.attribute("shownByDefault") == "true";
         //qDebug() << "Name: " << name << " type: " << type;
 
-        AttributeCreator *creator = createAttributeCreator(typeElem, internal);
+        AttributeCreator *creator = createAttributeCreator(typeElem, internal, shownByDefault);
         if (creator) {
             attributes.insert(featureElement.attribute("nr").toInt(), id);
             AttributeCreatorInfo creatorInfo;

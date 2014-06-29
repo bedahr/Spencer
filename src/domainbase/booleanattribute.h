@@ -8,8 +8,8 @@
 class BooleanAttribute : public ValueAttribute<bool>
 {
 public:
-    BooleanAttribute(bool internal, bool value) :
-        ValueAttribute<bool>(definedRelationships(), internal, value)
+    BooleanAttribute(bool internal, bool shownByDefault, bool value) :
+        ValueAttribute<bool>(definedRelationships(), internal, shownByDefault, value)
     {}
     QString toString() const {
         return m_value ? QObject::tr("Ja") : QObject::tr("Nein");

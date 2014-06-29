@@ -29,7 +29,6 @@ Item {
         anchors.left: parent.left
         width: 280
         font.pixelSize: 18
-        font.bold: true
         horizontalAlignment: Text.AlignRight
         wrapMode : Text.WordWrap
     }

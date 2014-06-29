@@ -18,6 +18,7 @@ class Offer : public QObject
 {
 public:
     Offer(QSharedPointer<Attribute> name, QSharedPointer<Attribute> price,
+          QSharedPointer<Attribute> rating,
           int priorRank, const QStringList &images,
           const RecordMap records,
           const SentimentMap& userSentiment);
@@ -27,6 +28,7 @@ public:
     Record getRecord(const QString& id) const;
 
     QString getName() const;
+    double getRating() const { return static_cast<NumericalAttribute*>(m_rating.data())->getValue(); }
     double getPrice() const { return static_cast<NumericalAttribute*>(m_price.data())->getValue(); }
     QStringList getImages() const { return m_images; }
     float priorPropability() const;
@@ -36,8 +38,10 @@ public:
 private:
     /// User visible name of the offer (product)
     QSharedPointer<Attribute> m_name;
-    /// User visible name of the offer (product)
+    /// User price of the offer (product)
     QSharedPointer<Attribute> m_price;
+    /// User rating of the offer (product)
+    QSharedPointer<Attribute> m_rating;
 
     /// prior rank of this item; Can be used
     /// to give more initial weight to certain offers

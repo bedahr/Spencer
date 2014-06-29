@@ -1,5 +1,6 @@
 #include "critique.h"
 #include "domainbase/offer.h"
+#include "domainbase/attribute.h"
 
 Critique::~Critique()
 {
@@ -10,13 +11,13 @@ Critique::~Critique()
 float Critique::influence() const
 {
     float inf = ((float) m_ttl) / maxTTL;
-    return inf * inf;
+    return inf * inf * m_baseInfluence;
 }
 
 float Critique::utility(const Offer& offer) const
 {
     float relUtility = m_relationship->utility(offer);
-    float critUtility = relUtility * influence() * m_baseInfluence;
+    float critUtility = relUtility * influence();
     //qDebug() << "Relationship utility: " << relUtility << " critique: " << critUtility;
     return critUtility;
 }
@@ -46,4 +47,9 @@ bool Critique::supersedes(const Critique& other) const
     qDebug() << getDescription() << ((ret) ? " supersedes " : " does not supersede ") << other.getDescription();
 
     return ret;
+}
+
+bool Critique::appliesTo(const Record& record) const
+{
+    return m_relationship->appliesTo(record.first);
 }

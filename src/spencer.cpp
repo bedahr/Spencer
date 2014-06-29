@@ -32,7 +32,10 @@ Spencer::Spencer(QObject *parent) :
     m_recommender(new CritiqueRecommender),
     m_currentRecommendation(0)
 {
-    connect(m_dialogManager, SIGNAL(recommendation(const Offer*, QString)), this, SLOT(recommendationChanged(const Offer*, QString)));
+    connect(m_dialogManager, SIGNAL(recommendation(const Offer*, QString, double, double, QStringList,
+                                                   QList<RecommendationAttribute*>, SentimentMap, QString)),
+            this, SLOT(recommendationChanged(const Offer*, QString, double, double, QStringList,
+                                             QList<RecommendationAttribute*>, SentimentMap, QString)));
     connect(m_dialogManager, SIGNAL(elicit(AvatarTask, bool)), this, SIGNAL(elicit(AvatarTask, bool)));
 }
 
@@ -76,74 +79,6 @@ void Spencer::userInput(const QString& input)
 QList<Offer*> Spencer::parseCasebase(bool* okay) const
 {
     return m_databaseConnector->loadOffers(m_attributeFactory, okay);
-    /*
-    QList<Offer*> availableOffers;
-    *okay = false;
-
-    QDomDocument doc;
-    QFile f(path);
-    if (!f.open(QIODevice::ReadOnly)) {
-        qWarning() << "Failed to open file: " << path;
-        return availableOffers;
-    }
-    if (!doc.setContent(f.readAll())) {
-        qWarning() << "Failed to parse XML at " << path;
-        return availableOffers;
-    }
-
-    QDomElement rootElement(doc.documentElement());
-    QDomElement caseElement(rootElement.firstChildElement().firstChildElement("case"));
-
-    //we need unique, descriptive names (user visible);
-    // make sure we don't re-use them
-    QSet<QString> uniqueNames;
-
-    while (!caseElement.isNull()) {
-        QHash<QString, QSharedPointer<Attribute> > attributes;
-        QDomElement featureElement = caseElement.firstChildElement("feature");
-        while (!featureElement.isNull()) {
-            QDomElement nameElem = featureElement.firstChildElement("name");
-            QDomElement valueElem = featureElement.firstChildElement("value");
-
-            QString name = nameElem.text();
-            QString value = valueElem.text();
-            //qDebug() << "Name: " << name << " value: " << value;
-
-            QSharedPointer<Attribute> a = m_attributeFactory->getAttribute(name, value);
-            if (!a) {
-                qDebug() << "Attribute failed to parse" << name << value;
-                return availableOffers;
-            } else
-                attributes.insert(name, a);
-            featureElement = featureElement.nextSiblingElement("feature");
-        }
-
-        QString name;
-        if (attributes.contains(modelName) && attributes.contains(manufacturerName))
-            name = attributes.value(manufacturerName)->toString() + " " + attributes.value(modelName)->toString();
-        else
-            name = caseElement.attribute("id");
-
-        name = name.trimmed();
-        while (uniqueNames.contains(name)) {
-            qDebug() << "Duplicate: " << name;
-            name += '_';
-        }
-        uniqueNames.insert(name);
-
-        QString imageSrc = imageBasePath+attributes.value("Bild")->toString();
-        float priorProbability = 0;
-        //add prior probability to top 100
-        if (attributes.contains("Rang"))
-            priorProbability = 0.005 * (1 - (attributes.value("Rang").staticCast<NumericalAttribute>())->getValue() / 100);
-
-        availableOffers << new Offer(name, priorProbability, QStringList() << imageSrc, m_attributeFactory->getAttributeNames(), attributes);
-        caseElement = caseElement.nextSiblingElement("case");
-    }
-
-    *okay = true;
-    return availableOffers;
-    */
 }
 
 void Spencer::reset()
@@ -151,9 +86,14 @@ void Spencer::reset()
     m_recommender->init();
 }
 
-void Spencer::recommendationChanged(const Offer *o, const QString& explanation)
+void Spencer::recommendationChanged(const Offer *currentOffer,
+                                    const QString& offerName, double price, double rating,
+                                    const QStringList& images,
+                                    const QList<RecommendationAttribute*> &offer,
+                                    SentimentMap userSentiment,
+                                    const QString& explanation)
 {
     qDebug() << "Recommendation changed!";
-    m_currentRecommendation = o;
-    emit recommend(o, explanation);
+    m_currentRecommendation = currentOffer;
+    emit recommend(offerName, price, rating, images, offer, userSentiment, explanation);
 }

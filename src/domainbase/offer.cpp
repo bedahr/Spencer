@@ -5,12 +5,16 @@ static const QString nameId = QObject::tr("name");
 static const QString nameName = QObject::tr("Name");
 static const QString priceId = QObject::tr("price");
 static const QString priceName = QObject::tr("Preis");
+static const QString ratingId = QObject::tr("rating");
+static const QString ratingName = QObject::tr("Rating");
 int Offer::maxRank = 0;
 
 Offer::Offer(QSharedPointer<Attribute> name, QSharedPointer<Attribute> price,
+             QSharedPointer<Attribute> rating,
              int priorRank, const QStringList &images,
              const RecordMap records, const SentimentMap &userSentiment) :
-    m_name(name), m_price(price), m_priorRank(priorRank), m_images(images), m_records(records),
+    m_name(name), m_price(price), m_rating(rating),
+    m_priorRank(priorRank), m_images(images), m_records(records),
     m_userSentiment(userSentiment)
 {
     maxRank = (maxRank > m_priorRank) ? maxRank : m_priorRank;
@@ -32,6 +36,9 @@ Record Offer::getRecord(const QString& id) const
 
     if (id == priceId)
         return Record(priceName, m_price);
+
+    if (id == ratingId)
+        return Record(ratingName, m_rating);
 
     if (m_records.contains(id))
         return m_records.value(id);

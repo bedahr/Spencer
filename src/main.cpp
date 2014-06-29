@@ -59,7 +59,10 @@ int main(int argc, char *argv[])
     QObject::connect(connector, SIGNAL(recognized(QString)), spencer, SLOT(userInput(QString)));
     QObject::connect(spencer, SIGNAL(elicit(AvatarTask, bool)), view, SLOT(actOut(AvatarTask, bool)));
 
-    QObject::connect(spencer, SIGNAL(recommend(const Offer*, QString)), view, SLOT(displayRecommendation(const Offer*, QString)));
+    QObject::connect(spencer, SIGNAL(recommend(QString, double, double, QStringList,
+                                               QList<RecommendationAttribute*>, SentimentMap, QString)),
+                     view, SLOT(displayRecommendation(QString, double, double, QStringList,
+                                                      QList<RecommendationAttribute*>, SentimentMap, QString)));
 
     view->show();
     if (voiceControlled)

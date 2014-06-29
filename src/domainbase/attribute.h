@@ -12,8 +12,8 @@ typedef QPair<QString /*name */, QSharedPointer<Attribute> > Record;
 class Attribute
 {
 public:
-    Attribute(Relationship::Type definedFor, bool internal) :
-        m_definedFor(definedFor), m_internal(internal)
+    Attribute(Relationship::Type definedFor, bool internal, bool shownByDefault) :
+        m_definedFor(definedFor), m_internal(internal), m_shownByDefault(shownByDefault)
     {}
     virtual ~Attribute() {}
 
@@ -31,12 +31,14 @@ public:
     }
     virtual QString toString() const = 0;
     bool getInternal() const { return m_internal; }
+    bool getShownByDefault() const { return m_shownByDefault; }
     Relationship::Type getDefinedFor() const { return m_definedFor; }
     virtual double value() const { return 0; }
 
 private:
     Relationship::Type m_definedFor;
     bool m_internal;
+    bool m_shownByDefault;
 };
 
 #endif // ATTRIBUTE_H

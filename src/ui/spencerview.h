@@ -21,6 +21,8 @@
 #define SPENCERVIEW_H
 
 #include "avatar/avatartask.h"
+#include "domainbase/offer.h"
+#include "domainbase/recommendationattribute.h"
 #include "simone.h"
 #include "recognitionresult.h"
 #include <QObject>
@@ -64,7 +66,13 @@ public slots:
     virtual void displayListening()=0;
     virtual void displayRecognizing()=0;
 
-    virtual void displayRecommendation(const Offer* offer, const QString &explanation)=0;
+    void displayRecommendation(const QString& offerName, double price, double rating, const QStringList& images,
+                                       const QList<RecommendationAttribute*>& offer, SentimentMap userSentiment,
+                                       const QString &explanation);
+
+    virtual void displayRecommendationPrivate(const QString& offerName, double price, double rating, const QStringList& images,
+                                       const QList<RecommendationAttribute*>& offer, SentimentMap userSentiment,
+                                       const QString &explanation)=0;
 
     virtual void actOut(const AvatarTask& avatarTask, bool immediately)=0;
 

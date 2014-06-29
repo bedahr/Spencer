@@ -21,6 +21,7 @@
 #define QMLSPENCERVIEW_H
 
 #include "spencerview.h"
+#include "domainbase/offer.h"
 #include <QVariant>
 #include <QStringList>
 
@@ -62,7 +63,9 @@ public slots:
     void pauseUpdates();
     void resumeUpdates();
 
-    void displayRecommendation(const Offer* offer, const QString &explanation);
+    void displayRecommendationPrivate(const QString& offerName, double price, double rating, const QStringList& images,
+                               const QList<RecommendationAttribute *> &offer, SentimentMap userSentiment,
+                               const QString &explanation);
 
     void actOut(const AvatarTask& avatarTask, bool immediately);
 

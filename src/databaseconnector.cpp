@@ -99,7 +99,7 @@ QList<Offer*> DatabaseConnector::loadOffers(AttributeFactory* factory, bool* oka
                 data = property.Int();
                 break;
             case mongo::BSONType::String:
-                data = QString::fromStdString(property.String());
+                data = QString::fromStdString(property.String()).replace('_', ' ');
                 break;
             case mongo::BSONType::Bool:
                 data = property.Bool();
@@ -109,7 +109,7 @@ QList<Offer*> DatabaseConnector::loadOffers(AttributeFactory* factory, bool* oka
             }
             Record record = factory->getAttribute(fieldName, data);
             if (record.second.isNull()) {
-                qWarning() << "Failed to deserialize: " << fieldName << data;
+                //qWarning() << "Failed to deserialize: " << fieldName << data;
                 continue;
             }
             //qDebug() << fieldName << " = " << record.second->toString();// << " (" << data << ")";
@@ -200,12 +200,12 @@ QList<Offer*> DatabaseConnector::loadOffers(AttributeFactory* factory, bool* oka
 
             extractedSentiment.insert(key, userSentiments.getField(*i).numberDouble());
         }
-        QSharedPointer<Attribute> name (new StringAttribute(true, QString("%1 %2").arg(
+        QSharedPointer<Attribute> name (new StringAttribute(true, false, QString("%1 %2").arg(
                                                                 records.take("manufacturer").second->toString()).arg(
                                                                 records.take("model").second->toString())));
         QSharedPointer<Attribute> price (records.take("price").second);
+        QSharedPointer<Attribute> rating (records.take("rating").second);
         QSharedPointer<Attribute> bestsellerRank(records.take("Bestseller Rank").second);
-        qDebug() << "hi";
         int priorRank = INT_MAX;
         if (!bestsellerRank.isNull())
             priorRank = bestsellerRank->value();
@@ -213,7 +213,7 @@ QList<Offer*> DatabaseConnector::loadOffers(AttributeFactory* factory, bool* oka
         //if (essentialsCovered < 2)
         //    qWarning() << "Poor sentiment coverage for offer " << model << " from " << manufacturer;
 
-        availableOffers << new Offer(name, price, priorRank, imageSrcs, records, extractedSentiment);
+        availableOffers << new Offer(name, price, rating, priorRank, imageSrcs, records, extractedSentiment);
         ++products;
     }
     qDebug() << "Total products: " << products;

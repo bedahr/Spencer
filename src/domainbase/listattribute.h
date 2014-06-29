@@ -8,8 +8,8 @@
 class ListAttribute : public Attribute
 {
 public:
-    ListAttribute(bool internal, const QList<QSharedPointer<Attribute> > children) :
-        Attribute(definedRelationships(), internal), m_children(children)
+    ListAttribute(bool internal, bool shownByDefault, const QList<QSharedPointer<Attribute> > children) :
+        Attribute(definedRelationships(), internal, shownByDefault), m_children(children)
     {
     }
 

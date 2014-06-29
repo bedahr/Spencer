@@ -27,6 +27,9 @@ public:
 
     virtual float utility(const Offer& offer) const;
 
+    /// Returns true if the relationship makes a statement about the given attribute id
+    virtual bool appliesTo(const QString& id) const;
+
     /// Returns true if *this is more restrictive
     /// (in the same dimension) than  the given relationship
     /// Ex.: (Price > 100).supersedes(Price > 50) == true

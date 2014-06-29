@@ -7,8 +7,8 @@
 class StringAttribute : public ValueAttribute<QString>
 {
 public:
-    StringAttribute(bool internal, const QString& value) :
-        ValueAttribute<QString>(definedRelationships(), internal, value)
+    StringAttribute(bool internal, bool shownByDefault, const QString& value) :
+        ValueAttribute<QString>(definedRelationships(), internal, shownByDefault, value)
     {}
     Relationship::Type definedRelationships() {
         return Relationship::Equality | Relationship::Inequality;

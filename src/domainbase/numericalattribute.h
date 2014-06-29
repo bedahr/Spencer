@@ -8,9 +8,13 @@
 class NumericalAttribute : public ValueAttribute<double>
 {
 public:
-    NumericalAttribute(bool internal, double value, const QString& format) :
+    enum Optimality {
+        Max,
+        Min
+    };
+    NumericalAttribute(bool internal, bool shownByDefault, double value, const QString& format, Optimality optimality) :
         ValueAttribute<double>(definedRelationships(),
-                               internal, value), m_format(format)
+                               internal, shownByDefault, value), m_format(format), m_optimality(optimality)
     {
     }
     bool operator <(const Attribute& other) const;
@@ -25,6 +29,7 @@ public:
 
 protected:
     QString m_format;
+    Optimality m_optimality;
 
     static double distance(double a, double b);
 };

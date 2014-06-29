@@ -8,8 +8,8 @@
 class CompoundAttribute : public Attribute
 {
 public:
-    CompoundAttribute(bool internal, const QString& separator, Relationship::Type relationships, const QList<QSharedPointer<Attribute> > children) :
-        Attribute(relationships, internal), m_separator(separator), m_supportedRelationships(relationships), m_children(children)
+    CompoundAttribute(bool internal, bool shownByDefault, const QString& separator, Relationship::Type relationships, const QList<QSharedPointer<Attribute> > children) :
+        Attribute(relationships, internal, shownByDefault), m_separator(separator), m_supportedRelationships(relationships), m_children(children)
     {
     }
 

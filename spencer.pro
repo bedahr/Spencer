@@ -50,7 +50,8 @@ SOURCES += src/main.cpp \
         src/nlu/constraintstatement.cpp \
     src/databaseconnector.cpp \
     src/domainbase/booleanattribute.cpp \
-    src/domainbase/listattribute.cpp
+    src/domainbase/listattribute.cpp \
+    src/domainbase/recommendationattribute.cpp
 
 HEADERS += \
         src/spencer.h \
@@ -81,7 +82,8 @@ HEADERS += \
     src/recommender/appliedcritique.h \
     src/databaseconnector.h \
     src/domainbase/booleanattribute.h \
-    src/domainbase/listattribute.h
+    src/domainbase/listattribute.h \
+    src/domainbase/recommendationattribute.h
 
 
 INCLUDEPATH += ../BBSimoneShared $${BBSIMONECOMMONIPATH} src/

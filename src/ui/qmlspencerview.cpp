@@ -281,9 +281,10 @@ QObject* QMLSpencerView::speakLabel()
     return viewer->rootObject()->findChild<QObject*>("lbSpeak");
 }
 
-void QMLSpencerView::displayRecommendation(const Offer* offer, const QString& explanation)
+void QMLSpencerView::displayRecommendationPrivate(const QString& offerName, double price, double rating, const QStringList& images,
+                                           const QList<RecommendationAttribute*> &offer, SentimentMap userSentiment,
+                                           const QString& explanation)
 {
-    //qDebug() << "Displaying recommendation";
     static QStringList oldIds;
     foreach (const QString& oldId, oldIds) {
         //qDebug() << "Removing: " << oldId;
@@ -294,31 +295,28 @@ void QMLSpencerView::displayRecommendation(const Offer* offer, const QString& ex
 
     QStringList cachedImageSrcs;
 
-    foreach (const QString& imageSrc, offer->getImages()) {
+    foreach (const QString& imageSrc, images) {
         QString imageCachePath = viewerImageCache->add(QPixmap(imageSrc));
         cachedImageSrcs << QLatin1String("image://SpencerImages/") + imageCachePath;
         oldIds.append(imageCachePath);
     }
 
-    QVariantList labels;
-    QVariantList attributes;
-    foreach (const QString& key, offer->getRecords().keys()) {
-        Record r(offer->getRecord(key));
-        if (r.second->getInternal())
-            continue;
-        labels << r.first;
-        attributes << r.second->toString();
-    }
+    QVariantList offerList;
+    foreach (RecommendationAttribute* a, offer)
+        offerList << QVariant::fromValue(a);
 
-    qDebug() << "This sentiment: " << offer->getUserSentiment();
+    QVariantMap userSentimentMap;
+    foreach (const QString& s, userSentiment.keys())
+        userSentimentMap.insert(s, userSentiment.value(s));
 
     QMetaObject::invokeMethod(viewer->rootObject()->findChild<QObject*>("currentRecommendation"),
                               "recommend",
-                              Q_ARG(QVariant, QVariant::fromValue(offer->getName())),
-                              Q_ARG(QVariant, QVariant::fromValue(offer->getPrice())),
+                              Q_ARG(QVariant, QVariant::fromValue(offerName)),
+                              Q_ARG(QVariant, QVariant::fromValue(price)),
+                              Q_ARG(QVariant, QVariant::fromValue(rating)),
                               Q_ARG(QVariant, QVariant::fromValue(cachedImageSrcs)),
-                              Q_ARG(QVariant, QVariant::fromValue(labels)),
-                              Q_ARG(QVariant, QVariant::fromValue(attributes))
+                              Q_ARG(QVariant, QVariant::fromValue(offerList)),
+                              Q_ARG(QVariant, QVariant::fromValue(userSentimentMap))
                               );
 
     displayExecutedAction(explanation);

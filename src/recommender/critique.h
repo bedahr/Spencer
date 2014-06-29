@@ -2,6 +2,7 @@
 #define CRITIQUE_H
 
 #include "domainbase/relationship.h"
+#include "domainbase/attribute.h"
 
 class Offer;
 
@@ -43,6 +44,13 @@ public:
     QList<Critique*> getSuperseding() const { return m_supersededCritiques; }
     void clearSuperseding() { m_supersededCritiques.clear(); }
 
+    /// Returns true iff the critique makes a statement about the given record
+    bool appliesTo(const Record& record) const;
+
+    /// Influence modifier [1..0]; higher, the close
+    /// m_ttl is to maxTTL (the younger the critique)
+    float influence() const;
+
 private:
     int m_ttl;
     float m_baseInfluence;
@@ -51,10 +59,6 @@ private:
     const Relationship* m_relationship;
 
     QList<Critique*> m_supersededCritiques;
-
-    /// Influence modifier [1..0]; higher, the close
-    /// m_ttl is to maxTTL (the younger the critique)
-    float influence() const;
 
 };
 

@@ -8,8 +8,8 @@ template <typename T>
 class ValueAttribute : public Attribute
 {
 public:
-    ValueAttribute(Relationship::Type definedFor, bool internal, T value) :
-        Attribute(definedFor, internal),
+    ValueAttribute(Relationship::Type definedFor, bool internal, bool shownByDefault, T value) :
+        Attribute(definedFor, internal, shownByDefault),
         m_value(value)
     {}
 

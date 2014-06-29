@@ -2,6 +2,8 @@
 #define DIALOGMANAGER_H
 
 #include "ui/avatar/avatartask.h"
+#include "domainbase/recommendationattribute.h"
+#include "domainbase/offer.h"
 #include <QStateMachine>
 #include <QList>
 
@@ -15,7 +17,10 @@ class DialogManager : public QObject
 Q_OBJECT
 signals:
     void elicit(AvatarTask, bool immediately=true);
-    void recommendation(const Offer* product, const QString& explanation);
+    void recommendation(const Offer* offer, const QString& offerName, double price, double rating,
+                        const QStringList& images,
+                        const QList<RecommendationAttribute*>& product,
+                        const SentimentMap& userSentiment, const QString& explanation);
 
 public:
     DialogManager();

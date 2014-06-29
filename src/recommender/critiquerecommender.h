@@ -3,6 +3,7 @@
 
 #include "critique.h"
 #include "domainbase/offer.h"
+#include "domainbase/attribute.h"
 
 class Recommendation;
 
@@ -12,6 +13,10 @@ class CritiqueRecommender : public QObject
 
 public:
     CritiqueRecommender();
+
+    /// Uses the user model to determine the expected user interest in
+    /// a given attribute
+    double userInterest(const Record& record) const;
 
 public slots:
     /// Sets the product database to the given list of offers

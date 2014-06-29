@@ -11,7 +11,7 @@ Item {
 
     Timer {
         id: imageCycleTimer
-        interval: 2000; running: true; repeat: true
+        interval: 3000; running: true; repeat: true
         onTriggered: updatePicture()
     }
 
@@ -29,31 +29,24 @@ Item {
         imImage.source = currentImages[currentImageIndex]
         naFadeImages.start()
         currentImageIndex = (currentImageIndex+1) % currentImages.length
-
     }
 
     Component.onCompleted: console.log(" ready for creating dynamics]");
-    /*
 
-    QMetaObject::invokeMethod(viewer->rootObject()->findChild<QObject*>("currentRecommendation"),
-                              "recommend",
-                              Q_ARG(QVariant, QVariant::fromValue(offer->getName())),
-                              Q_ARG(QVariant, QVariant::fromValue(offer->getPrice())),
-                              Q_ARG(QVariant,
-                                    QVariant::fromValue(QLatin1String("image://SpencerImages/"))),
-                              Q_ARG(QVariant, oldIds)),
-                              Q_ARG(QVariant, QVariant::fromValue(offer->getRecords()))*/
-    function recommend(title, price, images, labels, attributes)
+    function recommend(title, price, rating, images, data, sentiment)
     {
         imageCycleTimer.stop()
         teName.changeText(title)
         tePrice.changeText("€ " + price)
 
         aiDetails.state = "hidden"
+        console.log("Got " + data.length+" attributes")
+        for (var i = 0; i < data.length; ++i) {
+            AttrDisplay.createDetails(coDetails, data[i].name, data[i].value)
 
-        for (var i = 0; i < labels.length; ++i) {
-            AttrDisplay.createDetails(coDetails, labels[i], attributes[i])
-
+        }
+        for (var key in sentiment) {
+            console.log(key + " = " + sentiment[key])
         }
 
         currentImages = images
@@ -134,18 +127,51 @@ Item {
         id: aiDetails
         anchors {
             top: teName.bottom
-            topMargin: 20
+            topMargin: 30
             left: parent.left
             right: teName.right
-            bottom: parent.bottom
+        }
+        height: teDetailsHeader.height + coDetails.height
+        Text {
+            id: teDetailsHeader
+            anchors.left: parent.left
+            anchors.top: parent.top
+            font.pixelSize: 18
+            font.bold: true
+            text: "Details"
         }
         Flickable {
-            anchors.fill : parent
+            anchors {
+                left: parent.left
+                top: teDetailsHeader.bottom
+                right: parent.right
+                bottom: parent.bottom
+            }
             contentHeight: coDetails.height
             Column {
                 id: coDetails
                 spacing: 5
             }
+        }
+    }
+
+
+    Item {
+        id: aiUserSentiment
+        anchors {
+            top: aiDetails.bottom
+            topMargin: 30
+            left: parent.left
+            right: teName.right
+            bottom: parent.bottom
+        }
+
+        Text {
+            anchors.left: parent.left
+            anchors.top: parent.top
+            font.pixelSize: 18
+            font.bold: true
+            text: "Kundenmeinungen"
         }
 
         /*

@@ -21,6 +21,18 @@ void CritiqueRecommender::init()
     m_critiques.clear();
 }
 
+
+double CritiqueRecommender::userInterest(const Record& record) const
+{
+    double userInterest = 0;
+    foreach (Critique* c, m_critiques) {
+        if (c->appliesTo(record)) {
+            userInterest += c->influence();
+        }
+    }
+    return userInterest;
+}
+
 bool CritiqueRecommender::critique(Critique* critique)
 {
     Q_ASSERT(critique);

@@ -125,3 +125,8 @@ QString Relationship::toString() const
 
     return QString("%1 %2%3 %4").arg(m_id).arg(modifierStr).arg(strType.join(QObject::tr(" und "))).arg(m_attribute->toString());
 }
+
+bool Relationship::appliesTo(const QString& id) const
+{
+    return id == m_id;
+}

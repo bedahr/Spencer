@@ -96,7 +96,39 @@ void DialogManager::completeTurn()
         QString explanation = "Explanations not implemented yet."; // TODO
 
         emit elicit(AvatarTask(AvatarTask::PresentItem), false);
-        emit recommendation(r->offer(), explanation);
+
+        const Offer *o = r->offer();
+        QList<RecommendationAttribute*> description;
+
+        foreach (const QString& key, o->getRecords().keys()) {
+            Record r(o->getRecord(key));
+            if (r.second->getInternal())
+                continue;
+            QString name = r.first;
+            QSharedPointer<Attribute> attr = r.second;
+            float expressedUserInterest = recommender->userInterest(r);
+
+            bool showThisAttribute = true;
+
+            // there are two reasons that warrant showing the attribute:
+            // 1. A certain set of attributes is shown by default.
+            showThisAttribute = attr->getShownByDefault();
+
+            // 2. The user expressed interest in the attribute either directly or indirectly
+            showThisAttribute |= expressedUserInterest > 0.1;
+
+            if (!showThisAttribute)
+                continue;
+            QString value = attr->toString();
+
+            float sentiment = 0;
+
+            description << new RecommendationAttribute(name, value, expressedUserInterest, sentiment);
+        }
+
+        qDebug() << "s: " << o->getUserSentiment();
+        emit recommendation(o, o->getName(), o->getPrice(), o->getRating(), o->getImages(),
+                            description, o->getUserSentiment(), explanation);
     } else {
         qDebug() << "No recommendation at this point";
         // TODO: Ask domain questions
