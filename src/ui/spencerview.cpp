@@ -109,7 +109,7 @@ void SpencerView::displayRecommendation(const QString& offerName, double price, 
                                   screenSizeVResolutionAttribute->getReviewSentiment()) / 3;
 
         sanitizedOffer.append(new RecommendationAttribute(QObject::tr("Bildschirm"),
-                                                          QString("%1 %2x%3)").arg(screenSizeAttribute->getValue().toString())
+                                                          QString("%1 (%2x%3)").arg(screenSizeAttribute->getValue().toString())
                                                                                .arg(screenSizeHResolutionAttribute->getValue().toString())
                                                                                .arg(screenSizeVResolutionAttribute->getValue().toString()),
                                                           expressedUserInterest,

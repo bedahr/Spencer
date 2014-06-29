@@ -1,12 +1,15 @@
 import QtQuick 2.2
 import QtMultimedia 5.0
 import "AttributeDisplay.js" as AttrDisplay
+import "SentimentDisplay.js" as SentimentDisplay
 
 Item {
     id: offer
 
     property int currentImageIndex : 0
     property variant currentImages : []
+    property variant currentDetails : []
+    property variant currentSentiment : []
     anchors.margins: 30
 
     Timer {
@@ -22,72 +25,88 @@ Item {
         if (currentImageIndex > currentImages.length) {
             return;
         }
-
-        imImageFader.source = imImage.source
-        imImageFader.opacity = 1
-        imImage.opacity = 0
-        imImage.source = currentImages[currentImageIndex]
-        naFadeImages.start()
+        imImage.updateImage(currentImages[currentImageIndex])
         currentImageIndex = (currentImageIndex+1) % currentImages.length
     }
 
     Component.onCompleted: console.log(" ready for creating dynamics]");
 
+    function sortHelper(a, b) {
+        var out = b["value"] - a["value"]
+        return out
+    }
+
+    function displaySentiment(parent, data, mode) {
+        for (var i = 0; i < data.length; ++i) {
+            console.log("Displaying " + data[i]["aspect"] + " : " + data[i]["value"])
+            currentSentiment.push(SentimentDisplay.createSentimentDisplay(parent, data[i]["aspect"], data[i]["value"], mode))
+        }
+    }
+
     function recommend(title, price, rating, images, data, sentiment)
     {
+        for (var item in currentDetails)
+            item.destroy()
+        for (var item in currentSentiment)
+            item.destroy()
+
         imageCycleTimer.stop()
         teName.changeText(title)
         tePrice.changeText("€ " + price)
 
         aiDetails.state = "hidden"
-        console.log("Got " + data.length+" attributes")
         for (var i = 0; i < data.length; ++i) {
-            AttrDisplay.createDetails(coDetails, data[i].name, data[i].value)
-
+            currentDetails.push( AttrDisplay.createDetails(coDetails, data[i].name, data[i].value))
         }
-        for (var key in sentiment) {
-            console.log(key + " = " + sentiment[key])
+        var pos_sentiment = []
+        var neg_sentiment = []
+        for (var aspect in sentiment) {
+            console.log(aspect + " = " + sentiment[aspect])
+            var value = sentiment[aspect]
+            if (value > 0.01) {
+                data = Math.min(value, 1)
+                pos_sentiment.push({"aspect" : aspect, "value" : data})
+            } else if (value < -0.01) {
+                data = Math.min(-1 * value, 1)
+                neg_sentiment.push({"aspect" : aspect, "value" : data})
+            }
         }
+        pos_sentiment = pos_sentiment.sort(sortHelper)
+        neg_sentiment = neg_sentiment.sort(sortHelper)
+        displaySentiment(coSentimentPos, pos_sentiment, "positive")
+        displaySentiment(coSentimentNeg, neg_sentiment, "negative")
+        rwRating.rating = rating
 
         currentImages = images
         updatePicture()
         imageCycleTimer.start()
+        imBackgroundImage.updateImage(currentImages[0])
     }
-    ParallelAnimation {
-        id: naFadeImages
-        NumberAnimation {
-            target: imImage;
-            properties: "opacity";
-            duration: 500;
-            to: 1
-        }
-        NumberAnimation {
-            target: imImageFader;
-            properties: "opacity";
-            duration: 500;
-            to: 0
-        }
-
-    }
-
-    Image {
-        id: imImageFader
-        anchors.fill: imImage
-        opacity: 0
-        smooth: true
-        fillMode: Image.PreserveAspectFit
-        z: 5
-    }
-    Image {
+    FadingImage {
         id: imImage
         anchors.top: parent.top
         anchors.right: parent.right
         width: 347
         height: 347
-        smooth: true
         fillMode: Image.PreserveAspectFit
         z: 5
     }
+    FadingImage {
+        id: imBackgroundImage
+        anchors {
+            bottom: parent.bottom
+            left: parent.left
+            bottomMargin: -300
+            leftMargin: -200
+        }
+
+        width: 1200
+        height: 1200
+        fillMode: Image.PreserveAspectFit
+        maxOpacity: 0.1
+        z: -5
+    }
+
     Button {
         id: btBack
         width: 80
@@ -100,36 +119,52 @@ Item {
         topClickMargin: 20
         bottomClickMargin: 20
     }
-
-    AnimatedText {
-        id: teName
-        font.pointSize: 20
-        text: ""
+    Item {
+        id:header
         anchors.left: parent.left
         anchors.right: imImage.left
-        anchors.rightMargin: 20
-        anchors.top: parent.top
+        anchors.rightMargin: 50
+
+        height: teName.height + rwRating.height
+
+        AnimatedText {
+            id: teName
+            font.pointSize: 20
+            text: ""
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.top: parent.top
+        }
+
+        AnimatedText {
+            id: tePrice
+            font.pointSize: 20
+            anchors.top: parent.top
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+            horizontalAlignment: Text.AlignRight
+            verticalAlignment: Text.AlignVCenter
+        }
+
+        RatingWidget {
+            id: rwRating
+            width: 120
+            height: 32
+            rating:  0
+            anchors {
+                top: teName.bottom
+                left: parent.left
+            }
+        }
     }
-
-    AnimatedText {
-        id: tePrice
-        font.pointSize: 20
-        anchors.top: imImage.bottom
-        anchors.left: imImage.left
-        anchors.right: imImage.right
-        anchors.topMargin: 10
-        horizontalAlignment: Text.AlignHCenter
-
-    }
-
 
     Item {
         id: aiDetails
         anchors {
-            top: teName.bottom
+            top: header.bottom
             topMargin: 30
             left: parent.left
-            right: teName.right
+            right: header.right
         }
         height: teDetailsHeader.height + coDetails.height
         Text {
@@ -144,6 +179,7 @@ Item {
             anchors {
                 left: parent.left
                 top: teDetailsHeader.bottom
+                topMargin: 20
                 right: parent.right
                 bottom: parent.bottom
             }
@@ -160,18 +196,37 @@ Item {
         id: aiUserSentiment
         anchors {
             top: aiDetails.bottom
-            topMargin: 30
+            topMargin: 50
             left: parent.left
-            right: teName.right
+            right: header.right
             bottom: parent.bottom
         }
 
         Text {
+            id: teSentimentHeader
             anchors.left: parent.left
             anchors.top: parent.top
             font.pixelSize: 18
             font.bold: true
             text: "Kundenmeinungen"
+        }
+        Row {
+            spacing: 40
+            anchors {
+                left: parent.left
+                top: teSentimentHeader.bottom
+                topMargin: 20
+                right: parent.right
+                bottom: parent.bottom
+            }
+            Column {
+                id: coSentimentNeg
+                spacing: 5
+            }
+            Column {
+                id: coSentimentPos
+                spacing: 5
+            }
         }
 
         /*

@@ -309,6 +309,8 @@ void QMLSpencerView::displayRecommendationPrivate(const QString& offerName, doub
     foreach (const QString& s, userSentiment.keys())
         userSentimentMap.insert(s, userSentiment.value(s));
 
+    qDebug() << "Rating: " << rating;
+
     QMetaObject::invokeMethod(viewer->rootObject()->findChild<QObject*>("currentRecommendation"),
                               "recommend",
                               Q_ARG(QVariant, QVariant::fromValue(offerName)),

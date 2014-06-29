@@ -22,7 +22,11 @@ OTHER_FILES += \
         src/qml/spencer/AttributeDelegate.qml \
         src/qml/spencer/AnimatedText.qml \
         src/qml/spencer/Avatar.qml \
-    src/qml/spencer/AttributeDisplay.js
+    src/qml/spencer/AttributeDisplay.js \
+    src/qml/spencer/RatingWidget.qml \
+    src/qml/spencer/SentimentDelegate.qml \
+    src/qml/spencer/SentimentDisplay.js \
+    src/qml/spencer/FadingImage.qml
 
 SOURCES += src/main.cpp \
         src/spencer.cpp \

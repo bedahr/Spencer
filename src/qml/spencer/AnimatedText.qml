@@ -5,9 +5,11 @@ Item {
     property alias text: primaryText.text
     property alias font: primaryText.font
     property alias horizontalAlignment : primaryText.horizontalAlignment
+    property alias verticalAlignment : primaryText.verticalAlignment
 
     property string targetText : ""
     height: primaryText.height
+    width: primaryText.width
 
     Timer {
         id: clearTimer
