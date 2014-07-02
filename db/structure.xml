@@ -364,7 +364,7 @@
     </feature>
     <feature nr="51" shownByDefault="true">
       <id>storageMedia</id>
-      <name>Storage Media</name>
+      <name>Datenspeicher</name>
       <type>
         <list>
           <list>
