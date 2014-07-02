@@ -13,4 +13,14 @@ AnimatedItem {
         anchors.fill: parent
     }
 
+    ProgressBar {
+        id: pbVUMeter
+        objectName: "pbVUMeter"
+        width: 620
+        height: 50
+        anchors.bottom: parent.bottom
+        anchors.horizontalCenter: parent.horizontalCenter
+    }
+
+
 }
