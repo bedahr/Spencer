@@ -53,13 +53,13 @@ Item {
 
         aiDetails.state = "hidden"
         for (var i = 0; i < data.length; ++i) {
-            currentDetails.push( AttrDisplay.createDetails(coDetails, data[i].name, data[i].value))
+            currentDetails.push( AttrDisplay.createDetails(
+                                    i < Math.ceil(data.length / 2) ? coDetails1 : coDetails2,
+                                                                     data[i].name, data[i].value))
         }
         var pos_sentiment = []
         var neg_sentiment = []
         for (var aspect in sentiment) {
-
-            console.log("Aspect sentiment..." + aspect + " = " + sentiment[aspect])
             var value = sentiment[aspect]
             if (value > 0.01) {
                 data = Math.min(value, 1)
@@ -80,6 +80,7 @@ Item {
         imageCycleTimer.start()
         imBackgroundImage.updateImage(currentImages[0])
     }
+
     FadingImage {
         id: imImage
         anchors.top: parent.top
@@ -162,10 +163,11 @@ Item {
             topMargin: 40
             left: header.left
             right: header.right
-            leftMargin: 60
-            rightMargin: 60
+            leftMargin: 40
+            rightMargin: 40
             bottom: parent.bottom
         }
+        onWidthChanged: console.log(width)
 
         Item {
             id: aiDetails
@@ -174,7 +176,7 @@ Item {
                 left: parent.left
                 right: parent.right
             }
-            height: teDetailsHeader.height + coDetails.height
+            height: teDetailsHeader.height + 20 + Math.max(coDetails1.height, coDetails2.height)
             Text {
                 id: teDetailsHeader
                 anchors.left: parent.left
@@ -183,19 +185,25 @@ Item {
                 font.bold: true
                 text: "Details"
             }
-            Flickable {
+            Column {
+                id: coDetails1
+                spacing: 5
                 anchors {
                     left: parent.left
                     top: teDetailsHeader.bottom
                     topMargin: 20
+                }
+                width: parent.width / 2
+            }
+            Column {
+                id: coDetails2
+                width: parent.width / 2
+                anchors {
+                    top: teDetailsHeader.bottom
+                    topMargin: 20
                     right: parent.right
-                    bottom: parent.bottom
                 }
-                contentHeight: coDetails.height
-                Column {
-                    id: coDetails
-                    spacing: 5
-                }
+                spacing: 5
             }
         }
 
@@ -228,12 +236,12 @@ Item {
                     bottom: parent.bottom
                 }
                 Column {
-                    width: 280
+                    width: 380
                     id: coSentimentNeg
                     spacing: 5
                 }
                 Column {
-                    width: 280
+                    width: 380
                     id: coSentimentPos
                     spacing: 5
                 }

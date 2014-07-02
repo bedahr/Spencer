@@ -3,7 +3,7 @@ import QtQuick 2.0
 
 Item {
     height: label.height + 3
-    width: 280
+    width: 390
 
     property alias key : label.text
     property double value

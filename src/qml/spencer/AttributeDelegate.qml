@@ -16,7 +16,7 @@ Rectangle {
 }
 */
 Item {
-    width: 800
+    width: 400
     height: Math.max(label.height, val.height)
 
     property alias key : label.text
@@ -27,7 +27,7 @@ Item {
         anchors.top: parent.top
 
         anchors.left: parent.left
-        width: 280
+        width: 160
         font.pixelSize: 18
         horizontalAlignment: Text.AlignRight
         wrapMode : Text.WordWrap
@@ -35,7 +35,7 @@ Item {
     Text {
         id: val
         anchors.right: parent.right
-        width: parent.width - 320
+        width: parent.width - 180
         wrapMode : Text.WordWrap
         font.pixelSize: 18
     }
