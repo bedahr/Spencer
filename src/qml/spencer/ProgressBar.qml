@@ -6,13 +6,13 @@ Rectangle {
     property int value : 20
     id: outer
 
-    border.color: "lightgrey"
+    border.color: "grey"
     border.width: 1
 
 
     Rectangle {
         id: inner
-        color: "lightgrey"
+        color: "grey"
         anchors.fill: parent
         anchors.rightMargin: outer.width * (maximumValue - value) / maximumValue
     }

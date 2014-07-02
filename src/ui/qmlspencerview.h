@@ -69,6 +69,9 @@ public slots:
 
     void actOut(const AvatarTask& avatarTask, bool immediately);
 
+private slots:
+    void avatarPresents(const QString& description);
+
 private:
     QQuickView *viewer;
     QMLSpencerImageProvider *viewerImageCache;

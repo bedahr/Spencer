@@ -15,6 +15,9 @@ class QObject;
 class Avatar : public QObject
 {
 Q_OBJECT
+signals:
+    void presenting(const QString& description);
+
 public:
     Avatar(QObject *parent=0);
     ~Avatar();
@@ -50,6 +53,7 @@ private slots:
     void mediaStatusChanged(QMediaPlayer::MediaStatus status);
     void maximizeAvatar();
     void minimizeAvatar();
+    void introCompleted();
 
 };
 

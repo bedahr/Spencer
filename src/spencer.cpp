@@ -85,7 +85,9 @@ QList<Offer*> Spencer::parseCasebase(bool* okay) const
 
 void Spencer::reset()
 {
+    qDebug() << "Resetting";
     m_recommender->init();
+    m_dialogManager->init(m_recommender);
 }
 
 void Spencer::recommendationChanged(const Offer *currentOffer,

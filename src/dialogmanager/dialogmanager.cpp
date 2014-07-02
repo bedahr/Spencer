@@ -4,6 +4,7 @@
 #include "recommender/critiquerecommender.h"
 #include "recommender/recommendation.h"
 #include <QDebug>
+#include <QEventLoop>
 
 /*
  * This dialog manager implements a few simple behaviors:
@@ -80,7 +81,8 @@ void DialogManager::userInput(const QList<Statement*> statements)
     foreach (Statement *s, statements) {
         if (!s->act(recommender)) {
             qWarning() << "No match for " << s->toString();
-            emit elicit(AvatarTask(AvatarTask::Custom, tr("Leider konnte ich kein passendes Produkt finden mit %1").arg(s->toString())));
+            emit elicit(AvatarTask(AvatarTask::Custom, tr("Leider konnte ich kein passendes Produkt finden mit %1").arg(s->toString()),
+                                   tr("Kein passendes Produkt.")));
         }
         // FIXME: explanation!
         qDebug() << "Processed: " << s->toString();
@@ -144,8 +146,17 @@ void DialogManager::completeTurn()
 
 void DialogManager::init(CritiqueRecommender *recommender)
 {
+    if (dialogStateMachine.isRunning()) {
+        //hackety hack
+        QEventLoop l;
+        connect(&dialogStateMachine, SIGNAL(stopped()), &l, SLOT(quit()));
+        dialogStateMachine.stop();
+        l.exec();
+    }
+
     this->recommender = recommender;
     qDebug() << "Starting state machine";
+
     dialogStateMachine.start();
     completeTurn();
 }
@@ -153,6 +164,6 @@ void DialogManager::init(CritiqueRecommender *recommender)
 void DialogManager::greet()
 {
     qDebug() << "Greeting";
-    //emit elicit(AvatarTask(AvatarTask::Intro), true);
+    emit elicit(AvatarTask(AvatarTask::Intro), true);
     //emit elicit(AvatarTask(AvatarTask::Custom, "Hallo du Ei"), true);
 }

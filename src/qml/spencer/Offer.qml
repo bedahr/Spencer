@@ -10,6 +10,68 @@ Item {
     property variant currentImages : []
     property variant currentDetails : []
     property variant currentSentiment : []
+    property int titleSkip : 0
+
+    state: "nooffer"
+
+    states: [
+        State {
+            name: "nooffer"
+            PropertyChanges {
+                target: body
+                opacity: 0
+            }
+            PropertyChanges {
+                target: header
+                opacity: 0
+            }
+            PropertyChanges {
+                target: imBackgroundImage
+                opacity: 0
+            }
+            PropertyChanges {
+                target: imImage
+                opacity: 0
+            }
+            PropertyChanges {
+                target: imNoRecommendation
+                opacity: 1
+            }
+        },
+        State {
+            name: "hasoffer"
+            PropertyChanges {
+                target: body
+                opacity: 1
+            }
+            PropertyChanges {
+                target: header
+                opacity: 1
+            }
+            PropertyChanges {
+                target: imBackgroundImage
+                opacity: 1
+            }
+            PropertyChanges {
+                target: imImage
+                opacity: 1
+            }
+            PropertyChanges {
+                target: imNoRecommendation
+                opacity: 0
+            }
+        }
+
+    ]
+
+    transitions: [
+        Transition {
+            from: "*"
+            to: "*"
+            NumberAnimation { targets: [body,header,imBackgroundImage,imImage,imNoRecommendation]; properties: "opacity"; duration: 200 }
+        }
+    ]
+
     anchors.margins: 30
 
     Timer {
@@ -22,7 +84,7 @@ Item {
     }
 
     function updatePicture() {
-        if (currentImageIndex > currentImages.length) {
+        if (currentImageIndex >= currentImages.length) {
             return;
         }
         imImage.updateImage(currentImages[currentImageIndex])
@@ -38,6 +100,11 @@ Item {
         for (var i = 0; i < data.length; ++i) {
             currentSentiment.push(SentimentDisplay.createSentimentDisplay(parent, data[i]["aspect"], data[i]["value"], mode))
         }
+    }
+
+    function noRecommendation()
+    {
+        offer.state = "nooffer"
     }
 
     function recommend(title, price, rating, images, data, sentiment)
@@ -79,6 +146,7 @@ Item {
         updatePicture()
         imageCycleTimer.start()
         imBackgroundImage.updateImage(currentImages[0])
+        offer.state = "hasoffer"
     }
 
     FadingImage {
@@ -106,18 +174,12 @@ Item {
         z: -5
     }
 
-    Button {
-        id: btBack
-        width: 80
-        height: 20
-        text: qsTr("Zurück") // qsTr("Back")
-        visible: !spencerView.voiceControlled
-        anchors.right: imImage.right
-        anchors.bottom: parent.bottom
-        onClicked: spencer.critique("ZURÜCK")
-        topClickMargin: 20
-        bottomClickMargin: 20
+    Image {
+        id: imNoRecommendation
+        source: "img/unknown_laptop.png"
+        anchors.centerIn: parent
     }
+
     Item {
         id:header
         anchors.left: parent.left
@@ -133,6 +195,7 @@ Item {
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.top: parent.top
+            anchors.leftMargin: titleSkip
         }
 
         AnimatedText {
@@ -167,7 +230,6 @@ Item {
             rightMargin: 40
             bottom: parent.bottom
         }
-        onWidthChanged: console.log(width)
 
         Item {
             id: aiDetails
@@ -246,14 +308,6 @@ Item {
                     spacing: 5
                 }
             }
-
-            /*
-            ListView {
-                id: attributeDisplay
-                anchors.fill: parent
-
-                delegate: AttributeDelegate {}
-            } */
         }
     }
 

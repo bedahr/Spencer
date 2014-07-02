@@ -50,6 +50,8 @@ Item {
         }
     ]
 
+    OzController {
+    }
 
     Text {
         id: teConnectionStatus

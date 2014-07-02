@@ -89,6 +89,9 @@ QMLSpencerView::QMLSpencerView(Spencer *spencer, bool voiceControlled, QObject *
     connect(disconnectButton(), SIGNAL(clicked()),
                                  this, SIGNAL(disconnectFromServer()));
 
+
+    connect(avatar, SIGNAL(presenting(QString)), this, SLOT(avatarPresents(QString)));
+
     QObject *avatarQMLProxy = viewer->rootObject()->findChild<QObject*>("avatar");
     avatar->setUI(avatarQMLProxy);
     restoreConfiguration();
@@ -216,7 +219,7 @@ void QMLSpencerView::displayListening()
 void QMLSpencerView::displayRecognizing()
 {
     /*
-    QMetaObject::invokeMethod(viewer->rootObject()->findChild<QObject*>("currentRecommendation"),
+    QMetaObject::invokeMethod(viewer->rootObject()->findChild<QObject*>("console"),
                                       "displayRecognizing");
     speakLabel()->setProperty("text", tr("Please speak"));
     */
@@ -310,7 +313,7 @@ void QMLSpencerView::displayRecommendationPrivate(const QString& offerName, doub
     }
     qDebug() << "Rating: " << rating;
 
-    QMetaObject::invokeMethod(viewer->rootObject()->findChild<QObject*>("currentRecommendation"),
+    QMetaObject::invokeMethod(viewer->rootObject()->findChild<QObject*>("console"),
                               "recommend",
                               Q_ARG(QVariant, QVariant::fromValue(offerName)),
                               Q_ARG(QVariant, QVariant::fromValue(price)),
@@ -321,6 +324,13 @@ void QMLSpencerView::displayRecommendationPrivate(const QString& offerName, doub
                               );
 
     displayExecutedAction(explanation);
+}
+
+void QMLSpencerView::avatarPresents(const QString &description)
+{
+    QMetaObject::invokeMethod(viewer->rootObject()->findChild<QObject*>("console"),
+                              "showTask",
+                              Q_ARG(QVariant, QVariant::fromValue(description)));
 }
 
 void QMLSpencerView::actOut(const AvatarTask& avatarTask, bool immediately)

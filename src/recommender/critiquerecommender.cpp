@@ -108,7 +108,7 @@ Recommendation* CritiqueRecommender::suggestOffer() const
 {
     // apply m_critiques to m_offers to find best offer
     const Offer* bestOffer = 0;
-    float bestUtility = -std::numeric_limits<float>::max();
+    float bestUtility = std::numeric_limits<float>::min();
     QList<AppliedCritique> bestOfferExplanations;
 
     //qDebug() << "Complete db: ";
@@ -135,9 +135,14 @@ Recommendation* CritiqueRecommender::suggestOffer() const
         }
     }
 
+    //if we have no matching products, let us know
+    if (consideredProducts.isEmpty())
+        return 0;
+
     // out of consideredProducts (or the whole set, if we have none of those)
     // select the one offer with the highest combined utility
-    foreach (const Offer* o, (currentAge == INT_MAX) ? m_offers : consideredProducts) {
+    QList<float> utilitiesOfConsideredProducts;
+    foreach (const Offer* o, consideredProducts) {
         double thisUtility = o->priorPropability();
         QList<AppliedCritique> thisExplanations;
         foreach (const Critique* c, m_critiques) {
@@ -147,6 +152,7 @@ Recommendation* CritiqueRecommender::suggestOffer() const
         }
 
         //qDebug() << "Offer " << o->getName() << thisUtility;
+        utilitiesOfConsideredProducts << thisUtility;
 
         if (thisUtility > bestUtility ||
                 ((thisUtility == bestUtility) &&
@@ -161,7 +167,24 @@ Recommendation* CritiqueRecommender::suggestOffer() const
     if (bestOffer) {
         qDebug() << "Recommending " << bestOffer->getName() << bestUtility;
         double overallScore = bestUtility / (m_critiques.size() + 1.0);
-        //emit recommend(bestOffer, explanation.trimmed());
+
+        //discount score based on other utilites (3 * score ) / (sum_i=1^3{runnerUp[i])
+        qSort(utilitiesOfConsideredProducts.begin(), utilitiesOfConsideredProducts.end(), qGreater<float>());
+        //(max) 3 runner ups
+        int runnerUpCount = 3;
+        double discreditation = 0;
+        for (int i = 1; i <= runnerUpCount; i++) {
+            if (i >= utilitiesOfConsideredProducts.count()) {
+                runnerUpCount = utilitiesOfConsideredProducts.count() - 1;
+                break;
+            }
+            discreditation += utilitiesOfConsideredProducts[i];
+        }
+        if (runnerUpCount == 0)
+            overallScore *= 3;
+        else
+            overallScore = (runnerUpCount * overallScore) / discreditation;
+
         return new Recommendation(bestOffer, overallScore, bestOfferExplanations);
     } else
         qWarning() << "No best offer!";

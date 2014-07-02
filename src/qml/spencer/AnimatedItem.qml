@@ -2,6 +2,7 @@ import QtQuick 2.2
 
 Item {
     property bool inverted : false
+    property int animationDuration : 200
 
     id: animatedItem
     anchors.margins: 30
@@ -37,7 +38,7 @@ Item {
         Transition {
             from: "*"
             to: "*"
-            NumberAnimation { target: animatedItem; properties: "opacity,anchors.topMargin"; duration: 200; easing.type: Easing.InOutQuad }
+            NumberAnimation { target: animatedItem; properties: "opacity,anchors.topMargin"; duration: animationDuration; easing.type: Easing.InOutQuad }
         }
     ]
 }

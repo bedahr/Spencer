@@ -26,7 +26,8 @@ OTHER_FILES += \
     src/qml/spencer/RatingWidget.qml \
     src/qml/spencer/SentimentDelegate.qml \
     src/qml/spencer/SentimentDisplay.js \
-    src/qml/spencer/FadingImage.qml
+    src/qml/spencer/FadingImage.qml \
+    src/qml/spencer/OzController.qml
 
 SOURCES += src/main.cpp \
         src/spencer.cpp \

@@ -146,7 +146,7 @@ QByteArray Avatar::doDownload(const QUrl &url)
 
 
 QString Avatar::getTaskDirectory(const AvatarTask& task) {
-    switch(task.e) {
+    switch(task.expression()) {
     case AvatarTask::Idle:
         return mediaPath+"/idle";
     case AvatarTask::Intro:
@@ -175,7 +175,7 @@ QString Avatar::getTaskDirectory(const AvatarTask& task) {
         break;
     case AvatarTask::Custom:
         // create new directory if it doesn't yet exist based on text's hash
-        QString workDir = "/tmp/spencer/" + QString::number(qHash(task.text)) + '/';
+        QString workDir = "/tmp/spencer/" + QString::number(qHash(task.text())) + '/';
 
         if (!QDir(workDir).exists()) {
             if (!QDir().mkpath(workDir)) {
@@ -185,7 +185,7 @@ QString Avatar::getTaskDirectory(const AvatarTask& task) {
 
 
             // Design query for openmary
-            QString wavQuery = getMaryRequestUrl(task.text, true);
+            QString wavQuery = getMaryRequestUrl(task.text(), true);
 
             // download audio
             QFile audio(workDir+"audio.wav");
@@ -197,7 +197,7 @@ QString Avatar::getTaskDirectory(const AvatarTask& task) {
             audio.close();
 
             // design query for praat textgrid
-            QString textgridQuery = getMaryRequestUrl(task.text, false);
+            QString textgridQuery = getMaryRequestUrl(task.text(), false);
 
             // parse praat textgrid
             QList<QByteArray> textGrid = doDownload(QUrl(textgridQuery)).split('\n');
@@ -241,8 +241,10 @@ void Avatar::processQueue() {
         currentTaskDirectory = getTaskDirectory(AvatarTask(AvatarTask::Idle));
     } else {
         AvatarTask task = taskQueue.takeFirst();
-        if (task.e == AvatarTask::Intro)
-            QTimer::singleShot(25500, Qt::CoarseTimer, this, SLOT(minimizeAvatar()));
+        if (task.expression() == AvatarTask::Intro) {
+            QTimer::singleShot(25500, Qt::CoarseTimer, this, SLOT(introCompleted()));
+        }
+        emit presenting(task.description());
         currentTaskDirectory = getTaskDirectory(task);
     }
     audioPlayer->setMedia(QUrl::fromLocalFile(currentTaskDirectory+"/audio.wav"));
@@ -270,6 +272,12 @@ void Avatar::updateAvatar()
 void Avatar::maximizeAvatar()
 {
     QMetaObject::invokeMethod(ui, "maximize");
+}
+
+void Avatar::introCompleted()
+{
+    minimizeAvatar();
+    emit presenting(tr("Bitte beschreiben Sie Ihren Wunschlaptop."));
 }
 
 void Avatar::minimizeAvatar()
