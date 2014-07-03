@@ -11,7 +11,8 @@ AnimatedItem {
         text: ""
         anchors.left: parent.left
         anchors.top: parent.top
-        z: 3
+        anchors.leftMargin: 30
+        anchors.rightMargin: 30
     }
 
     Avatar {

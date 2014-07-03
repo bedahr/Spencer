@@ -8,7 +8,6 @@ Item {
 
     property int currentImageIndex : 0
     property variant currentImages : []
-    property variant currentDetails : []
     property variant currentSentiment : []
     property int titleSkip : 0
 
@@ -84,8 +83,11 @@ Item {
     }
 
     function updatePicture() {
+        if (currentImages.length == 0)
+            return
+
         if (currentImageIndex >= currentImages.length) {
-            return;
+            currentImageIndex = 0
         }
         imImage.updateImage(currentImages[currentImageIndex])
         currentImageIndex = (currentImageIndex+1) % currentImages.length
@@ -98,7 +100,7 @@ Item {
 
     function displaySentiment(parent, data, mode) {
         for (var i = 0; i < data.length; ++i) {
-            currentSentiment.push(SentimentDisplay.createSentimentDisplay(parent, data[i]["aspect"], data[i]["value"], mode))
+            SentimentDisplay.createSentimentDisplay(parent, data[i]["aspect"], data[i]["value"], mode)
         }
     }
 
@@ -107,12 +109,19 @@ Item {
         offer.state = "nooffer"
     }
 
+    function clearChildren(item)
+    {
+        for(var i = item.children.length; i > 0 ; i--) {
+          item.children[i-1].destroy()
+        }
+    }
+
     function recommend(title, price, rating, images, data, sentiment)
     {
-        for (var item in currentDetails)
-            item.destroy()
-        for (var si in currentSentiment)
-            si.destroy()
+        clearChildren(coDetails1)
+        clearChildren(coDetails2)
+        clearChildren(coSentimentPos)
+        clearChildren(coSentimentNeg)
 
         imageCycleTimer.stop()
         teName.changeText(title)
@@ -120,9 +129,9 @@ Item {
 
         aiDetails.state = "hidden"
         for (var i = 0; i < data.length; ++i) {
-            currentDetails.push( AttrDisplay.createDetails(
+            AttrDisplay.createDetails(
                                     i < Math.ceil(data.length / 2) ? coDetails1 : coDetails2,
-                                                                     data[i].name, data[i].value))
+                                                                     data[i].name, data[i].value)
         }
         var pos_sentiment = []
         var neg_sentiment = []

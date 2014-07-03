@@ -36,6 +36,9 @@ public slots:
 
     void userInput(const QString& input);
 
+    /// This is just here for wizard of oz testing
+    void overwriteDialogStrategy(int code);
+
 private:
     DatabaseConnector *m_databaseConnector;
     NLU *m_nlu;

@@ -60,8 +60,25 @@ DialogManager::DialogManager() : recommender(0), consecutiveMisunderstandingCoun
 {
     // set up dialog strategy
     QState *initState = new QState();
+    QState *askForUseCase = new QState();
+    QState *askForImportantAttribute = new QState();
+    QState *askForPerformanceImportant = new QState();
+    QState *askForPriceImportant = new QState();
+    QState *askForPortabilityImportant = new QState();
+    QState *recommendation = new QState();
+    QState *misunderstoodInput = new QState();
+
     dialogStateMachine.addState(initState);
+    dialogStateMachine.addState(askForUseCase);
+    dialogStateMachine.addState(askForImportantAttribute);
+    dialogStateMachine.addState(askForPerformanceImportant);
+    dialogStateMachine.addState(askForPriceImportant);
+    dialogStateMachine.addState(askForPortabilityImportant);
+    dialogStateMachine.addState(recommendation);
+    dialogStateMachine.addState(misunderstoodInput);
+
     dialogStateMachine.setInitialState(initState);
+
 
     connect(initState, SIGNAL(entered()), this, SLOT(greet()));
 }
@@ -87,12 +104,12 @@ void DialogManager::userInput(const QList<Statement*> statements)
         // FIXME: explanation!
         qDebug() << "Processed: " << s->toString();
     }
-    recommender->feedbackCycleComplete();
     completeTurn();
 }
 
 void DialogManager::completeTurn()
 {
+    recommender->feedbackCycleComplete();
     Recommendation* r = recommender->suggestOffer();
 
     if (r) {
@@ -158,7 +175,6 @@ void DialogManager::init(CritiqueRecommender *recommender)
     qDebug() << "Starting state machine";
 
     dialogStateMachine.start();
-    completeTurn();
 }
 
 void DialogManager::greet()
@@ -166,4 +182,31 @@ void DialogManager::greet()
     qDebug() << "Greeting";
     emit elicit(AvatarTask(AvatarTask::Intro), true);
     //emit elicit(AvatarTask(AvatarTask::Custom, "Hallo du Ei"), true);
+}
+
+void DialogManager::askForUseCase()
+{
+    emit elicit(AvatarTask(AvatarTask::AskUseCase));
+}
+
+void DialogManager::askForMostImportantAttribute()
+{
+    emit elicit(AvatarTask(AvatarTask::AskMostImportantAttribute));
+}
+void DialogManager::askForPerformanceImportant()
+{
+    emit elicit(AvatarTask(AvatarTask::AskPerformanceImportant));
+}
+
+void DialogManager::askForPriceImportant()
+{
+    emit elicit(AvatarTask(AvatarTask::AskPriceImporant));
+}
+void DialogManager::askForPortabilityImportant()
+{
+    emit elicit(AvatarTask(AvatarTask::AskEasyTransportImportant));
+}
+void DialogManager::randomRecommendation()
+{
+    completeTurn();
 }

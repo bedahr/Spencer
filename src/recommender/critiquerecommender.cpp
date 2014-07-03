@@ -7,6 +7,7 @@
 
 CritiqueRecommender::CritiqueRecommender()
 {
+    qsrand(5);
 }
 
 void CritiqueRecommender::setupDatabase(const QList<Offer*>& offers)
@@ -106,6 +107,9 @@ void CritiqueRecommender::feedbackCycleComplete()
 
 Recommendation* CritiqueRecommender::suggestOffer() const
 {
+    //random selection for now
+    return new Recommendation(m_offers[qrand() % m_offers.size()], 0, QList<AppliedCritique>());
+
     // apply m_critiques to m_offers to find best offer
     const Offer* bestOffer = 0;
     float bestUtility = std::numeric_limits<float>::min();

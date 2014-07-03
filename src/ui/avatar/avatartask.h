@@ -38,9 +38,9 @@ public:
             return QObject::tr("Gibt es etwas, was Ihnen besonders wichtig ist?");
         case AskPerformanceImportant:
             return QObject::tr("Muss der Laptop schnell sein?");
-        case AskEasyTransportImportant:
-            return QObject::tr("Muss der Laptop günstig sein?");
         case AskPriceImporant:
+            return QObject::tr("Muss der Laptop günstig sein?");
+        case AskEasyTransportImportant:
             return QObject::tr("Muss der Laptop transportabel sein?");
         case PresentItem:
             return QObject::tr("Vorschlag:");

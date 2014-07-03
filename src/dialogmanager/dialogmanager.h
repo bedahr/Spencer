@@ -27,6 +27,15 @@ public:
     void init(CritiqueRecommender *recommender);
     void userInput(const QList<Statement *> statements);
 
+public slots:
+    //these should be private slots, just here for the wizard of oz evaluation
+    void askForUseCase();
+    void askForMostImportantAttribute();
+    void askForPerformanceImportant();
+    void askForPriceImportant();
+    void askForPortabilityImportant();
+    void randomRecommendation();
+
 private:
     CritiqueRecommender *recommender;
     QStateMachine dialogStateMachine;

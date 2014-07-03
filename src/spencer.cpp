@@ -101,3 +101,28 @@ void Spencer::recommendationChanged(const Offer *currentOffer,
     m_currentRecommendation = currentOffer;
     emit recommend(offerName, price, rating, images, offer, userSentiment, explanation);
 }
+
+void Spencer::overwriteDialogStrategy(int code)
+{
+    switch (code)
+    {
+    case 1:
+        m_dialogManager->askForUseCase();
+        break;
+    case 2:
+        m_dialogManager->askForMostImportantAttribute();
+        break;
+    case 3:
+        m_dialogManager->askForPerformanceImportant();
+        break;
+    case 4:
+        m_dialogManager->askForPriceImportant();
+        break;
+    case 5:
+        m_dialogManager->askForPortabilityImportant();
+        break;
+    case 6:
+        m_dialogManager->randomRecommendation();
+        break;
+    }
+}
