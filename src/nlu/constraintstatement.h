@@ -7,7 +7,7 @@ class Relationship;
 class ConstraintStatement : public Statement
 {
 public:
-    ConstraintStatement(Relationship *relationship);
+    ConstraintStatement(Relationship *relationship, double lexicalPolarity=1.0, double quality=1.0);
     QString toString() const;
     bool act(CritiqueRecommender *r) const;
 

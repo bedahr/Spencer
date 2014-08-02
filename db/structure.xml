@@ -56,7 +56,7 @@
       <type>
         <symbol />
       </type>
-    </feature>>
+    </feature>
     <feature nr="7" shownByDefault="true">
       <id>processorType</id>
       <name>Prozessortyp</name>
@@ -65,13 +65,27 @@
       </type>
     </feature>
     <feature nr="8" shownByDefault="true">
-      <id>procesorFrequency</id>
+      <id>processorCores</id>
+      <name>Prozessorkerne</name>
+      <type>
+        <symbol />
+      </type>
+    </feature>
+    <feature nr="61" shownByDefault="true">
+      <id>processorFrequency</id>
       <name>Prozessortakt</name>
       <type>
         <number optimality="max">
           <format>%.2f GHz</format>
           <multiplier>0.001</multiplier>
         </number>
+      </type>
+    </feature>
+    <feature nr="62" shownByDefault="false">
+      <id>processorSpeed</id>
+      <name>Prozessorkerne</name>
+      <type>
+        <number optimality="max" />
       </type>
     </feature>
     <feature nr="9" shownByDefault="true">
@@ -154,7 +168,7 @@
       <id>screenAntiGlareCoated</id>
       <name>Entspiegelt</name>
       <type>
-        <bool />
+        <bool optimality="true" />
       </type>
     </feature>
     <feature nr="19">
@@ -168,14 +182,14 @@
       <id>screenIsHardened</id>
       <name>Gehärteter Bildschirm</name>
       <type>
-        <bool />
+        <bool optimality="true" />
       </type>
     </feature>
     <feature nr="21">
       <id>digitizerSupport</id>
       <name>Digitizer</name>
       <type>
-        <bool />
+        <bool optimality="true" />
       </type>
     </feature>
     <feature nr="25">
@@ -258,35 +272,35 @@
       <id>hasNumblock</id>
       <name>Nummernblock</name>
       <type>
-        <bool />
+        <bool optimality="true" />
       </type>
     </feature>
     <feature nr="37">
       <id>hasPointingStick</id>
       <name>Trackpoint</name>
       <type>
-        <bool />
+        <bool optimality="true" />
       </type>
     </feature>
     <feature nr="38">
       <id>litKeybaord</id>
       <name>Beleuchtete Tastatur</name>
       <type>
-        <bool />
+        <bool optimality="true" />
       </type>
     </feature>
     <feature nr="39">
       <id>fingerPrintReader</id>
       <name>Fingerabdruckleser</name>
       <type>
-        <bool />
+        <bool optimality="true" />
       </type>
     </feature>
     <feature nr="40">
       <id>convertible</id>
       <name>Konvertierbar</name>
       <type>
-        <bool />
+        <bool optimality="true" />
       </type>
     </feature>
     <feature nr="41" internal="true">
@@ -368,7 +382,7 @@
       <type>
         <list>
           <list>
-            <symbol />
+            <symbol optimality="SSD" />
             <number optimality="max">
               <format>%.0f GB</format>
               <multiplier>1</multiplier>

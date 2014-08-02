@@ -18,10 +18,12 @@
  */
 
 #include "simondconnector.h"
+#include "spenceradapter.h"
 #include "spencer.h"
 #include "ui/qmlspencerview.h"
 #include "dialogmanager/dialogmanager.h"
 #include <QObject>
+#include <QtDBus/QDBusConnection>
 #include <QDebug>
 #include <QGuiApplication>
 
@@ -38,6 +40,9 @@ int main(int argc, char *argv[])
         connector = 0;
 
     Spencer* spencer = new Spencer;
+    new SpencerAdapter(spencer);
+    QDBusConnection::sessionBus().registerService("at.tugraz.Spencer");
+    QDBusConnection::sessionBus().registerObject("/Spencer", spencer, QDBusConnection::ExportAllSlots);
     QMLSpencerView* view = new QMLSpencerView(spencer, voiceControlled);
 
     if (voiceControlled) {

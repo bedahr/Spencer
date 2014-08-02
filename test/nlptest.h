@@ -1,7 +1,7 @@
 #ifndef NLPTEST_H
 #define NLPTEST_H
 #include <QtTest/QtTest>
-#include "../src/spencer.h"
+#include "../src/nlu/nlu.h"
 
 class NLPTest : public QObject
 {
@@ -10,11 +10,9 @@ private slots:
   void initTestCase();
   void testNLP();
   void testNLP_data();
-  void testRecognition();
-  void testRecognition_data();
   
 private:
-  Spencer spencer;
+  NLU nlu;
 };
 
 #endif

@@ -50,7 +50,7 @@ bool Spencer::init()
         return false;
     if (!AspectFactory::getInstance()->parseStructure(dbPath + "sentiment.xml"))
         return false;
-    if (!m_nlu->setupLanguage(dbPath + "nlp.xml"))
+    if (!m_nlu->setupLanguage(dbPath + "nlp.xml", dbPath + "synsets.hierarchical"))
         return false;
 
     if (!m_databaseConnector->init())

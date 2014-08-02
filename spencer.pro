@@ -4,7 +4,7 @@ DEPENDPATH += .
 
 BBSIMONECOMMONIPATH = /home/bedahr/ownCloud/simon/src/tools/Simone/BlackBerry/BBSimoneShared
 BBSIMONECOMMONPATH  = /home/bedahr/ownCloud/simon/src/tools/Simone/BlackBerry/BBSimoneShared
-QT += quick xml multimedia
+QT += quick xml multimedia dbus
 
 OTHER_FILES += \
         src/qml/spencer/main.qml \
@@ -58,7 +58,12 @@ SOURCES += src/main.cpp \
     src/domainbase/listattribute.cpp \
     src/domainbase/recommendationattribute.cpp \
     src/domainbase/aspectfactory.cpp \
-    src/domainbase/aspect.cpp
+    src/domainbase/aspect.cpp \
+    src/spenceradapter.cpp \
+    src/nlu/token.cpp \
+    src/nlu/observedtoken.cpp \
+    src/nlu/usecasestatement.cpp \
+    src/nlu/aspectstatement.cpp
 
 HEADERS += \
         src/spencer.h \
@@ -92,7 +97,12 @@ HEADERS += \
     src/domainbase/listattribute.h \
     src/domainbase/recommendationattribute.h \
     src/domainbase/aspectfactory.h \
-    src/domainbase/aspect.h
+    src/domainbase/aspect.h \
+    src/spenceradapter.h \
+    src/nlu/token.h \
+    src/nlu/observedtoken.h \
+    src/nlu/usecasestatement.h \
+    src/nlu/aspectstatement.h
 
 
 INCLUDEPATH += ../BBSimoneShared $${BBSIMONECOMMONIPATH} src/

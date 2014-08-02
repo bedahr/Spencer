@@ -6,7 +6,7 @@
 float Relationship::utility(const Offer& offer) const
 {
     const QSharedPointer<Attribute> offerAttribute = offer.getRecord(m_id).second;
-    if (!offerAttribute)
+    if (offerAttribute.isNull())
         return 0.0; // doesn't even have this attribute
 
     double distance = m_attribute->distance(*offerAttribute);
@@ -115,6 +115,22 @@ QString Relationship::toString() const
         strType << QObject::tr("weniger als");
     if (m_type & Relationship::LargerThan)
         strType << QObject::tr("mehr als");
+    if (m_type & Relationship::IsTrue)
+        strType << QObject::tr("ja");
+    if (m_type & Relationship::IsFalse)
+        strType << QObject::tr("nein");
+    if (m_type & Relationship::BetterThan)
+        strType << QObject::tr("besser als");
+    if (m_type & Relationship::WorseThan)
+        strType << QObject::tr("schlechter als");
+    if (m_type & Relationship::Good)
+        strType << QObject::tr("gut");
+    if (m_type & Relationship::Bad)
+        strType << QObject::tr("schlecht");
+    if (m_type & Relationship::Large)
+        strType << QObject::tr("groß");
+    if (m_type & Relationship::Small)
+        strType << QObject::tr("klein");
     QString modifierStr;
     if (m_modifierFactor < 0)
         modifierStr = QObject::tr("nicht ");
@@ -123,7 +139,8 @@ QString Relationship::toString() const
     else if (m_modifierFactor > 1)
         modifierStr = QObject::tr("signifikant ");
 
-    return QString("%1 %2%3 %4").arg(m_id).arg(modifierStr).arg(strType.join(QObject::tr(" und "))).arg(m_attribute->toString());
+    return QString("%1 %2%3 %4").arg(m_id).arg(modifierStr).arg(strType.join(QObject::tr(" und ")))
+            .arg(m_attribute ? m_attribute->toString() : QString());
 }
 
 bool Relationship::appliesTo(const QString& id) const

@@ -2,11 +2,12 @@
 #include "recommender/critiquerecommender.h"
 #include <QObject>
 
-CommandStatement::CommandStatement(CommandStatement::Type type) : m_type(type)
+CommandStatement::CommandStatement(CommandStatement::Type type, double lexicalPolarity, double quality) :
+    Statement(lexicalPolarity, quality), m_type(type)
 {
 }
 
-QString CommandStatement::toString() const
+QString CommandStatement::commandToString() const
 {
     switch (m_type) {
         case CommandStatement::RequestForHelp:
@@ -23,6 +24,11 @@ QString CommandStatement::toString() const
     return QObject::tr("Unknown command");
 }
 
+QString CommandStatement::toString() const
+{
+    QString cmd = commandToString();
+    return formatStatementString(cmd);
+}
 
 bool CommandStatement::act(CritiqueRecommender* r) const
 {

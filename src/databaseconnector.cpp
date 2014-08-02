@@ -212,6 +212,11 @@ QList<Offer*> DatabaseConnector::loadOffers(bool* okay) const
                                                                 records.take("model").second->toString())));
         QSharedPointer<Attribute> price (records.take("price").second);
         QSharedPointer<Attribute> rating (records.take("rating").second);
+
+        double speed;
+        speed = records.value("processorCores").second->value() * records.value("processorFrequency").second->value();
+        records.insert("processorSpeed", AttributeFactory::getInstance()->getAttribute("processorSpeed", speed));
+
         QSharedPointer<Attribute> bestsellerRank(records.take("Bestseller Rank").second);
         int priorRank = INT_MAX;
         if (!bestsellerRank.isNull())

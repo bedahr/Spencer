@@ -1,13 +1,14 @@
 #include "constraintstatement.h"
 #include "recommender/critiquerecommender.h"
 
-ConstraintStatement::ConstraintStatement(Relationship *relationship) : m_relationship(relationship)
+ConstraintStatement::ConstraintStatement(Relationship *relationship, double lexicalPolarity, double quality) :
+    Statement(lexicalPolarity, quality), m_relationship(relationship)
 {
 }
 
 QString ConstraintStatement::toString() const
 {
-    return m_relationship->toString();
+    return formatStatementString(m_relationship->toString());
 }
 
 bool ConstraintStatement::act(CritiqueRecommender* r) const

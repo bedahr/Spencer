@@ -47,6 +47,7 @@ void SpencerView::displayRecommendation(const QString& offerName, double price, 
     //Grafikkarte: <graphicsType> <graphicsModel> <dedicatedGraphicsMemoryCapacity>
     RecommendationAttribute *processorTypeAttribute = 0;
     RecommendationAttribute *processorNameAttribute = 0;
+    RecommendationAttribute *processorCoresAttribute = 0;
     RecommendationAttribute *processorFrequencyAttribute = 0;
     RecommendationAttribute *screenSizeAttribute = 0;
     RecommendationAttribute *screenSizeHResolutionAttribute = 0;
@@ -59,6 +60,8 @@ void SpencerView::displayRecommendation(const QString& offerName, double price, 
             processorTypeAttribute = a;
         else if (a->getName() == QObject::tr("Prozessor"))
             processorNameAttribute = a;
+        else if (a->getName() == QObject::tr("Prozessorkerne"))
+            processorCoresAttribute = a;
         else if (a->getName() == QObject::tr("Prozessortakt"))
             processorFrequencyAttribute = a;
         else if (a->getName() == QObject::tr("Bildschirmdiagonale"))
@@ -103,22 +106,27 @@ void SpencerView::displayRecommendation(const QString& offerName, double price, 
         sanitizedOffer.removeAll(processorTypeAttribute);
         sanitizedOffer.removeAll(processorNameAttribute);
         sanitizedOffer.removeAll(processorFrequencyAttribute);
+        sanitizedOffer.removeAll(processorCoresAttribute);
 
-        float expressedUserInterest = qMax(qMax(processorTypeAttribute->getExpressedUserInterest(),
+        float expressedUserInterest = qMax(qMax(qMax(processorTypeAttribute->getExpressedUserInterest(),
                                                 processorNameAttribute->getExpressedUserInterest()),
-                                           processorFrequencyAttribute->getExpressedUserInterest());
+                                                processorFrequencyAttribute->getExpressedUserInterest()),
+                                           (processorCoresAttribute ? processorCoresAttribute->getExpressedUserInterest() : 0));
         float reviewSentiment =  (processorTypeAttribute->getReviewSentiment() +
                                   processorNameAttribute->getReviewSentiment()+
                                   processorFrequencyAttribute->getReviewSentiment()) / 3;
 
+        QString coreInformation = (processorCoresAttribute) ? QString("%1x").arg(processorCoresAttribute->getValue().toString()) : "1x";
         sanitizedOffer.insert(0, new RecommendationAttribute(QObject::tr("Prozessor"),
-                                                          QString("%1 %2 (%3)").arg(processorTypeAttribute->getValue().toString())
+                                                          QString("%1 %2 (%3%4)").arg(processorTypeAttribute->getValue().toString())
                                                                                .arg(processorNameAttribute->getValue().toString())
+                                                                               .arg(coreInformation)
                                                                                .arg(processorFrequencyAttribute->getValue().toString()),
                                                           expressedUserInterest,
                                                           reviewSentiment));
         delete processorTypeAttribute;
         delete processorNameAttribute;
+        delete processorCoresAttribute;
         delete processorFrequencyAttribute;
     }
     if (screenSizeAttribute && screenSizeHResolutionAttribute && screenSizeVResolutionAttribute) {

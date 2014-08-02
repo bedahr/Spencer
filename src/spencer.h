@@ -6,6 +6,7 @@
 #include "domainbase/recommendationattribute.h"
 #include <QObject>
 #include <QList>
+#include <QtDBus>
 #include <QStringList>
 
 class CritiqueRecommender;
@@ -18,6 +19,7 @@ class DatabaseConnector;
 class Spencer : public QObject
 {
     Q_OBJECT
+    Q_CLASSINFO("Spencer", "at.tugraz.Spencer")
 
 signals:
     void recommend(const QString &offerName, double price, double rating, const QStringList &images,

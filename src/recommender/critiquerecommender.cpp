@@ -47,7 +47,6 @@ bool CritiqueRecommender::critique(Critique* critique)
     }
     if (!matchFound) {
         qDebug() << "No matching product for critique: " << critique->getDescription();
-        delete critique;
         return false;
     }
 
@@ -65,7 +64,7 @@ bool CritiqueRecommender::critique(Critique* critique)
         } else
              ++i;
     }
-    m_critiques << critique;
+    m_critiques << new Critique(*critique);
     return true;
 }
 

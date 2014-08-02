@@ -1,5 +1,7 @@
 #include "nlu.h"
 #include "statement.h"
+#include "token.h"
+#include "observedtoken.h"
 #include "commandstatement.h"
 #include "constraintstatement.h"
 #include "domainbase/relationship.h"
@@ -12,161 +14,17 @@
 #include <QDomElement>
 #include <QDebug>
 
-/// Call this macro to process the pending modifier as a standalone one (with default target) if possible
-/// Will set the passed pointer to 0 after processing
-#define FINALIZE_PENDING_MODIFIER(x)  \
-if (x) { \
-    relationships << buildRelationship(currentRecommendation, 0, QString(), x, factorTillPendingModifier); \
-    x = 0; \
-}
-
-/// Call this macro to process the pending attributes a standalone one (with value) if possible
-/// Will set the passed pointer to 0 after processing
-// we have an attribute and an associated value
-// default to an equality association.
-// This allows e.g., "100 EURO" to become Price == 100 EURO
-#define FINALIZE_PENDING_ATTRIBUTE(x)  \
-if (x) { \
-    if (!matchedAttributeForPendingAttribute.isEmpty() && x) { \
-        QSharedPointer<Attribute> attribute = AttributeFactory::getInstance()->getAttribute(x->getTarget(), matchedAttributeForPendingAttribute).second; \
-        if (!attribute.isNull()) {\
-    qDebug() << "Adding relationship based on pending attribute" << x->getNames().first().pattern(); \
-            relationships << new Relationship(x->getTarget(), Relationship::Equality, attribute, factor); \
-        }\
-    } \
-    x = 0; \
-}
-
-class Token
+static QList<LexicalFeature> parseNames(const QDomElement& namesElem)
 {
-public:
-    Token(const QList<QRegExp>& names) : m_names(names) {}
-    virtual ~Token() {}
-    QList<QRegExp> getNames() const { return m_names; }
-
-    virtual int matches(const QString& token) const {
-        return matches(token, 0);
-    }
-    int matches(const QString &token, QString* matched) const {
-        foreach (const QRegExp& regExp, m_names) {
-            if (regExp.indexIn(token) == 0) {
-                if (matched && regExp.captureCount() > 0)
-                    *matched = regExp.cap(1);
-                return regExp.matchedLength();
-            }
-        }
-        return 0;
-    }
-    virtual QString toString() const = 0;
-
-protected:
-    QList<QRegExp> m_names;
-};
-
-class ModifierToken : public Token
-{
-public:
-    enum BindingE {
-        None=0,
-        Pre=1,
-        Post=2
-    };
-    Q_DECLARE_FLAGS(Binding, BindingE)
-
-
-    ModifierToken(const QList<QRegExp>& names, const QStringList& on, const QString& relationship, Binding binding, const QString& defaultTarget) :
-        Token(names), m_on(on), m_relationship(relationship), m_binding(binding), m_defaultTarget(defaultTarget)
-    {}
-    QStringList getOn() const { return m_on; }
-    QString getRelationship() const { return m_relationship; }
-    Binding getBinding() const { return m_binding; }
-    QString getDefaultTarget() const { return m_defaultTarget; }
-    QString toString() const {
-        return QString("Modifier: %1 %2").arg(m_on.join(",")).arg(m_relationship);
-    }
-
-private:
-    QStringList m_on;
-    QString m_relationship;
-    Binding m_binding;
-    QString m_defaultTarget;
-};
-Q_DECLARE_OPERATORS_FOR_FLAGS(ModifierToken::Binding)
-
-class MetaModifierToken : public Token
-{
-public:
-    MetaModifierToken(const QList<QRegExp>& names, double factor) :
-        Token(names), m_factor(factor)
-    {}
-    double getFactor() const { return m_factor; }
-    QString toString() const {
-        return QString("MetaModifier: %1").arg(m_factor);
-    }
-
-private:
-    double m_factor;
-};
-
-
-class AttributeToken : public Token
-{
-public:
-    AttributeToken(const QList<QRegExp>& names, const QString& type, const QString& target) :
-        Token(names), m_type(type), m_target(target)
-    {}
-    QString getType() const { return m_type; }
-    QString getTarget() const { return m_target; }
-    QString toString() const {
-        return QString("Attribute: %1").arg(m_target);
-    }
-
-private:
-    QString m_type;
-    QString m_target;
-};
-
-
-class CommandToken : public Token
-{
-public:
-    class Action {
-    public:
-        QString m_relationship;
-        QString m_on;
-        bool m_isBack;
-
-        Action() :
-            m_isBack(true)
-        {}
-
-        Action(const QString& relationship, const QString& on) :
-            m_relationship(relationship), m_on(on), m_isBack(false)
-        {}
-    };
-
-    CommandToken(const QList<QRegExp>& names, const QList<Action>& actions) :
-        Token(names), m_actions(actions)
-    {}
-    QList<Action> getActions() const { return m_actions; }
-    QString toString() const {
-        QStringList actions;
-        foreach (const Action& a, m_actions)
-            actions << QString("%1 %2").arg(a.m_on).arg(a.m_relationship);
-        return QString("Command: %1").arg(actions.join(", "));
-    }
-
-private:
-    QList<Action> m_actions;
-};
-
-static QList<QRegExp> parseNames(const QDomElement& namesElem)
-{
-    QList<QRegExp> names;
+    QList<LexicalFeature> names;
     QDomElement nameElem = namesElem.firstChildElement("name");
     while (!nameElem.isNull()) {
-        names << QRegExp(QLatin1String("\\b") + nameElem.text() + QLatin1String("\\b"));
+        QRegExp re(QLatin1String("\\b") + nameElem.text() + QLatin1String("\\b"), Qt::CaseInsensitive);
         nameElem = nameElem.nextSiblingElement("name");
+        if (nameElem.hasAttribute("polarity"))
+            names << LexicalFeature(re, nameElem.attribute("polarity").toFloat());
+        else
+            names << LexicalFeature(re);
     }
     return names;
 }
@@ -178,72 +36,62 @@ static Relationship::Type getRelationshipType(const QString& relationshipTypeStr
         relationshipType = Relationship::Inequality;
     else if (relationshipTypeStr == "Equal")
         relationshipType = Relationship::Equality;
-    else {
-        if (relationshipTypeStr == "SmallerThan")
-            relationshipType = Relationship::SmallerThan;// | Relationship::Inequality;
-        else if (relationshipTypeStr == "LargerThan")
-            relationshipType = Relationship::LargerThan;// | Relationship::Inequality;
-    }
+    else if (relationshipTypeStr == "SmallerThan")
+        relationshipType = Relationship::SmallerThan;
+    else if (relationshipTypeStr == "LargerThan")
+        relationshipType = Relationship::LargerThan;
+    else if (relationshipTypeStr == "IsTrue")
+        relationshipType = Relationship::IsTrue;
+    else if (relationshipTypeStr == "IsFalse")
+        relationshipType = Relationship::IsFalse;
+    else if (relationshipTypeStr == "Better")
+        relationshipType = Relationship::BetterThan;
+    else if (relationshipTypeStr == "Good")
+        relationshipType = Relationship::Good;
+    else if (relationshipTypeStr == "Worse")
+        relationshipType = Relationship::WorseThan;
+    else if (relationshipTypeStr == "Bad")
+        relationshipType = Relationship::Bad;
+    else if (relationshipTypeStr == "Small")
+        relationshipType = Relationship::Small;
+    else if (relationshipTypeStr == "Large")
+        relationshipType = Relationship::Large;
     return relationshipType;
 }
 
-
-Relationship* NLU::buildRelationship(const Offer *offer,
-                                                const AttributeToken* attributeToken,
-                                                const QString& attributeValue,
-                                                const ModifierToken* modifierToken, double modifierFactor) const
+QString parseTarget(const QString& targetDef, const QString& data)
 {
-    qDebug() << "Building relationship";
-    if (attributeToken && !modifierToken->getOn().contains(attributeToken->getType())) {
-        qWarning() << "Incomplete type" << attributeToken->getNames().first().pattern() << attributeValue;
-        return 0;
-    }
-    QString attributeId;
-    if (attributeToken)
-        attributeId = attributeToken->getTarget();
-    else if (!modifierToken->getDefaultTarget().isEmpty()) {
-        // "Modifier has a default attribute, so let's create that one if possible";
-        attributeId = modifierToken->getDefaultTarget();
+    QString out;
+    // May be a condition of the form <32?storageMedia[_].capacity:mainMemoryCapacity
+    if (targetDef.contains('?')) {
+        int questionIndex = targetDef.indexOf('?');
+        int separatorIndex = targetDef.indexOf(':');
+        QString condition = targetDef.left(questionIndex);
+        QString attributeValue = condition.mid(1).trimmed();
+        QString a = targetDef.mid(questionIndex+1, separatorIndex - questionIndex - 1);
+        QString b = targetDef.mid(separatorIndex+1);
+        if (condition[0] == '=')
+            out = (data == attributeValue) ? a : b;
+        else if (condition[0] == '<')
+            out = (data.toDouble() < attributeValue.toDouble()) ? a : b;
+        else if (condition[0] == '>')
+            out = (data.toDouble() > attributeValue.toDouble()) ? a : b;
+        return out;
     } else
-        qDebug() << "No attribute and empty default target";
+        return out;
 
-    if (attributeId.isEmpty()) {
-        qWarning() << "Invalid target attribute" << modifierToken->getNames().first().pattern();
-        return 0;
-    }
-
-    QSharedPointer<Attribute> attribute;
-    if (attributeValue.isNull())
-        attribute = offer->getRecord(attributeId).second;
-    else {
-        qDebug() << "Attribute value: " << attributeValue;
-        Record r = AttributeFactory::getInstance()->getAttribute(attributeId, attributeValue);
-        attribute = r.second;
-        qDebug() << "Got attribute value: " << attribute->toString();
-    }
-    if (!attribute) {
-        qWarning() << "Offer has no attribute " << attributeId;
-        return 0;
-    }
-
-    Relationship::Type relationshipType = getRelationshipType(modifierToken->getRelationship());
-    return new Relationship(attributeId, relationshipType, attribute, modifierFactor);
 }
 
-
-bool NLU::setupLanguage(const QString& path)
+bool NLU::setupNLP(const QString& nlpDefinition)
 {
-    qDeleteAll(m_acceptedTokens);
-    m_acceptedTokens.clear();
-
     QDomDocument doc;
-    QFile f(path);
+    QFile f(nlpDefinition);
     if (!f.open(QIODevice::ReadOnly)) {
-        qWarning() << "Failed to open file: " << path;
+        qWarning() << "Failed to open file: " << nlpDefinition;
         return false;
     }
     if (!doc.setContent(f.readAll())) {
-        qWarning() << "Failed to parse XML at " << path;
+        qWarning() << "Failed to parse XML at " << nlpDefinition;
         return false;
     }
 
@@ -252,15 +100,15 @@ bool NLU::setupLanguage(const QString& path)
     QDomElement modifiersElement(rootElement.firstChildElement("modifiers"));
     if (attributesElement.isNull() || modifiersElement.isNull()) {
         // no case or invalid format
-        qWarning() << "Invalid XML: " << path;
+        qWarning() << "Invalid XML: " << nlpDefinition;
         return false;
     }
     // attributes
     QDomElement attributeElem = attributesElement.firstChildElement("attribute");
     while (!attributeElem.isNull()) {
-        QString type = attributeElem.attribute("type");
-        QString actOn = attributeElem.firstChildElement("actOn").text();
-        m_acceptedTokens << new AttributeToken(parseNames(attributeElem.firstChildElement("names")), type, actOn);
+        QStringList types = attributeElem.attribute("type").split(',', QString::SkipEmptyParts);
+        QStringList actOn = attributeElem.firstChildElement("actOn").text().split(',', QString::SkipEmptyParts);
+        m_acceptedTokens << new AttributeToken(parseNames(attributeElem.firstChildElement("names")), types, actOn);
         attributeElem = attributeElem.nextSiblingElement("attribute");
     }
     // modifiers
@@ -275,7 +123,8 @@ bool NLU::setupLanguage(const QString& path)
             binding |= ModifierToken::Pre;
         if (bindingStr.contains("post"))
             binding |= ModifierToken::Post;
-        m_acceptedTokens << new ModifierToken(parseNames(modifierElement.firstChildElement("names")), on.split(","), relationship, binding, modifierElement.attribute("default"));
+        m_acceptedTokens << new ModifierToken(parseNames(modifierElement.firstChildElement("names")), on.split(",", QString::SkipEmptyParts),
+                                              getRelationshipType(relationship), binding, modifierElement.attribute("default").split(',', QString::SkipEmptyParts));
         modifierElement = modifierElement.nextSiblingElement("modifier");
     }
 
@@ -301,207 +150,258 @@ bool NLU::setupLanguage(const QString& path)
         QDomElement actionElem = actionsElem.firstChildElement("action");
         QList<CommandToken::Action> actions;
         while (!actionElem.isNull()) {
-            if (actionElem.attribute("special") == QLatin1String("BACK")) {
-                actions << CommandToken::Action(); //special "undo" action
+            QString specialTag = actionElem.attribute("special");
+            if (specialTag == QLatin1String("back")) {
+                actions << CommandToken::Action(CommandToken::Action::Back);
+            } else if (specialTag == QLatin1String("yes")) {
+                actions << CommandToken::Action(CommandToken::Action::Yes);
+            } else if (specialTag == QLatin1String("no")) {
+                actions << CommandToken::Action(CommandToken::Action::No);
+            } else if (specialTag == QLatin1String("accept")) {
+                actions << CommandToken::Action(CommandToken::Action::Accept);
+            } else if (specialTag.startsWith("use=")) {
+                QString useCase = specialTag.mid(4);
+                actions << CommandToken::Action(useCase);
             } else {
                 QString attribute = actionElem.firstChildElement("attribute").text();
-                QString relationship = actionElem.firstChildElement("relationship").text();
-                actions << CommandToken::Action(relationship, attribute);
+                QDomElement relationshipElement(actionElem.firstChildElement("relationship"));
+                QString relationship = relationshipElement.text();
+                QString value = relationshipElement.attribute("value");
+                actions << CommandToken::Action(getRelationshipType(relationship), attribute, value);
             }
             actionElem = actionElem.nextSiblingElement("action");
         }
         m_acceptedTokens << new CommandToken(parseNames(commandElement.firstChildElement("names")), actions);
         commandElement = commandElement.nextSiblingElement("command");
     }
+    m_acceptedTokens << new ValueToken();
     return true;
+}
+
+bool NLU::setupAspects(const QString& path)
+{
+    QFile f(path);
+    if (!f.open(QIODevice::ReadOnly))
+        return false;
+    QList<AspectToken*> aspectTokens;
+    while (!f.atEnd()) {
+        QString line = QString::fromUtf8(f.readLine());
+        int separatorIndex = line.indexOf(':');
+        QString tag = line.left(separatorIndex);
+        QStringList body = line.mid(separatorIndex+1).trimmed().split(';', QString::SkipEmptyParts);
+        AspectToken *thisToken = new AspectToken(tag, body);
+        foreach (AspectToken *token, aspectTokens) {
+            if (token->names().contains(tag)) {
+                thisToken->setParent(token);
+            }
+        }
+        aspectTokens << thisToken;
+    }
+    foreach (AspectToken *a, aspectTokens)
+        m_acceptedTokens << a;
+    return true;
+}
+
+bool NLU::setupLanguage(const QString& nlpDefinition, const QString &aspectsDefinition)
+{
+    qDeleteAll(m_acceptedTokens);
+    m_acceptedTokens.clear();
+
+    return setupNLP(nlpDefinition) && setupAspects(aspectsDefinition);
 }
 
 NLU::NLU()
 {
 }
 
-QList<Statement*> NLU::interpret(const Offer *currentRecommendation, const QString& command)
+bool matchSizeLargerThan(ObservedToken* a, ObservedToken* b) {
+    return a->matchLength() > b->matchLength();
+}
+
+bool occuredBefore(ObservedToken* a, ObservedToken* b) {
+    return a->position() < b->position();
+}
+
+QList<ObservedToken*> NLU::findTokens(const QString& input)
 {
-    QList<Statement*> foundStatements;
+    QList<ObservedToken*> out;
 
-    qDebug() << "Setting up critique(s) based on command: " << command;
-    QString extractedCritiques;
+    foreach (Token* t, m_acceptedTokens)
+        out << t->findIn(input);
 
-    //some random attribute from the text
-    // might be null after the parsing if no attribute was found
-    AttributeToken *extractedAttribute = 0;
-
-    QString tempText(command);
-    QList<Relationship*> relationships;
-    //matches the word at the beginning of the text
-    QRegExp dummyToken("^[^\\s]+(\\s+|$)");
-
-    int matched = 0;
-    AttributeToken *pendingAttribute = 0;
-    ModifierToken *pendingModifier = 0;
-    double factor = 1.0;
-    double factorTillPendingModifier = factor;
-
-    // do not undo more than one feedback cycle at once
-    bool undoLast = false;
-    QString matchedAttribute;
-    QString matchedAttributeForPendingAttribute;
-    while (!tempText.isEmpty()) {
-        bool fragmentComplete = false;
-        foreach (Token *t, m_acceptedTokens) {
-            QString thisAttributeMatch;
-            if ((matched = t->matches(tempText, &thisAttributeMatch)) != 0) {
-                if (!thisAttributeMatch.isNull())
-                    matchedAttribute = thisAttributeMatch;
-                //found current token:
-                qDebug() << "Token: " << t->toString() << matchedAttributeForPendingAttribute;
-
-                if (dynamic_cast<CommandToken*>(t)) {
-                    FINALIZE_PENDING_MODIFIER(pendingModifier);
-                    FINALIZE_PENDING_ATTRIBUTE(pendingAttribute);
-
-                    foreach (const CommandToken::Action& a, static_cast<CommandToken*>(t)->getActions()) {
-                        if (a.m_isBack) {
-                            undoLast = true;
-                            continue;
-                        }
-
-                        QSharedPointer<Attribute> attribute;
-                        if (!matchedAttribute.isEmpty())
-                            attribute = AttributeFactory::getInstance()->getAttribute(a.m_on, matchedAttribute).second;
-                        else
-                            attribute = currentRecommendation->getRecord(a.m_on).second;
-                        if (!attribute) {
-                            qWarning() << "Offer has no attribute " << a.m_on;
-                            continue;
-                        }
-
-                        Relationship::Type relationshipType = getRelationshipType(a.m_relationship);
-                        relationships << new Relationship(a.m_on, relationshipType, attribute, factor);
-                    }
-
-                    fragmentComplete = true;
-
-                } else if (dynamic_cast<MetaModifierToken*>(t)) {
-                    factor *= static_cast<MetaModifierToken*>(t)->getFactor();
-                    if (!pendingModifier)
-                        factorTillPendingModifier = factor;
-                } else if (dynamic_cast<AttributeToken*>(t)) {
-                    AttributeToken *attributeToken = static_cast<AttributeToken*>(t);
-                    extractedAttribute = attributeToken;
-
-                    FINALIZE_PENDING_ATTRIBUTE(pendingAttribute);
-                    matchedAttributeForPendingAttribute.clear();
-                    // this is an attribute
-                    if (pendingModifier) {
-                        // we have a post-binding modifier that's waiting
-                        // for an attribute; connect and add if possible
-                        Relationship *r = buildRelationship(currentRecommendation, attributeToken, matchedAttribute, pendingModifier, factor);
-                        if (!r) {
-                            //incompatible, let's try to add the modifier on it's own
-                            FINALIZE_PENDING_MODIFIER(pendingModifier);
-                            //the attribute now becomes pending
-                            pendingAttribute = attributeToken;
-                            matchedAttributeForPendingAttribute = thisAttributeMatch;
-                        } else {
-                            relationships << r;
-                            pendingModifier = 0;
-                            pendingAttribute = 0;
-                            fragmentComplete = true;
-                        }
-                    } else {
-                        pendingAttribute = attributeToken;
-                        matchedAttributeForPendingAttribute = thisAttributeMatch;
-                    }
-                } else {
-                    // this is a modifier
-                    ModifierToken *modifierToken = static_cast<ModifierToken*>(t);
-                    FINALIZE_PENDING_MODIFIER(pendingModifier);
-                    if (pendingAttribute) {
-                        Relationship *r = 0;
-                        if (modifierToken->getBinding() & ModifierToken::Pre) {
-                            //connect and add
-                            r = buildRelationship(currentRecommendation, pendingAttribute, matchedAttribute, modifierToken, factor);;
-                            if (r) {
-                                relationships << r;
-                                pendingAttribute = 0;
-                                fragmentComplete = true;
-                            }
-                        }
-
-                        //forget pending attribute; it was either processed or rejected
-                        FINALIZE_PENDING_ATTRIBUTE(pendingAttribute);
-
-                        if (!r) {
-                            if (modifierToken->getBinding() & ModifierToken::Post)
-                                pendingModifier = modifierToken;
-                            else
-                                continue; // rejected token, keep looking
-                        }
-                    } else {
-                        if (modifierToken->getBinding() & ModifierToken::Post) {
-                            pendingModifier = modifierToken;
-                        } else {
-                            FINALIZE_PENDING_MODIFIER(modifierToken);
-                            matchedAttribute.clear();
-                            continue; // keep looking
-                        }
-                    }
-                }
+    //remove overlapping tokens, favor longer ones
+    // first, sort on descending match size
+    qSort(out.begin(), out.end(), matchSizeLargerThan);
+    qDebug() << "Sort done";
+    // then, remove overlaps
+    /*
+    for (QList<ObservedToken*>::iterator i = out.begin(); i != out.end();) {
+        bool erased = false;
+        foreach (ObservedToken* comp, out) {
+            if (comp == *i) // sorted by size => everything after obs will be smaller
+                break;
+            // if comp overlaps *i and is larger than obs, remove *i
+            if (comp->overlaps(*i)) {
+                i = out.erase(i);
+                erased = true;
                 break;
             }
         }
-        if (fragmentComplete) {
-            factor = factorTillPendingModifier = 1.0;
-            matchedAttribute.clear();
-            matchedAttributeForPendingAttribute.clear();
-        }
-        if (!matched) {
-            dummyToken.indexIn(tempText);
-            matched = dummyToken.matchedLength();
-        }
+        if (!erased)
+             ++i;
+    }*/
 
-        tempText = tempText.mid(matched).trimmed();
+    return out;
+}
+
+#if 0
+
+QList<Statement*> findOptimalStatementAssociation(const Offer *currentRecommendation, const QList<ObservedToken*>& tokens, double& bestSelectionErrors)
+{
+    bestSelectionErrors = tokens.length();
+    if (tokens.isEmpty())
+        return QList<Statement*>();
+
+    QList<const ObservedToken*> thisSelection;
+    QList<ObservedToken*> others(tokens);
+
+    QList<Statement*> bestSelection;
+
+    for (int i = 0; i < tokens.length(); i++) {
+        thisSelection << others.takeFirst();
+        double thisSelectionErrors = thisSelection.length();
+        QList<Statement*> thisSelectionResult;
+        foreach (const ObservedToken* ot, thisSelection) {
+            QList<Statement*> thisVoteForThisSelection = ot->token()->makeStatements(currentRecommendation, thisSelection, ot);
+            if (!thisVoteForThisSelection.isEmpty()) {
+                thisSelectionResult << thisVoteForThisSelection;
+                thisSelectionErrors = 0;
+                foreach (Statement* s, thisVoteForThisSelection)
+                    thisSelectionErrors = qMax(1.0 - s->quality(), thisSelectionErrors);
+                break;
+            }
+        }
+        double otherSelectionErrors = 0;
+        thisSelectionResult << findOptimalStatementAssociation(currentRecommendation, others, otherSelectionErrors);
+        thisSelectionErrors += otherSelectionErrors;
+        if (thisSelectionErrors <= bestSelectionErrors) { // prefer larger association
+            bestSelection = thisSelectionResult;
+            bestSelectionErrors = thisSelectionErrors;
+        }
     }
-    FINALIZE_PENDING_MODIFIER(pendingModifier);
-    FINALIZE_PENDING_ATTRIBUTE(pendingAttribute);
+    return bestSelection;
+}
+#endif
 
-    relationships.removeAll(0);
+QList<Statement*> findOptimalStatementAssociation(int currentPos, const Offer *currentRecommendation, const QList<ObservedToken*>& tokens, double& bestSelectionErrors)
+{
+    bestSelectionErrors = tokens.length();
+    if (tokens.isEmpty())
+        return QList<Statement*>();
 
-    // build Statements and return those
-    if (undoLast) {
-        qDebug() << "Undoing last feedback cycle";
-        foundStatements.append(new CommandStatement(CommandStatement::Back));
-    } else {
-        qDebug() << "built " << relationships.count() << " relationships:";
-        foreach (Relationship* r, relationships)
-            foundStatements.append(new ConstraintStatement(r));
-        /*
-         * No further handling of misunderstandings at this stage...
-        else {
-            QString explanation;
-            if (extractedAttribute != 0) {
-                QString name = extractedAttribute->getTarget().replace(QRegExp("\\(.*\\)"), "").trimmed();
-                QString sent;
-                if (extractedAttribute->getType() == "countable")
-                    sent = QLatin1String("Mehr ") + name;
-                else if (extractedAttribute->getType() == "mitable")
-                    sent = QLatin1String("Mit ") + name;
-                else
-                    sent = name + QString::fromUtf8(" ändern");
+    QList<const ObservedToken*> thisSelection;
+    QList<ObservedToken*> others(tokens);
 
-                explanation = tr("Versuchen Sie bspw. \"%1\" oder \"Billiger\"").arg(sent);
-                ++misunderstandingCounter;
-            } else if (misunderstandingCounter++ >= 1) {
-                    explanation = tr("Versuchen Sie bspw. \"Anderer Hersteller\" oder \"Niedrigerer Preis\"");
-            } else
-                explanation = tr("Wie bitte?");
-            emit recommendationChanged(currentRecommendation, explanation);
+    QList<Statement*> bestSelection;
+
+    double bestPreSelectionErrors = 0;
+    QList<Statement*> bestPreSelectionResult;
+    for (int i = 0; i < tokens.length(); i++) {
+        ObservedToken* t;
+        do {
+            if (others.isEmpty())
+                return bestSelection;
+            t = others.takeFirst();
+        } while (t->position() < currentPos); //overlaps, do not consider
+
+        thisSelection << t;
+
+        // now peak ahead and launch subproblems for all tokens overlapping t
+        QList<ObservedToken*> overlapping;
+        while (!others.isEmpty() && others.first()->overlaps(t)) {
+            overlapping << others.takeFirst();
         }
-        */
+        for (int j = 0; j < overlapping.count(); ++j) {
+            int subSkippingPenalty = j + 1;
+            // 1 because already "skip" t
+            // token list that doesn't include the skipped elements
+            QList<ObservedToken*> subTokens(others);
+            for (int k = overlapping.count() - 1; k > j; --k)
+                subTokens.insert(0, overlapping[i]);
+            // result of best pre-selection so far (which obviously doesn't include the offending
+            // t), is stored in bestPreSelectionResult. So go off of this.
+            double adjustedBestPreSelectionErrors = bestPreSelectionErrors + subSkippingPenalty;
+            double subPostSelectionErrors = 0;
+            QList<Statement*> subResult = findOptimalStatementAssociation(currentPos, currentRecommendation, subTokens, subPostSelectionErrors);
+            double subSelectionErrors = subPostSelectionErrors + adjustedBestPreSelectionErrors;
+            if (subSelectionErrors <= bestSelectionErrors) {
+                bestSelection = bestPreSelectionResult;
+                bestSelection << subResult;
+                bestSelectionErrors = subSelectionErrors;
+            }
+        }
+
+        currentPos = t->position() + t->matchLength();
+
+        double thisPreSelectionErrors = thisSelection.length();
+        QList<Statement*> thisPreSelectionResult;
+        foreach (const ObservedToken* ot, thisSelection) {
+            QList<Statement*> thisVoteForThisSelection = ot->token()->makeStatements(currentRecommendation, thisSelection, ot);
+            if (!thisVoteForThisSelection.isEmpty()) {
+                thisPreSelectionResult << thisVoteForThisSelection;
+                thisPreSelectionErrors = 0;
+                foreach (Statement* s, thisVoteForThisSelection)
+                    thisPreSelectionErrors = qMax(1.0 - s->quality(), thisPreSelectionErrors);
+                break;
+            }
+        }
+        //store best selection of preamble separately
+        if (thisPreSelectionErrors <= bestPreSelectionErrors) {
+            bestPreSelectionResult = thisPreSelectionResult;
+            bestPreSelectionErrors = thisPreSelectionErrors;
+        }
+
+        double otherSelectionErrors = 0;
+        QList<Statement*> thisSelectionResult(thisPreSelectionResult);
+        thisSelectionResult << findOptimalStatementAssociation(currentPos, currentRecommendation, others, otherSelectionErrors);
+        double thisSelectionErrors = thisPreSelectionErrors + otherSelectionErrors;
+        if (thisSelectionErrors <= bestSelectionErrors) { // prefer larger association
+            bestSelection = thisSelectionResult;
+            bestSelectionErrors = thisSelectionErrors;
+        }
+    }
+    return bestSelection;
+}
+
+QList<Statement*> NLU::interpret(const Offer *currentRecommendation, const QString& input)
+{
+    QList<Statement*> foundStatements;
+    qDebug() << "Interpreting: " << input;
+
+    // 1. Extract list of largest, non overlapping token observations
+    QList<ObservedToken*> foundTokens = findTokens(input);
+    qDebug() << "Found " << foundTokens.size() << " matching tokens";
+    foreach (ObservedToken* t, foundTokens) {
+        qDebug() << "   " << t->toString();
     }
 
+    // 2. Extract aspect tokens
+    for (QList<ObservedToken*>::iterator i = foundTokens.begin(); i != foundTokens.end();) {
+        const AspectToken* aspect = dynamic_cast<const AspectToken*>((*i)->token());
+        if (aspect) {
+            foundStatements << aspect->makeStatements(currentRecommendation, QList<const ObservedToken*>() << *i, *i);
+            i = foundTokens.erase(i);
+        } else
+            ++i;
+    }
 
-
-    return foundStatements;
+    // 3. Find token associations that minimizes #unassigned tokens and build statements
+    double errors = 0;
+    qSort(foundTokens.begin(), foundTokens.end(), occuredBefore);
+    foundStatements << findOptimalStatementAssociation(0, currentRecommendation, foundTokens, errors);
+    qDebug() << "Found " << foundStatements.size() << " matching statements; " << errors << " errors";
+    foreach (Statement* s, foundStatements) {
+        qDebug() << "   " << s->toString();
+    }
+    return QList<Statement*>();
 }

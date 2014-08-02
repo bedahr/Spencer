@@ -4,6 +4,7 @@
 #include <QString>
 #include <QSharedPointer>
 #include <QFlags>
+#include <QDebug>
 
 class Offer;
 class Attribute;
@@ -15,13 +16,41 @@ public:
         Equality=1,
         Inequality=2,
         LargerThan=4,
-        SmallerThan=8
+        SmallerThan=8,
+        IsTrue=16,
+        IsFalse=32,
+        BetterThan=64,
+        WorseThan=128,
+        Good=256,
+        Bad=512,
+        Large=1024,
+        Small=2048
     };
     Q_DECLARE_FLAGS(Type, TypeE)
 
     Relationship(const QString& id, Type type, QSharedPointer<Attribute> attribute, double modifierFactor=1.0) :
         m_id(id), m_type(type), m_attribute(attribute), m_modifierFactor(modifierFactor)
-    {}
+    {
+        if (!attribute) {
+            qDebug() << "No comparison attribute specified, backing off type";
+            m_type = backoffRelative(type);
+        }
+    }
+
+    // turns all relative types (smaller, larger, etc.) into absolute ones (small, large, etc.)
+    Type backoffRelative(Type original) {
+        if (original & Relationship::SmallerThan)
+            original |= Relationship::Small;
+        if (original & Relationship::LargerThan)
+            original |= Relationship::Large;
+        if (original & Relationship::BetterThan)
+            original |= Relationship::Good;
+        if (original & Relationship::WorseThan)
+            original |= Relationship::Bad;
+        original &= ~(Relationship::SmallerThan | Relationship::LargerThan |
+                      Relationship::BetterThan | Relationship::WorseThan);
+        return original;
+    }
 
     QString toString() const;
 

@@ -16,6 +16,12 @@ public:
         m_baseInfluence(baseInfluence),
         m_relationship(relationship)
     {}
+    Critique(const Critique& other) : m_ttl(other.m_ttl),
+        m_baseInfluence(other.m_baseInfluence),
+        m_name(other.m_name), m_relationship(new Relationship(*other.m_relationship)),
+        m_supersededCritiques(other.m_supersededCritiques)
+    {
+    }
     ~Critique();
 
     /// How well the offer fullfills the critique (1 is

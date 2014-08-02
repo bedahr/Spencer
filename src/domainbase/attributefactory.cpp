@@ -133,13 +133,25 @@ bool AttributeFactory::parseStructure(const QString& path)
     foreach (int nr, attributeNumbers) {
         m_attributeKeys << attributes[nr];
     }
+
+    //debug
+    foreach (const QString& id, m_creators.keys()) {
+        QString name = m_creators.value(id).first;
+        QString type = "uncountable";
+        if (dynamic_cast<NumericalAttributeCreator*>(m_creators.value(id).second)) {
+            type = "countable";
+        }
+    }
+
     return true;
 }
 
 Record AttributeFactory::getAttribute(const QString& name, const QVariant& data) const
 {
-    if (!m_creators.contains(name))
+    if (!m_creators.contains(name)) {
+        qDebug() << "Didn't create attribute for " << name;
         return Record(QString(), QSharedPointer<Attribute>());
+    }
 
     AttributeCreatorInfo creatorInfo = m_creators.value(name);
     AttributeCreator* creator = creatorInfo.second;

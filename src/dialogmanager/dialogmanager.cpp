@@ -85,7 +85,7 @@ DialogManager::DialogManager() : recommender(0), consecutiveMisunderstandingCoun
 
 void DialogManager::userInput(const QList<Statement*> statements)
 {
-    qDebug() << "Misunderstanding counter: " << consecutiveMisunderstandingCounter;
+    //qDebug() << "Misunderstanding counter: " << consecutiveMisunderstandingCounter;
     if (!statements.isEmpty())
         consecutiveMisunderstandingCounter = 0;
     else ++consecutiveMisunderstandingCounter;
@@ -95,6 +95,7 @@ void DialogManager::userInput(const QList<Statement*> statements)
         return;
     }
 
+    qDebug() << "Got statements: " << statements.count();
     foreach (Statement *s, statements) {
         if (!s->act(recommender)) {
             qWarning() << "No match for " << s->toString();
