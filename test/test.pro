@@ -11,6 +11,10 @@ INCLUDEPATH += . ../src
 HEADERS += nlptest.h \
            ../src/nlu/nlu.h \
            ../src/nlu/statement.h \
+           ../src/nlu/usecasestatement.h \
+           ../src/nlu/aspectstatement.h \
+           ../src/nlu/token.h \
+           ../src/nlu/observedtoken.h \
            ../src/nlu/commandstatement.h \
            ../src/nlu/constraintstatement.h \
            ../src/recommender/critiquerecommender.h \
@@ -30,6 +34,10 @@ HEADERS += nlptest.h \
 SOURCES += nlptest.cpp \
            ../src/nlu/nlu.cpp \
            ../src/nlu/statement.cpp \
+           ../src/nlu/usecasestatement.cpp \
+           ../src/nlu/aspectstatement.cpp \
+           ../src/nlu/token.cpp \
+           ../src/nlu/observedtoken.cpp \
            ../src/nlu/commandstatement.cpp \
            ../src/nlu/constraintstatement.cpp \
            ../src/recommender/critiquerecommender.cpp \

@@ -10,14 +10,26 @@
       </names>
     </attribute>
     <attribute type="countable">
-      <actOn>storageMedia</actOn>
+      <actOn>storageMedia[_][1]</actOn>
       <names>
         <name>Datenspeicher</name>
         <name>permanenten Speicher</name>
         <name>Festplatten</name>
         <name>Festplatte</name>
         <name>Platte</name>
+      </names>
+    </attribute>
+    <attribute type="countable">
+      <actOn>storageMedia[_][1],mainMemoryCapacity</actOn>
+      <names>
         <name>Speicher</name>
+      </names>
+    </attribute>
+    <attribute type="countable">
+      <actOn>storageMedia[_][0]</actOn>
+      <names>
+        <name>(SSD|HDD)</name>
+        <name value="SSD">SSD festplatte</name>
       </names>
     </attribute>
     <attribute type="countable">
@@ -37,6 +49,8 @@
       <actOn>weight</actOn>
       <names>
         <name>Gewicht</name>
+        <name>Kilogramm</name>
+        <name>Kilo</name>
       </names>
     </attribute>
     <attribute type="boolean">
@@ -58,11 +72,18 @@
         <name>Auflösung</name>
       </names>
     </attribute>
+    <attribute type="opinion">
+      <actOn>screenHResolution,screenVResolution</actOn>
+      <names>
+        <name>Auflösung</name>
+        <name>Bildschirm</name>
+        <name>Display</name>
+      </names>
+    </attribute>
     <attribute type="countable">
       <actOn>screenHResolution</actOn>
       <names>
         <name>Horizontale Auflösung</name>
-        <name>Pixel</name>
       </names>
     </attribute>
     <attribute type="uncountable">
@@ -76,6 +97,7 @@
       <names>
         <name>Prozessortyp</name>
         <name>Prozessor Marke</name>
+        <name>(Intel|AMD)</name>
       </names>
     </attribute>
     <attribute type="boolean">
@@ -126,18 +148,19 @@
       <actOn>averageRuntimeOnBattery</actOn>
       <names>
         <name>Akkulaufzeit</name>
+        <name>Akkuzeit</name>
         <name>Durchschnittliche Laufzeit</name>
         <name>Akku</name>
         <name>Batterie</name>
       </names>
     </attribute>
-    <attribute type="countable">
+    <attribute type="unOpinionatedCountable">
       <actOn>screenSize</actOn>
       <names>
         <name>Bildschirmdiagonale</name>
-        <name>Bildschirmgröße</name>
-        <name>Bildschirm</name>
-        <name>Display</name>
+        <name>Bildschirmgrösse</name>
+	<name>Bildschirm</name>
+	<name>Display</name>
         <name>Zoll</name>
       </names>
     </attribute>
@@ -165,7 +188,7 @@
       <actOn>graphicsType</actOn>
       <names>
         <name>Grafikkartentyp</name>
-        <name>Grafikkarte</name>
+        <name>Grafikkartenmarke</name>
       </names>
     </attribute>
     <attribute type="uncountable">
@@ -186,6 +209,10 @@
       <names>
         <name>Betriebssystem</name>
         <name>OS</name>
+	<name value="OSX">Mac</name>
+	<name value="OSX">Mac Os</name>
+	<name>(Linux|Windows|Windows 8|Windows 7|Windows 8.1)</name>
+	<name>(Linux|Windows|Windows 8|Windows 7|Windows 8.1) Betriebssystem</name>
       </names>
     </attribute>
     <attribute type="countable">
@@ -207,9 +234,11 @@
       <names>
         <name>Hersteller</name>
         <name>Marke</name>
+        <name>(Apple|Lenovo|Samsung|HP)</name>
+        <name value="Apple">Macbook</name>
       </names>
     </attribute>
-    <attribute type="uncountable">
+    <attribute type="unOpinionatedUnountable">
       <actOn>model</actOn>
       <names>
         <name>Modell</name>
@@ -303,6 +332,9 @@
       <actOn>processorName</actOn>
       <names>
         <name>Prozessor Name</name>
+        <name value=".*core.*i3.*">i3</name>
+        <name value=".*core.*i5.*">i5</name>
+        <name value=".*core.*i7.*">i7</name>
       </names>
     </attribute>
     <attribute type="countable">
@@ -330,14 +362,23 @@
       <names>
         <name>Preis</name>
         <name>Kosten</name>
+        <name>Euro Kosten</name>
         <name>Euro</name>
         <name>Preislich</name>
       </names>
     </attribute>
     <attribute type="countable">
-      <actOn>&gt;32?storageMedia[_].capacity:mainMemoryCapacity</actOn>
+      <actOn>&gt;32?storageMedia[_][1]:mainMemoryCapacity</actOn>
       <names>
         <name>Gigabyte</name>
+      </names>
+    </attribute>
+    <attribute type="countable">
+      <actOn>mainMemoryCapacity</actOn>
+      <names>
+        <name>Gigabyte RAM</name>
+        <name>Gigabyte Hauptspeicher</name>
+        <name>Gigabyte Arbeitsspeicher</name>
       </names>
     </attribute>
     <attribute type="boolean">
@@ -350,8 +391,10 @@
         <name>entspiegelter</name>
         <name>entspiegeltem</name>
         <name>matter</name>
+        <name>matter bildschirm</name>
         <name>mattem</name>
         <name>mattes</name>
+        <name>mattes display</name>
       </names>
     </attribute>
     <attribute type="countable">
@@ -367,6 +410,8 @@
         <name>Prozessorkerne</name>
         <name>Cores</name>
         <name>Kerne</name>
+        <name value="2">Dualcore</name>
+        <name value="4">Quadcore</name>
       </names>
     </attribute>
     <attribute type="uncountable">
@@ -397,20 +442,32 @@
         <name>Ports</name>
       </names>
     </attribute>
+    <attribute type="countable">
+      <actOn>ports[_]</actOn>
+      <names>
+        <name>(USB 3|USB 2|USB|Gigabit LAN|LAN|Thunderbolt|Firewire|Express Card|Smart Card|PCMCIA|ESATA|Micro HDMI|Mini HDMI|Mini DisplayPort|HDMI|DisplayPort|Mini VGA|VGA|DVI)</name>
+      </names>
+    </attribute>
+
   </attributes>
   <modifiers>
-    <modifier on="countable,uncountable,boolean" binding="pre">
+    <modifier on="countable,unOpinionatedCountable,boolean" binding="pre">
       <names>
 	<name>BEIBEHALTEN</name>
 	<name>BLEIBEN</name>
       </names>
       <relationship>Equal</relationship>
     </modifier>
-    <modifier on="countable,uncountable,boolean" binding="pre">
+    <modifier on="countable,unOpinionatedCountable,uncountable,unOpinionatedUnountable,boolean" binding="pre">
       <names>
         <name>ÄNDERN</name>
         <name>UNGLEICH</name>
 	<name>WECHSELN</name>
+      </names>
+      <relationship>Inequal</relationship>
+    </modifier>
+    <modifier on="countable,unOpinionatedCountable,uncountable,unOpinionatedUnountable,boolean" binding="post">
+      <names>
         <name>KEINEN</name>
         <name>KEINE</name>
         <name>KEIN</name>
@@ -429,7 +486,7 @@
       </names>
       <relationship>IsFalse</relationship>
     </modifier>
-    <modifier on="countable,uncountable" binding="post">
+    <modifier on="countable,unOpinionatedCountable,unOpinionatedUnountable,uncountable" binding="post">
       <names>
 	<name>GLEICH</name>
 	<name>GLEICHE</name>
@@ -442,6 +499,8 @@
 	<name>SELBER</name>
 	<name>SELBEN</name>
 	<name>SELBES</name>
+        <name>das gewünschte</name>
+        <name>das richtige</name>
       </names>
       <relationship>Equal</relationship>
     </modifier>
@@ -452,7 +511,7 @@
       <relationship>Equal</relationship>
     </modifier>
 
-    <modifier on="countable,uncountable" binding="post" default="Modell">
+    <modifier on="countable,unOpinionatedCountable,unOpinionatedUnountable,uncountable" binding="post" default="Modell">
       <names>
 	<name>ANDERE</name>
 	<name>ANDERER</name>
@@ -463,19 +522,41 @@
     </modifier>
 
 
-    <modifier on="countable" binding="pre,post">
+    <modifier on="countable,unOpinionatedCountable" binding="pre,post">
       <names>
       <name>MEHR ALS</name>
       <name>MEHR WIE</name>
       <name>HÖHER ALS</name>
       <name>HÖHER WIE</name>
       <name>MEHR</name>
-      <name>GRÖSSER</name>
+      <name>ZU KLEINES</name>
+      <name>ZU KLEINER</name>
+      <name>ZU KLEINEN</name>
+      <name>ZU KLEINEM</name>
+      <name polarity="0.4">NICHT ZU KLEINES</name>
+      <name polarity="0.4">NICHT ZU KLEINER</name>
+      <name polarity="0.4">NICHT ZU KLEINEN</name>
+      <name polarity="0.4">NICHT ZU KLEINEM</name>
       </names>
       <relationship>LargerThan</relationship>
     </modifier>
 
-    <modifier on="countable" binding="post">
+    <modifier on="countable,unOpinionatedCountable" binding="pre,post" default="screenSize">
+      <names>
+      <name>GRÖSSER</name>
+      <name>GRÖSSERER</name>
+      <name>GRÖSSERES</name>
+      <name>GRÖSSEREN</name>
+      <name>GRÖSSEREM</name>
+      <name>ZU KLEIN</name>
+      <name polarity="0.4">IST ETWAS KLEIN</name>
+      <name polarity="0.4">NICHT ZU KLEIN</name>
+      </names>
+      <relationship>LargerThan</relationship>
+    </modifier>
+
+
+    <modifier on="countable,unOpinionatedCountable" binding="post">
       <names>
       <name>viel</name>
       <name>hoch</name>
@@ -483,20 +564,20 @@
       <relationship>Large</relationship>
     </modifier>
 
-    <modifier on="countable" binding="pre">
+    <modifier on="countable,unOpinionatedCountable" binding="pre">
       <names>
       <name>ERHÖHEN</name>
       <name>HÖHER</name>
-      <name>ZU WENIG</name>
-      <name>ZU NIEDRIG</name>
-      <name polarity="0.4">ETWAS WENIG</name>
-      <name polarity="0.4">ETWAS NIEDRIG</name>
       </names>
       <relationship>LargerThan</relationship>
     </modifier>
 
-    <modifier on="countable" binding="post">
+    <modifier on="countable,unOpinionatedCountable" binding="pre,post">
       <names>
+	<name>ZU WENIG</name>
+	<name>ZU NIEDRIG</name>
+	<name polarity="0.4">ETWAS WENIG</name>
+	<name polarity="0.4">ETWAS NIEDRIG</name>
 	<name>HÖHERES</name>
 	<name>MINDESTENS</name>
 	<name>ÜBER</name>
@@ -506,7 +587,7 @@
       <relationship>LargerThan</relationship>
     </modifier>
 
-    <modifier on="countable" binding="post" default="screenSize">
+    <modifier on="countable,unOpinionatedCountable" binding="post" default="screenSize">
       <names>
         <name>HÖHEREN</name>
         <name>HÖHERE</name>
@@ -520,7 +601,7 @@
       <relationship>LargerThan</relationship>
     </modifier>
 
-    <modifier on="countable" binding="post" default="size">
+    <modifier on="countable,unOpinionatedCountable" binding="post" default="size">
       <names>
         <name>GROSSEN</name>
         <name>GROSSE</name>
@@ -529,7 +610,8 @@
       <relationship>Large</relationship>
     </modifier>
 
-    <modifier on="countable" binding="post" default="length">
+    <!-- default="length" -->
+    <modifier on="countable,unOpinionatedCountable" binding="post">
       <names>
         <name>lang</name>
         <name>lange</name>
@@ -538,7 +620,7 @@
       </names>
       <relationship>Large</relationship>
     </modifier>
-    <modifier on="countable" binding="post" default="length">
+    <modifier on="countable,unOpinionatedCountable" binding="post">
       <names>
         <name>Längeren</name>
         <name>Längere</name>
@@ -547,18 +629,20 @@
     </modifier>
 
 
-    <modifier on="countable" binding="pre,post">
+    <modifier on="countable,unOpinionatedCountable" binding="pre,post">
       <names>
       <name>WENIGER ALS</name>
       <name>NIEDRIGER ALS</name>
       <name>WENIGER WIE</name>
       <name>NIEDRIGER WIE</name>
       <name>WENIGER</name>
+      <name>MAXIMAL</name>
+      <name>HÖCHSTENS</name>
       </names>
       <relationship>SmallerThan</relationship>
     </modifier>
 
-    <modifier on="countable" binding="pre">
+    <modifier on="countable,unOpinionatedCountable" binding="pre">
       <names>
       <name>VERRINGERN</name>
       <name>NIEDRIGER</name>
@@ -569,19 +653,17 @@
       </names>
       <relationship>SmallerThan</relationship>
     </modifier>
-    <modifier on="countable" binding="post">
+    <modifier on="countable,unOpinionatedCountable" binding="post">
       <names>
 	<name>UNTER</name>
 	<name>GERINGERES</name>
 	<name>GERINGERER</name>
 	<name>GERINGERERE</name>
 	<name>GERINGEREN</name>
-	<name>MAXIMAL</name>
-	<name>HÖCHSTENS</name>
       </names>
       <relationship>SmallerThan</relationship>
     </modifier>
-    <modifier on="countable" binding="post" default="screenSize">
+    <modifier on="countable,unOpinionatedCountable" binding="post" default="screenSize">
       <names>
 	<name>NIEDRIGERE</name>
 	<name>NIEDRIGERES</name>
@@ -595,20 +677,34 @@
       </names>
       <relationship>SmallerThan</relationship>
     </modifier>
-    <modifier on="countable" binding="post" default="screenSize">
+    <modifier on="countable,unOpinionatedCountable" binding="pre,post" default="screenSize">
+      <names>
+	<name>ZU GROSS</name>
+        <name polarity="0.4">ETWAS GROSS</name>
+        <name>ZU GROSSER</name>
+        <name>ZU GROSSES</name>
+        <name>ZU GROSSEN</name>
+	<name polarity="0.4">NICHT ZU GROSS</name>
+	<name polarity="0.4">NICHT ZU GROSSER</name>
+	<name polarity="0.4">NICHT ZU GROSSES</name>
+	<name polarity="0.4">NICHT ZU GROSSEN</name>
+      </names>
+      <relationship>SmallerThan</relationship>
+    </modifier>
+    <modifier on="countable,unOpinionatedCountable" binding="post" default="screenSize">
       <names>
         <name>KLEINEN</name>
         <name>KLEINE</name>
       </names>
       <relationship>Small</relationship>
     </modifier>
-    <modifier on="countable,boolean" binding="pre">
+    <modifier on="countable,boolean,opinion" binding="pre">
       <names>
         <name>notwendig</name>
       </names>
       <relationship>Good</relationship>
     </modifier>
-    <modifier on="countable,boolean" binding="pre,post">
+    <modifier on="uncountable,countable,boolean,opinion" binding="pre,post">
       <names>
         <name polarity="0.6">ausreichend</name>
         <name polarity="0.6">genügend</name>
@@ -622,10 +718,18 @@
         <name>guten</name>
         <name>stark</name>
         <name>starken</name>
+        <name>starke</name>
         <name>starkes</name>
         <name>starker</name>
         <name>gescheit</name>
         <name>herausragend</name>
+        <name>gut</name>
+      </names>
+      <relationship>Good</relationship>
+    </modifier>
+    <modifier on="uncountable,countable,boolean,opinion" binding="post">
+      <names>
+        <name>günstige</name>
       </names>
       <relationship>Good</relationship>
     </modifier>
@@ -635,7 +739,7 @@
       </names>
       <relationship>Good</relationship>
     </modifier>
-    <modifier on="countable,boolean" binding="pre,post">
+    <modifier on="uncountable,countable,boolean,opinion" binding="pre,post">
       <names>
         <name>besser</name>
         <name>bessere</name>
@@ -659,6 +763,7 @@
         <name>1 BISSERL</name>
         <name>1 WENIG</name>
         <name>ETWAS</name>
+	<name>EINE SPUR</name>
         <name>1 BISSERL</name>
         <name>MARGINAL</name>
         <name>RELATIV</name>
@@ -669,6 +774,7 @@
     </metaModifier>
     <metaModifier>
       <names>
+        <name>NICHT BESONDERS</name>
         <name>nicht unbedingt</name>
         <name>nicht notwendigerweise</name>
       </names>
@@ -682,6 +788,7 @@
 	<name>DEUTLICH</name>
         <name>KOMPLETT</name>
         <name>SEHR</name>
+        <name>VIEL</name>
       </names>
       <factor>2.0</factor>
     </metaModifier>
@@ -717,8 +824,6 @@
         </action>
       </actions>
     </command>
-
-
       <names>
 	<name>GÜNSTIGES</name>
         <name>GÜNSTIGER</name>
@@ -736,9 +841,14 @@
 	<name>PREISWERTERE</name>
         <name>PREISWERTERES</name>
         <name>PREISWERTEREN</name>
-        <name>ZU TEUER</name>
+        <name>UM ZU TEUER</name>
+        <name>UM \w+ ZU TEUER</name>
+        <name>UM \w+ \w+ ZU TEUER</name>
+        <name>UM \w+ \w+ \w+ ZU TEUER</name>
+        <name>UM \w+ \w+ \w+ \w+ ZU TEUER</name>
         <name>TEUER</name>
         <name>ZU TEUEREN</name>
+	<name polarity="0.4">NICHT ZU Teuer</name>
         <name polarity="0.4">ETWAS TEUER</name>
         <name>BILLIG</name>
         <name>GÜNSTIG</name>
@@ -808,12 +918,7 @@
         <name>DÜNNER</name>
         <name>FLACHER</name>
         <name>FLACHEN</name>
-        <name>ZU RIESIG</name>
-        <name>ZU GROSS</name>
-        <name polarity="0.4">ETWAS GROSS</name>
-        <name>ZU GROSSER</name>
-        <name>ZU GROSSES</name>
-        <name>ZU GROSSEN</name>
+        <name polarity="1.2">ZU RIESIG</name>
         <name>ZU BREITER</name>
         <name>ZU BREITEN</name>
         <name>ZU BREITES</name>
@@ -857,11 +962,6 @@
 	<name>BREITER</name>
 	<name>DICKERE</name>
 	<name>DICKER</name>
-        <name>ZU KLEIN</name>
-        <name>ZU KLEINES</name>
-        <name>ZU KLEINER</name>
-        <name>ZU KLEINEN</name>
-        <name polarity="0.4">ETWAS KLEIN</name>
 	<name>ZU ZIERLICH</name>
 	<name>ZU DÜNN</name>
         <name polarity="0.4">ETWAS DÜNN</name>
@@ -902,28 +1002,6 @@
 	<attribute>weight</attribute>
 	<relationship>LargerThan</relationship>
 	</action>
-      </actions>
-    </command>
-    <command>
-      <names>
-        <name>Quadcore</name>
-      </names>
-      <actions>
-        <action>
-        <attribute>processorCores</attribute>
-        <relationship data="4">Equal</relationship>
-        </action>
-      </actions>
-    </command>
-    <command>
-      <names>
-        <name>Dualcore</name>
-      </names>
-      <actions>
-        <action>
-        <attribute>processorCores</attribute>
-        <relationship data="2">Equal</relationship>
-        </action>
       </actions>
     </command>
     <command>
@@ -1010,6 +1088,7 @@
     <command>
       <names>
         <name>ZU SCHWER</name>
+        <name polarity="0.4">NICHT ZU SCHWER</name>
         <name polarity="0.4">ETWAS SCHWER</name>
 	<name>LEICHTER</name>
 	<name>LEICHTERE</name>
@@ -1019,72 +1098,6 @@
 	<attribute>weight</attribute>
 	<relationship>SmallerThan</relationship>
 	</action>
-      </actions>
-    </command>
-    <command>
-      <names>
-        <name>(Apple|Lenovo|Samsung|HP|Macbook)</name>
-      </names>
-      <actions>
-        <action>
-        <attribute>manufacturer</attribute>
-        <relationship>Equal</relationship>
-        </action>
-      </actions>
-    </command>
-    <command>
-      <names>
-        <name>(Linux|Windows|Mac)</name>
-      </names>
-      <actions>
-        <action>
-        <attribute>operatingSystem</attribute>
-        <relationship>Equal</relationship>
-        </action>
-      </actions>
-    </command>
-    <command>
-      <names>
-        <name>(SSD|HDD)</name>
-      </names>
-      <actions>
-        <action>
-        <attribute>storageMedia[_].type</attribute>
-        <relationship>Equal</relationship>
-        </action>
-      </actions>
-    </command>
-    <command>
-      <names>
-        <name>(USB 3|USB 2|USB|Gigabit LAN|LAN|Thunderbolt|Firewire|Express Card|Smart Card|PCMCIA|ESATA|Micro HDMI|Mini HDMI|Mini DisplayPort|HDMI|DisplayPort|Mini VGA|VGA|DVI)</name>
-      </names>
-      <actions>
-        <action>
-        <attribute>ports[_]</attribute>
-        <relationship>Equal</relationship>
-        </action>
-      </actions>
-    </command>
-    <command>
-      <names>
-        <name>(Intel|AMD)</name>
-      </names>
-      <actions>
-        <action>
-        <attribute>processorName</attribute>
-        <relationship>Equal</relationship>
-        </action>
-      </actions>
-    </command>
-    <command>
-      <names>
-        <name>(i5|i7|i3)</name>
-      </names>
-      <actions>
-        <action>
-        <attribute>processorName</attribute>
-        <relationship>Equal</relationship>
-        </action>
       </actions>
     </command>
     <command>
@@ -1111,6 +1124,7 @@
         <name>ok</name>
         <name>sicher</name>
         <name>schön</name>
+        <name polarity="0.5">ziemlich wichtig</name>
         <name>wäre von vorteil</name>
         <name>ist von vorteil</name>
         <name polarity="0.2">naja</name>
@@ -1126,10 +1140,9 @@
         <name>brauche ich nicht</name>
         <name>brauch ich nicht</name>
         <name>will ich nicht</name>
-        <name polarity="0.4">nicht besonders</name>
         <name polarity="0.2">muss( \w+){0,3} nicht sein</name>
         <name polarity="0.6">nicht( \w+){0,3} wichtig</name>
-        <name polarity="0.6">weniger wichtig</name>
+	<name polarity="0.6">weniger wichtig</name>
       </names>
       <actions>
         <action special="no" />
@@ -1139,19 +1152,22 @@
       <names>
         <name>will ich haben</name>
         <name>nehme ich</name>
+        <name>gutes gerät</name>
         <name>würde passen</name>
+        <name polarity="0.8">könnte mich( \w+){0,1} mit dem( \w+){0,2} anfreunden</name>
+        <name>bin zufrieden</name>
+        <name>hätt ich( \w+){0,1} gerne</name>
+        <name>hätte ich( \w+){0,1} gerne</name>
         <name>gefällt mir</name>
         <name polarity="0.8">besser</name>
         <name polarity="0.6">kommt hin</name>
-        <name>würde meinen erwartungen entsprechen</name>
-        <name>entspricht meinen erwartungen</name>
+        <name>entspricht( \w+){0,3} erwartungen</name>
+        <name>erwartungen( \w+){0,2} entsprechen</name>
         <name>würde mir zusprechen</name>
-        <name>nicht schlecht</name>
+        <name polarity="0.8">nicht schlecht</name>
         <name>nicht übel</name>
-        <name>nicht so übel</name>
-        <name>nicht so schlecht</name>
-        <name>würde auch meinen erwartungen entsprechen</name>
-        <name>entspricht auch meinen erwartungen</name>
+        <name polarity="0.4">nicht so übel</name>
+        <name polarity="0.4">nicht so schlecht</name>
         <name>würde mir auch zusprechen</name>
         <name polarity="0.2">ungefähr</name>
         <name polarity="0.6">in ordnung</name>

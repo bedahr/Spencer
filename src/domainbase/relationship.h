@@ -31,8 +31,8 @@ public:
     Relationship(const QString& id, Type type, QSharedPointer<Attribute> attribute, double modifierFactor=1.0) :
         m_id(id), m_type(type), m_attribute(attribute), m_modifierFactor(modifierFactor)
     {
-        if (!attribute) {
-            qDebug() << "No comparison attribute specified, backing off type";
+        if (attribute.isNull()) {
+            //qDebug() << "No comparison attribute specified, backing off type";
             m_type = backoffRelative(type);
         }
     }
@@ -81,6 +81,7 @@ protected:
     /// direction
     /// < 0 means we want to invert the result (example modifier: "not")
     double m_modifierFactor;
+    bool isRelative() const;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Relationship::Type)

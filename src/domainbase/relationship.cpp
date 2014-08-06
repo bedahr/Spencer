@@ -65,7 +65,6 @@ bool Relationship::supersedes(const Relationship& other) const
     if (other.m_type != m_type) {
         // supersede contradictions
         if (m_type & Relationship::SmallerThan && other.m_type & Relationship::LargerThan) {
-            qDebug() << "heyo";
             if (! (*(other.m_attribute) > *m_attribute))
                 return true;
             else
@@ -104,6 +103,16 @@ bool Relationship::supersedes(const Relationship& other) const
     return false;
 }
 
+bool Relationship::isRelative() const
+{
+    return (m_type & Relationship::Equality) ||
+            (m_type & Relationship::Inequality) ||
+            (m_type & Relationship::SmallerThan) ||
+            (m_type & Relationship::LargerThan) ||
+            (m_type & Relationship::BetterThan) ||
+            (m_type & Relationship::WorseThan);
+}
+
 QString Relationship::toString() const
 {
     QStringList strType;
@@ -140,7 +149,7 @@ QString Relationship::toString() const
         modifierStr = QObject::tr("signifikant ");
 
     return QString("%1 %2%3 %4").arg(m_id).arg(modifierStr).arg(strType.join(QObject::tr(" und ")))
-            .arg(m_attribute ? m_attribute->toString() : QString());
+            .arg((m_attribute && isRelative()) ? m_attribute->toString() : QString());
 }
 
 bool Relationship::appliesTo(const QString& id) const

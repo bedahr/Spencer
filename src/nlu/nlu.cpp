@@ -20,11 +20,13 @@ static QList<LexicalFeature> parseNames(const QDomElement& namesElem)
     QDomElement nameElem = namesElem.firstChildElement("name");
     while (!nameElem.isNull()) {
         QRegExp re(QLatin1String("\\b") + nameElem.text() + QLatin1String("\\b"), Qt::CaseInsensitive);
+        QString value = nameElem.attribute("value");
+        if (nameElem.hasAttribute("polarity")) {
+            names << LexicalFeature(re, value, nameElem.attribute("polarity").toFloat());
+        } else {
+            names << LexicalFeature(re, value);
+        }
         nameElem = nameElem.nextSiblingElement("name");
-        if (nameElem.hasAttribute("polarity"))
-            names << LexicalFeature(re, nameElem.attribute("polarity").toFloat());
-        else
-            names << LexicalFeature(re);
     }
     return names;
 }
@@ -229,36 +231,23 @@ QList<ObservedToken*> NLU::findTokens(const QString& input)
     foreach (Token* t, m_acceptedTokens)
         out << t->findIn(input);
 
-    //remove overlapping tokens, favor longer ones
-    // first, sort on descending match size
-    qSort(out.begin(), out.end(), matchSizeLargerThan);
-    qDebug() << "Sort done";
-    // then, remove overlaps
-    /*
-    for (QList<ObservedToken*>::iterator i = out.begin(); i != out.end();) {
-        bool erased = false;
-        foreach (ObservedToken* comp, out) {
-            if (comp == *i) // sorted by size => everything after obs will be smaller
-                break;
-            // if comp overlaps *i and is larger than obs, remove *i
-            if (comp->overlaps(*i)) {
-                i = out.erase(i);
-                erased = true;
-                break;
-            }
-        }
-        if (!erased)
-             ++i;
-    }*/
-
     return out;
 }
 
-#if 0
+static int calculateDispersion(const QList<const ObservedToken*>& tokens)
+{
+    int maxDistance = 0;
+    for (int i = 1; i < tokens.count(); ++i) {
+        maxDistance = qMax(maxDistance,
+                           tokens[i]->startWordIndex() - tokens[i-1]->endWordIndex());
+    }
+    return maxDistance;
+}
 
-QList<Statement*> findOptimalStatementAssociation(const Offer *currentRecommendation, const QList<ObservedToken*>& tokens, double& bestSelectionErrors)
+QList<Statement*> findOptimalStatementAssociationNonOverlapping(const Offer *currentRecommendation, const QList<ObservedToken*>& tokens, double& bestSelectionErrors, int& bestDispersion)
 {
     bestSelectionErrors = tokens.length();
+    bestDispersion = tokens.empty() ? 0 : tokens.last()->endWordIndex();
     if (tokens.isEmpty())
         return QList<Statement*>();
 
@@ -270,6 +259,7 @@ QList<Statement*> findOptimalStatementAssociation(const Offer *currentRecommenda
     for (int i = 0; i < tokens.length(); i++) {
         thisSelection << others.takeFirst();
         double thisSelectionErrors = thisSelection.length();
+        int thisDispersion = calculateDispersion(thisSelection);
         QList<Statement*> thisSelectionResult;
         foreach (const ObservedToken* ot, thisSelection) {
             QList<Statement*> thisVoteForThisSelection = ot->token()->makeStatements(currentRecommendation, thisSelection, ot);
@@ -282,104 +272,92 @@ QList<Statement*> findOptimalStatementAssociation(const Offer *currentRecommenda
             }
         }
         double otherSelectionErrors = 0;
-        thisSelectionResult << findOptimalStatementAssociation(currentRecommendation, others, otherSelectionErrors);
+        int otherSelectionDispersion = 0;
+        thisSelectionResult << findOptimalStatementAssociationNonOverlapping(currentRecommendation, others, otherSelectionErrors, otherSelectionDispersion);
         thisSelectionErrors += otherSelectionErrors;
-        if (thisSelectionErrors <= bestSelectionErrors) { // prefer larger association
+        thisDispersion += otherSelectionDispersion;
+        if ((thisSelectionErrors < bestSelectionErrors) ||
+                ((thisSelectionErrors == bestSelectionErrors) && (thisDispersion < bestDispersion))) {
             bestSelection = thisSelectionResult;
             bestSelectionErrors = thisSelectionErrors;
+            bestDispersion = thisDispersion;
         }
     }
     return bestSelection;
 }
-#endif
 
-QList<Statement*> findOptimalStatementAssociation(int currentPos, const Offer *currentRecommendation, const QList<ObservedToken*>& tokens, double& bestSelectionErrors)
+double relativePenalty(ObservedToken* token, int maxPos)
 {
-    bestSelectionErrors = tokens.length();
-    if (tokens.isEmpty())
-        return QList<Statement*>();
+    return token->matchLength() / (double) maxPos;
+}
 
-    QList<const ObservedToken*> thisSelection;
-    QList<ObservedToken*> others(tokens);
+typedef QPair< QList<ObservedToken*>, double /*penalty*/ > NonOverlappingTokenInfo;
 
-    QList<Statement*> bestSelection;
+QList< NonOverlappingTokenInfo >
+      unrollOverlappingTokens(int i, const QList<ObservedToken*>& tokens, int maxPos, double skipPenalty)
+{
+    for (; i < tokens.length(); ++i) {
+        //overlap: act!
+        if (tokens[i-1]->overlaps(tokens[i])) {
+            QList<ObservedToken*> incl(tokens);
+            double inclSkipPenalty = skipPenalty;
+            for (int j = i; (j < incl.length()) && (tokens[i - 1]->overlaps(tokens[j])); ++j)
+                inclSkipPenalty += relativePenalty(incl.takeAt(i), maxPos);
+            double exclSkipPenalty = skipPenalty;
+            QList<ObservedToken*> excl(tokens);
+            exclSkipPenalty += relativePenalty(excl.takeAt(i-1), maxPos) ;
 
-    double bestPreSelectionErrors = 0;
-    QList<Statement*> bestPreSelectionResult;
-    for (int i = 0; i < tokens.length(); i++) {
-        ObservedToken* t;
-        do {
-            if (others.isEmpty())
-                return bestSelection;
-            t = others.takeFirst();
-        } while (t->position() < currentPos); //overlaps, do not consider
-
-        thisSelection << t;
-
-        // now peak ahead and launch subproblems for all tokens overlapping t
-        QList<ObservedToken*> overlapping;
-        while (!others.isEmpty() && others.first()->overlaps(t)) {
-            overlapping << others.takeFirst();
-        }
-        for (int j = 0; j < overlapping.count(); ++j) {
-            int subSkippingPenalty = j + 1;
-            // 1 because already "skip" t
-            // token list that doesn't include the skipped elements
-            QList<ObservedToken*> subTokens(others);
-            for (int k = overlapping.count() - 1; k > j; --k)
-                subTokens.insert(0, overlapping[i]);
-            // result of best pre-selection so far (which obviously doesn't include the offending
-            // t), is stored in bestPreSelectionResult. So go off of this.
-            double adjustedBestPreSelectionErrors = bestPreSelectionErrors + subSkippingPenalty;
-            double subPostSelectionErrors = 0;
-            QList<Statement*> subResult = findOptimalStatementAssociation(currentPos, currentRecommendation, subTokens, subPostSelectionErrors);
-            double subSelectionErrors = subPostSelectionErrors + adjustedBestPreSelectionErrors;
-            if (subSelectionErrors <= bestSelectionErrors) {
-                bestSelection = bestPreSelectionResult;
-                bestSelection << subResult;
-                bestSelectionErrors = subSelectionErrors;
-            }
-        }
-
-        currentPos = t->position() + t->matchLength();
-
-        double thisPreSelectionErrors = thisSelection.length();
-        QList<Statement*> thisPreSelectionResult;
-        foreach (const ObservedToken* ot, thisSelection) {
-            QList<Statement*> thisVoteForThisSelection = ot->token()->makeStatements(currentRecommendation, thisSelection, ot);
-            if (!thisVoteForThisSelection.isEmpty()) {
-                thisPreSelectionResult << thisVoteForThisSelection;
-                thisPreSelectionErrors = 0;
-                foreach (Statement* s, thisVoteForThisSelection)
-                    thisPreSelectionErrors = qMax(1.0 - s->quality(), thisPreSelectionErrors);
-                break;
-            }
-        }
-        //store best selection of preamble separately
-        if (thisPreSelectionErrors <= bestPreSelectionErrors) {
-            bestPreSelectionResult = thisPreSelectionResult;
-            bestPreSelectionErrors = thisPreSelectionErrors;
-        }
-
-        double otherSelectionErrors = 0;
-        QList<Statement*> thisSelectionResult(thisPreSelectionResult);
-        thisSelectionResult << findOptimalStatementAssociation(currentPos, currentRecommendation, others, otherSelectionErrors);
-        double thisSelectionErrors = thisPreSelectionErrors + otherSelectionErrors;
-        if (thisSelectionErrors <= bestSelectionErrors) { // prefer larger association
-            bestSelection = thisSelectionResult;
-            bestSelectionErrors = thisSelectionErrors;
+            QList< NonOverlappingTokenInfo > out;
+            out << unrollOverlappingTokens(i, incl, maxPos, inclSkipPenalty);
+            out << unrollOverlappingTokens(i, excl, maxPos, exclSkipPenalty);
+            return out;
         }
     }
-    return bestSelection;
+
+    // no overlap
+    return QList< NonOverlappingTokenInfo >() << qMakePair(QList<ObservedToken*>() << tokens, skipPenalty);
+}
+
+QList<Statement*> findOptimalStatementAssociation(int maxPos, const Offer *currentRecommendation, const QList<ObservedToken*>& tokens, double& bestError, int& bestDispersion)
+{
+    // find overlapping tokens and launch individual subproblems for all non-overlapping combinations;
+    QList< QPair< QList<ObservedToken*>, double /*penalty*/ > > unrolled = unrollOverlappingTokens(1, tokens, maxPos, 0);
+    bestError = tokens.count();
+    double thisError = bestError;
+    QList<Statement*> bestStatements;
+    QList<Statement*> thisStatements;
+    int thisDispersion;
+    foreach (const NonOverlappingTokenInfo& nonOverlappingTokenInfo, unrolled) {
+        const QList<ObservedToken*>& nonOverlappingTokens(nonOverlappingTokenInfo.first);
+        qDebug() << "# no overlapping tokens: ";
+        foreach (ObservedToken* t, nonOverlappingTokens)
+            qDebug() << "   " << t->toString();
+        double skipPenalty = nonOverlappingTokenInfo.second;
+        thisStatements = findOptimalStatementAssociationNonOverlapping(currentRecommendation, nonOverlappingTokens, thisError, thisDispersion);
+
+        qDebug() << thisError << thisError + skipPenalty << thisDispersion;
+        qDebug() << "###";
+        thisError += skipPenalty;
+        if ((thisError < bestError) ||
+                ((thisError == bestError) && (thisDispersion < bestDispersion))) {
+            bestError = thisError;
+            bestStatements = thisStatements;
+            bestDispersion = thisDispersion;
+        }
+    }
+    return bestStatements;
 }
 
 QList<Statement*> NLU::interpret(const Offer *currentRecommendation, const QString& input)
 {
-    QList<Statement*> foundStatements;
     qDebug() << "Interpreting: " << input;
+    QList<Statement*> foundStatements;
+    QString saneInput(input);
+    saneInput.replace("ß", "ss");
+    //QString saneInput = input;
 
     // 1. Extract list of largest, non overlapping token observations
-    QList<ObservedToken*> foundTokens = findTokens(input);
+    QList<ObservedToken*> foundTokens = findTokens(saneInput);
     qDebug() << "Found " << foundTokens.size() << " matching tokens";
     foreach (ObservedToken* t, foundTokens) {
         qDebug() << "   " << t->toString();
@@ -396,12 +374,18 @@ QList<Statement*> NLU::interpret(const Offer *currentRecommendation, const QStri
     }
 
     // 3. Find token associations that minimizes #unassigned tokens and build statements
+    qSort(foundTokens.begin(), foundTokens.end(), matchSizeLargerThan);
+    qStableSort(foundTokens.begin(), foundTokens.end(), occuredBefore);
+    qDebug() << "Parsing on " << foundTokens.size() << " matching tokens";
+    foreach (ObservedToken* t, foundTokens) {
+        qDebug() << "   " << t->toString();
+    }
     double errors = 0;
-    qSort(foundTokens.begin(), foundTokens.end(), occuredBefore);
-    foundStatements << findOptimalStatementAssociation(0, currentRecommendation, foundTokens, errors);
-    qDebug() << "Found " << foundStatements.size() << " matching statements; " << errors << " errors";
+    int dispersion = 0;
+    foundStatements << findOptimalStatementAssociation(saneInput.length(), currentRecommendation, foundTokens, errors, dispersion);
+    qDebug() << "Found " << foundStatements.size() << " matching statements; " << errors << " errors, dispersion: " << dispersion;
     foreach (Statement* s, foundStatements) {
         qDebug() << "   " << s->toString();
     }
-    return QList<Statement*>();
+    return foundStatements;
 }

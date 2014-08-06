@@ -116,7 +116,7 @@
       <id>graphicsModel</id>
       <name>Grafikkarte</name>
       <type>
-        <symbol />
+        <symbol optimality=".* GTX .*" />
       </type>
     </feature>
     <feature nr="13">
@@ -405,7 +405,7 @@
       <id>opticalMediaTypes</id>
       <name>Optische Medien</name>
       <type>
-        <list>
+        <list optimality="max">
           <symbol />
         </list>
       </type>

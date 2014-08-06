@@ -55,6 +55,5 @@ QString NumericalAttribute::toString() const
         //somehow Qt's QLocale doesn't seem to like the German decimal separator "," very much; enforce it
         out = QString::number(m_value, 'f', 1).replace('.', ',');
     }
-    qDebug() << "To string of " << m_value << " results: " << out;
     return out;
 }

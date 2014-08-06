@@ -19,12 +19,17 @@ public:
         regExp(regExp), polarity(defaultPolarity)
     {
     }
-    LexicalFeature(const QRegExp& regExp, float polarity) :
-        regExp(regExp), polarity(polarity)
+    LexicalFeature(const QRegExp& regExp, const QString& value) :
+        regExp(regExp), value(value), polarity(defaultPolarity)
+    {
+    }
+    LexicalFeature(const QRegExp& regExp, const QString& value, float polarity) :
+        regExp(regExp), value(value), polarity(polarity)
     {
     }
 
     QRegExp regExp;
+    QString value;
     float polarity;
 };
 

@@ -3,6 +3,7 @@
 
 class Token;
 #include <QString>
+#include <QDebug>
 
 class ObservedToken
 {
@@ -61,8 +62,10 @@ public:
         // this:        |------------|
         // other: |------|
         // positionDiff = -6
-        return ((positionDiff > 0) && (positionDiff < matchLength())) ||
+        bool out = ((positionDiff >= 0) && (positionDiff < matchLength())) ||
                 ((positionDiff < 0) && ((-positionDiff) < other->matchLength()));
+        //qDebug() << toString() << " overlaps " << other->toString() << "?: " << out;
+        return out;
     }
 
     QString toString() const;

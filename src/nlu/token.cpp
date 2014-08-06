@@ -46,7 +46,7 @@ static QString parseTarget(const QString& targetDef, const QString& data=QString
             out = (data.toDouble() > attributeValue.toDouble()) ? a : b;
         return out;
     } else
-        return out;
+        return targetDef;
 
 }
 
@@ -61,6 +61,8 @@ QList<ObservedToken*> Token::findIn(const QString& input) const
             QString matchedValue;
             if (regExp.captureCount() > 0)
                 matchedValue = regExp.cap(1);
+            if (!feature.value.isNull())
+                matchedValue = feature.value;
             QString inputValue = input.mid(matchIndex);
             inputValue  = inputValue.left(regExp.matchedLength());
             ObservedToken *obs = new ObservedToken(this, inputValue, feature.polarity,
@@ -77,9 +79,7 @@ double Token::filterMetaModifiers(QList<const ObservedToken*>& list) const
 {
     double factor = 1.0;
     for (QList<const ObservedToken*>::iterator i = list.begin(); i != list.end();) {
-        qDebug() << list.count() << (i == list.end());
         Q_ASSERT((*i));
-        qDebug() << (*i)->toString();
         Q_ASSERT((*i)->token());
 
         const MetaModifierToken *thisModifier = dynamic_cast<const MetaModifierToken*>((*i)->token());
@@ -106,8 +106,23 @@ QList<Statement*> AttributeToken::makeStatements(const Offer *currentRecommendat
         Relationship::Type constraintType;
         double quality = 1.0;
         if (cap.isNull()) {
-            constraintType = Relationship::Good;
-            quality = (factor > 0) ? 0.5 : 0.1; // make implied negatives unlikely
+            bool allTypesUnopinionated = true;
+            foreach (const QString& type, getTypes()) {
+                if (!type.startsWith("unOpinionated")) {
+                    allTypesUnopinionated = false;
+                    break;
+                }
+            }
+            //don't add "Good" for unopinionated attributes
+            if (allTypesUnopinionated)
+                return out;
+
+            if (getTypes().count() == 1 && getTypes()[0] == "boolean") {
+                constraintType = Relationship::IsTrue;
+            } else {
+                constraintType = Relationship::Good;
+                quality = (factor > 0) ? 0.5 : 0.1; // make implied negatives unlikely
+            }
         } else {
             constraintType = Relationship::Equality;
             // if we set same value to multiple targets, reduce quality
@@ -121,6 +136,10 @@ QList<Statement*> AttributeToken::makeStatements(const Offer *currentRecommendat
 
         }
     } else {
+        //don't accept value tokens if we have a captured value
+        if (!cap.isNull())
+            return out;
+
         //check if all other tokens are value tokens
         bool allTokensValueTokens = true;
         QStringList values;
@@ -166,10 +185,11 @@ static bool checkTarget(const QStringList& a, const QStringList& b)
 
 QList<Statement*> ModifierToken::makeStatements(const Offer *currentRecommendation, QList<const ObservedToken *> tokens, const ObservedToken* observation) const
 {
-    double factor = filterMetaModifiers(tokens);
+    double factor = filterMetaModifiers(tokens) * observation->polarity();
     QList<Statement*> out;
     // find value token if there is one
     QList<const ObservedToken*> valueTokens;
+    QString valueOverride;
     for (QList<const ObservedToken*>::iterator i = tokens.begin(); i != tokens.end();) {
         if (dynamic_cast<const ValueToken*>((*i)->token())) {
             valueTokens << *i;
@@ -198,6 +218,10 @@ QList<Statement*> ModifierToken::makeStatements(const Offer *currentRecommendati
                     (checkTarget(m_on, attributeToken->getTypes())))
             {
                 targets = attributeToken->getTargets();
+                valueOverride = otherToken->capturedValue();
+                // don't accept value tokens when we override the value through a captured one
+                if (!valueOverride.isNull() && !valueTokens.isEmpty())
+                    return out;
             }
         }
 
@@ -206,7 +230,12 @@ QList<Statement*> ModifierToken::makeStatements(const Offer *currentRecommendati
         QString target = targets[i];
         QSharedPointer<Attribute> attribute;
         double quality = 1.0;
-        if (valueTokens.count() == targets.count()) {
+        if (!valueOverride.isNull()) {
+            target = parseTarget(target, valueOverride);
+            attribute = getAttribute(target, valueOverride);
+            if (!attribute) // failed to build attribute
+                quality = 0.3;
+        } else if (valueTokens.count() == targets.count()) {
             // if valueToken is set, use this attribute *value* instead of the one from
             // the current recommendation
             QString cap = valueTokens[i]->capturedValue();
@@ -223,7 +252,6 @@ QList<Statement*> ModifierToken::makeStatements(const Offer *currentRecommendati
         //build relationship
         out << getConstraintStatement(target, m_relationship, attribute, factor, quality);
     }
-    qDebug() << targets << out.count();
 
     return out;
 }
@@ -238,7 +266,7 @@ QList<Statement*> MetaModifierToken::makeStatements(const Offer *currentRecommen
     double factor = filterMetaModifiers(tokens);
     if (tokens.isEmpty()) { // only meta modifiers
         if (factor < 0)
-            out << new CommandStatement(CommandStatement::No, factor, 0.3);
+            out << new CommandStatement(CommandStatement::No, -1*factor, 0.3);
         else
             out << new CommandStatement(CommandStatement::Yes, factor, 0.3);
     }
@@ -278,12 +306,22 @@ QList<Statement*> CommandToken::makeStatements(const Offer *currentRecommendatio
         case Action::Critique: {
             QSharedPointer<Attribute> attribute;
             QString matchedAttribute = observation->capturedValue();
-            qDebug() << currentRecommendation << matchedAttribute;
             QString on = parseTarget(a.m_on, matchedAttribute);
-            if (!matchedAttribute.isEmpty())
-                attribute = AttributeFactory::getInstance()->getAttribute(on, matchedAttribute).second;
-            else if (currentRecommendation)
-                attribute = currentRecommendation->getRecord(on).second;
+            QString value = a.m_value;
+            if (!matchedAttribute.isNull() || !value.isNull()) {
+                if (value.isNull()) {
+                    value = matchedAttribute;
+                }
+                attribute = AttributeFactory::getInstance()->getAttribute(on, value).second;
+            } else {
+                if (currentRecommendation)
+                    attribute = currentRecommendation->getRecord(on).second;
+            }
+
+            //qDebug() << "Attribute is null: " << attribute.isNull();
+            //if (!attribute.isNull())
+            //    qDebug() << attribute->toString();
+            qDebug() << "factor: " << factor;
 
             out << getConstraintStatement(on, a.m_relationship, attribute, factor);
             break;

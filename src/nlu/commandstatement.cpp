@@ -51,3 +51,11 @@ bool CommandStatement::act(CritiqueRecommender* r) const
     }
     return false;
 }
+
+bool CommandStatement::comparePrivate(const Statement *s) const
+{
+    const CommandStatement* other = dynamic_cast<const CommandStatement*>(s);
+    if (!other)
+        return false;
+    return other->m_type == m_type;
+}

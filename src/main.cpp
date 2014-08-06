@@ -26,6 +26,7 @@
 #include <QtDBus/QDBusConnection>
 #include <QDebug>
 #include <QGuiApplication>
+#include <QLocale>
 
 int main(int argc, char *argv[])
 {

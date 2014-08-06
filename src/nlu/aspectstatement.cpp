@@ -16,3 +16,10 @@ bool AspectStatement::act(CritiqueRecommender *r) const
     //TODO
     return false;
 }
+bool AspectStatement::comparePrivate(const Statement *s) const
+{
+    const AspectStatement* other = dynamic_cast<const AspectStatement*>(s);
+    if (!other)
+        return false;
+    return (other->m_aspect == m_aspect);
+}

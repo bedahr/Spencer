@@ -148,6 +148,12 @@ public:
         qDeleteAll(m_childCreators);
     }
 
+    AttributeCreator* getCreator(int index) {
+        if (index < 0 || index > m_childCreators.count())
+            return 0;
+        return m_childCreators[index];
+    }
+
     virtual QSharedPointer<Attribute> getAttribute(const QVariant& data) const {
         if (!data.canConvert<QVariantList>() || m_childCreators.contains(0))
             return QSharedPointer<Attribute>();

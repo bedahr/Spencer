@@ -29,11 +29,14 @@ public:
             m_lexicalPolarity -= diff;
     }
 
+    bool compare(const Statement *s) const;
+
 protected:
     /// returns a description of the full statement based on userData
     /// (with added information from the base class
     /// well suited for debug output
-    QString formatStatementString(const QString& userData) const;
+    virtual QString formatStatementString(const QString& userData) const;
+    virtual bool comparePrivate(const Statement *s) const=0;
 
 private:
     /// determines how secure we are in identifying this statement as true

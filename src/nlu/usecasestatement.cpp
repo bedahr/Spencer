@@ -16,3 +16,12 @@ bool UsecaseStatement::act(CritiqueRecommender* r) const
 {
     return false;
 }
+
+
+bool UsecaseStatement::comparePrivate(const Statement *s) const
+{
+    const UsecaseStatement* other = dynamic_cast<const UsecaseStatement*>(s);
+    if (!other)
+        return false;
+    return other->m_useCase == m_useCase;
+}

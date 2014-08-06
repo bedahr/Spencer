@@ -148,12 +148,53 @@ bool AttributeFactory::parseStructure(const QString& path)
 
 Record AttributeFactory::getAttribute(const QString& name, const QVariant& data) const
 {
-    if (!m_creators.contains(name)) {
-        qDebug() << "Didn't create attribute for " << name;
-        return Record(QString(), QSharedPointer<Attribute>());
+    //TODO: Parse storageMedia[_].capacity
+    // stuff referenced with [_] must be a ListAttributeCreator
+
+    AttributeCreatorInfo creatorInfo;
+    QString creatorName(name);
+    creatorInfo.second = 0;
+    while (creatorName.contains('[')) {
+        int idxIdx = creatorName.indexOf('[');
+        QString plainCreatorName = creatorName.left(idxIdx);
+        if (!creatorInfo.second) {
+            if (!m_creators.contains(plainCreatorName)) {
+                qWarning() << "No list creator called " << plainCreatorName;
+                return Record(Record(QString(), QSharedPointer<Attribute>()));
+            }
+            creatorInfo = m_creators.value(plainCreatorName);
+        }
+        // access by index
+        bool indexExtractionOkay = true;
+        QString idxString = creatorName.mid(idxIdx + 1, creatorName.indexOf(']') - idxIdx - 1);
+        int idx;
+        if (idxString == "_") {
+            // means any, so all creators must obviously be the same - go for the one at index 0
+            idx = 0;
+        } else {
+            idx = idxString.toInt(&indexExtractionOkay);
+            if (!indexExtractionOkay) {
+                qWarning() << "Index extraction failed for " << creatorName << idxString;
+                return Record(Record(QString(), QSharedPointer<Attribute>()));
+            }
+        }
+        ListAttributeCreator *lac(dynamic_cast<ListAttributeCreator*>(creatorInfo.second));
+        if (!lac) {
+            qWarning() << "Creator is not a list attribute creator, indexing won't work: " << name;
+            return Record(Record(QString(), QSharedPointer<Attribute>()));
+        }
+        creatorInfo.second = lac->getCreator(idx);
+        creatorName = creatorName.mid(creatorName.indexOf(']') + 1);
     }
 
-    AttributeCreatorInfo creatorInfo = m_creators.value(name);
+    if (!creatorInfo.second) {
+        if (!m_creators.contains(name)) {
+            qDebug() << "Didn't create attribute for " << name;
+            return Record(Record(QString(), QSharedPointer<Attribute>()));
+        }
+        creatorInfo = m_creators.value(name);
+    }
+
     AttributeCreator* creator = creatorInfo.second;
     QSharedPointer<Attribute> att = creator->getAttribute(data);
     return Record(creatorInfo.first, att);
