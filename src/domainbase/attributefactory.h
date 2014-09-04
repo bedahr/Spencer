@@ -27,7 +27,14 @@ public:
     /// name set to provided data. Data may be set to null if the attribute
     /// does not require it.
     /// The returned attribute is null if an error occured
-    Record getAttribute(const QString& name, const QVariant& data) const;
+    Record getAttribute(const QString& name, const QVariant& data, bool inDomain=false);
+
+    /// Creates an "ideal" / "worst" attribute instance based on
+    /// the creator's optimality within the constraints of the data set
+    QSharedPointer<Attribute> getBestInstance(const QString& id);
+    QSharedPointer<Attribute> getWorstInstance(const QString& id);
+    QSharedPointer<Attribute> getLargestInstance(const QString& id);
+    QSharedPointer<Attribute> getSmallestInstance(const QString& id);
 
     /// Returns the list of attribute ids; Sorted as per sorting criteria
     /// defined in the db structure
@@ -44,7 +51,7 @@ private:
 
     QStringList m_attributeKeys;
     QHash<QString /* attribute id */, AttributeCreatorInfo> m_creators;
-    AttributeCreator* getCreator(const QString& id) const;
+    AttributeCreatorInfo getCreator(const QString& id) const;
 
     AttributeFactory();
 };

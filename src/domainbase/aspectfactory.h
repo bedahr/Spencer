@@ -17,6 +17,10 @@ public:
     /// The returned aspect is null if an error occured (e.g. unassigned id)
     Aspect* getAspect(const QString& id);
 
+    /// Returns an instance of the aspect
+    /// The returned aspect is null if an error occured (e.g. unassigned name)
+    Aspect* getAspectByName(const QString& name);
+
     /// Instance method for the Singleton
     static AspectFactory* getInstance() {
         if (!instance) instance = new AspectFactory;

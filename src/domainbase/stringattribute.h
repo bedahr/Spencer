@@ -14,6 +14,23 @@ public:
         return Relationship::Equality | Relationship::Inequality;
     }
 
+    bool operator ==(const Attribute& other) const
+    {
+        const StringAttribute* stringAttribute = dynamic_cast<const StringAttribute*>(&other);
+        if (!stringAttribute)
+            return false;
+        return QRegExp(m_value, Qt::CaseInsensitive, QRegExp::Wildcard).exactMatch(stringAttribute->m_value) ||
+                QRegExp(stringAttribute->m_value, Qt::CaseInsensitive, QRegExp::Wildcard).exactMatch(m_value);
+    }
+
+    bool operator !=(const Attribute& other) const
+    {
+        const StringAttribute* stringAttribute = dynamic_cast<const StringAttribute*>(&other);
+        if (!stringAttribute)
+            return false;
+        return !(*this == other);
+    }
+
     QString toString() const {
         return m_value;
     }

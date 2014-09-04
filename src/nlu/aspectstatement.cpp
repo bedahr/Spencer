@@ -1,17 +1,18 @@
 #include "aspectstatement.h"
 #include <QObject>
 
-AspectStatement::AspectStatement(const QString& aspect, double lexicalPolarity, double quality) :
+AspectStatement::AspectStatement(const Aspect* aspect, double lexicalPolarity, double quality) :
     Statement(lexicalPolarity, quality), m_aspect(aspect)
 {
+    Q_ASSERT(aspect);
 }
 
 QString AspectStatement::toString() const
 {
-    return formatStatementString(QObject::tr("Aspect: %1").arg(m_aspect));
+    return formatStatementString(QObject::tr("Aspect: %1").arg(m_aspect->id()));
 }
 
-bool AspectStatement::act(CritiqueRecommender *r) const
+bool AspectStatement::act(DialogStrategy::DialogState state, CritiqueRecommender *r) const
 {
     //TODO
     return false;

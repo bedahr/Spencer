@@ -1,6 +1,7 @@
 #ifndef DIALOGMANAGER_H
 #define DIALOGMANAGER_H
 
+#include "dialogstrategy.h"
 #include "ui/avatar/avatartask.h"
 #include "domainbase/recommendationattribute.h"
 #include "domainbase/offer.h"
@@ -37,8 +38,8 @@ public slots:
     void randomRecommendation();
 
 private:
+    DialogStrategy::DialogState state;
     CritiqueRecommender *recommender;
-    QStateMachine dialogStateMachine;
     int consecutiveMisunderstandingCounter;
 
     void completeTurn();

@@ -16,6 +16,7 @@ HEADERS += nlptest.h \
            ../src/nlu/token.h \
            ../src/nlu/observedtoken.h \
            ../src/nlu/commandstatement.h \
+           ../src/nlu/aspectstatement.h \
            ../src/nlu/constraintstatement.h \
            ../src/recommender/critiquerecommender.h \
            ../src/recommender/critique.h \

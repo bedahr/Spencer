@@ -30,7 +30,7 @@ QString CommandStatement::toString() const
     return formatStatementString(cmd);
 }
 
-bool CommandStatement::act(CritiqueRecommender* r) const
+bool CommandStatement::act(DialogStrategy::DialogState state, CritiqueRecommender* r) const
 {
     switch (m_type) {
         case CommandStatement::RequestForHelp:

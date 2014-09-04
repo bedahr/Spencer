@@ -18,6 +18,7 @@ public:
         return Relationship::Equality | Relationship::Inequality;
     }
 
+    virtual bool booleanValue() const { return m_value; }
 };
 
 #endif // BOOLEANATTRIBUTE_H

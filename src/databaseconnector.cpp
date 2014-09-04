@@ -109,7 +109,7 @@ QList<Offer*> DatabaseConnector::loadOffers(bool* okay) const
             default:
                 qWarning() << "Unhandled data type: " << property.type();
             }
-            Record record = AttributeFactory::getInstance()->getAttribute(fieldName, data);
+            Record record = AttributeFactory::getInstance()->getAttribute(fieldName, data, true);
             if (record.second.isNull()) {
                 //qWarning() << "Failed to deserialize: " << fieldName << data;
                 continue;
@@ -132,7 +132,7 @@ QList<Offer*> DatabaseConnector::loadOffers(bool* okay) const
             extractedStorageElements.append(QVariant::fromValue(extractedStorageElement));
 
         }
-        Record storageElementsRecord = AttributeFactory::getInstance()->getAttribute("storageMedia", QVariant::fromValue(extractedStorageElements));
+        Record storageElementsRecord = AttributeFactory::getInstance()->getAttribute("storageMedia", QVariant::fromValue(extractedStorageElements), true);
         records.insert("storageMedia", storageElementsRecord);
 
         QVariantList opticalDrives;
@@ -142,7 +142,7 @@ QList<Offer*> DatabaseConnector::loadOffers(bool* okay) const
         for (std::list<mongo::BSONElement>::const_iterator i = opticalDrivesElements.begin(); i != opticalDrivesElements.end(); ++i) {
             opticalDrives << QString::fromStdString((*i).String());
         }
-        records.insert("opticalMediaTypse", AttributeFactory::getInstance()->getAttribute("opticalMediaTypes", QVariant::fromValue(opticalDrives)));
+        records.insert("opticalMediaTypse", AttributeFactory::getInstance()->getAttribute("opticalMediaTypes", QVariant::fromValue(opticalDrives), true));
 
         QVariantList connectivity;
         mongo::BSONObj connectivityObjects = l.getObjectField("connectivity");
@@ -151,7 +151,7 @@ QList<Offer*> DatabaseConnector::loadOffers(bool* okay) const
         for (std::list<mongo::BSONElement>::const_iterator i = connectivityElements.begin(); i != connectivityElements.end(); ++i) {
             connectivity << QString::fromStdString((*i).String());
         }
-        records.insert("connectivity", AttributeFactory::getInstance()->getAttribute("connectivity", QVariant::fromValue(connectivity)));
+        records.insert("connectivity", AttributeFactory::getInstance()->getAttribute("connectivity", QVariant::fromValue(connectivity), true));
 
         QVariantList ports;
         mongo::BSONObj portsObjects = l.getObjectField("ports");
@@ -169,7 +169,7 @@ QList<Offer*> DatabaseConnector::loadOffers(bool* okay) const
         for (std::list<mongo::BSONElement>::const_iterator i = memoryCardElements.begin(); i != memoryCardElements.end(); ++i) {
             memoryCardTypes << QString::fromStdString((*i).String());
         }
-        records.insert("memoryCardTypes", AttributeFactory::getInstance()->getAttribute("memoryCardTypes", QVariant::fromValue(memoryCardTypes)));
+        records.insert("memoryCardTypes", AttributeFactory::getInstance()->getAttribute("memoryCardTypes", QVariant::fromValue(memoryCardTypes), true));
 
         /*
          * Really don't need the reviews here
@@ -215,7 +215,7 @@ QList<Offer*> DatabaseConnector::loadOffers(bool* okay) const
 
         double speed;
         speed = records.value("processorCores").second->value() * records.value("processorFrequency").second->value();
-        records.insert("processorSpeed", AttributeFactory::getInstance()->getAttribute("processorSpeed", speed));
+        records.insert("processorSpeed", AttributeFactory::getInstance()->getAttribute("processorSpeed", speed, true));
 
         QSharedPointer<Attribute> bestsellerRank(records.take("Bestseller Rank").second);
         int priorRank = INT_MAX;

@@ -11,7 +11,7 @@ QString ConstraintStatement::toString() const
     return formatStatementString(m_relationship->toString());
 }
 
-bool ConstraintStatement::act(CritiqueRecommender* r) const
+bool ConstraintStatement::act(DialogStrategy::DialogState state, CritiqueRecommender* r) const
 {
     Critique *c = new Critique(m_relationship);
     return r->critique(c);

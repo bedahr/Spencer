@@ -1,4 +1,5 @@
 #include "relationship.h"
+#include "attributefactory.h"
 #include "offer.h"
 #include <math.h>
 #include <QDebug>
@@ -6,55 +7,127 @@
 float Relationship::utility(const Offer& offer) const
 {
     const QSharedPointer<Attribute> offerAttribute = offer.getRecord(m_id).second;
-    if (offerAttribute.isNull())
-        return 0.0; // doesn't even have this attribute
+    if (offerAttribute.isNull()) {
+        // doesn't even have this attribute
+        if (m_type == Relationship::IsFalse)
+            return false;
 
-    double distance = m_attribute->distance(*offerAttribute);
+        return 0.0f;
+    }
+
+    float out = 0.0f;
+    double attributeDistance = -10;
+    if (!m_attribute.isNull())
+        attributeDistance = m_attribute->distance(*offerAttribute);
 
     if (m_type & Relationship::Equality) {
-        if (distance < 0)
-            distance *= -1; // distance is non directional for equality
-        //qDebug() << "Got distance for" << offerAttribute->toString() << m_attribute.toString() << distance;
-        return (0.5 - distance) * m_modifierFactor;
+        // distance is non directional for equality
+        double eqDistance = qAbs(attributeDistance);
+        out += (1 - eqDistance) * m_modifierFactor;
+    }
+    if (m_type & Relationship::Inequality) {
+        // distance is non directional for inequality
+        double ineqDistance = qAbs(attributeDistance);
+        out += ineqDistance * m_modifierFactor;
+    }
+    if (m_type & Relationship::LargerThan) {
+        out += attributeDistance * m_modifierFactor;
+    }
+    if (m_type & Relationship::SmallerThan) {
+        out += (-attributeDistance) * m_modifierFactor;
     }
 
-    //qDebug() << "Got distance for" << offerAttribute->toString() << m_attribute.toString() << distance;
+    if ((m_type & Relationship::Small) || (m_type & Relationship::Large)) {
+        QSharedPointer<Attribute> goal;
 
-    if (m_type & Relationship::SmallerThan || (m_type & Relationship::Inequality &&
-                                               (((distance < 0) && (m_modifierFactor > 0)) ||
-                                                ((distance > 0) && (m_modifierFactor < 0)))
-                                               ))
-        // re-establish > 0 as better
-        distance *= -1;
-
-    //we treat the "perfect" distance as "50 % off" to not move too quickly
-    double perfectDistance = 0.5 * m_modifierFactor;
-
-    bool violated = false;
-
-    if (perfectDistance < 0) {
-        if (distance < 0) {
-            distance *= -1;
-            perfectDistance *= -1;
-        } else
-            violated = true;
-    }
-    if (perfectDistance > 0 && distance < 0) {
-        violated = true;
-    }
-    if (violated) {
-        distance = -fabs(distance - perfectDistance);
-    } else {
-        //both perfectDistance and distance are > 0;
-        // calculate distance smartly
-        if (distance < perfectDistance)
-             distance = sqrt(distance / perfectDistance);
+        if (m_type & Relationship::Small)
+            goal = AttributeFactory::getInstance()->getSmallestInstance(m_id);
         else
-            distance = fmax(perfectDistance - distance + 1, 0.00001);
+            goal = AttributeFactory::getInstance()->getLargestInstance(m_id);
+        if (!goal.isNull()) {
+            // size is defined
+            double distance = qAbs(goal->distance(*offerAttribute));
+            out += (1 - distance) * m_modifierFactor;
+        }
     }
 
-    //qDebug() << "Returning distance for" << offerAttribute->toString() << m_attribute.toString() << distance;
-    return distance; //fmax(-0.1, distance);
+    if (m_type & Relationship::IsTrue)
+        out += offerAttribute->booleanValue() ? 1 : 0;
+    if (m_type & Relationship::IsFalse)
+        out += offerAttribute->booleanValue() ? 0 : 1;
+    if ((m_type & Relationship::Good) || (m_type & Relationship::Bad) ||
+            (m_type & Relationship::BetterThan) || (m_type & Relationship::WorseThan)) {
+        QSharedPointer<Attribute> goal;
+        if (m_type & Relationship::Good)
+            goal = AttributeFactory::getInstance()->getBestInstance(m_id);
+        else
+            goal = AttributeFactory::getInstance()->getWorstInstance(m_id);
+        if (!goal.isNull()) {
+            // optimality is defined
+            double distance = qAbs(goal->distance(*offerAttribute));
+
+            if ((m_type & Relationship::BetterThan) || (m_type & Relationship::WorseThan)) {
+                //discount based on distance of m_attribute
+                double oldDistance = qAbs(goal->distance(*m_attribute));
+                distance -= oldDistance;
+            }
+
+            out += (1 - distance) * m_modifierFactor;
+        }
+    }
+
+    return out;
+#if 0
+    if (isRelative()) {
+        double distance = m_attribute->distance(*offerAttribute);
+
+        if (m_type & Relationship::Equality) {
+            if (distance < 0)
+                distance *= -1; // distance is non directional for equality
+            //qDebug() << "Got distance for" << offerAttribute->toString() << m_attribute.toString() << distance;
+            return (0.5 - distance) * m_modifierFactor;
+        }
+
+        //qDebug() << "Got distance for" << offerAttribute->toString() << m_attribute.toString() << distance;
+
+        if (m_type & Relationship::SmallerThan || (m_type & Relationship::Inequality &&
+                                                   (((distance < 0) && (m_modifierFactor > 0)) ||
+                                                    ((distance > 0) && (m_modifierFactor < 0)))
+                                                   ))
+            // re-establish > 0 as better
+            distance *= -1;
+
+        //we treat the "perfect" distance as "50 % off" to not move too quickly
+        double perfectDistance = 0.5 * m_modifierFactor;
+
+        bool violated = false;
+
+        if (perfectDistance < 0) {
+            if (distance < 0) {
+                distance *= -1;
+                perfectDistance *= -1;
+            } else
+                violated = true;
+        }
+        if (perfectDistance > 0 && distance < 0) {
+            violated = true;
+        }
+        if (violated) {
+            distance = -fabs(distance - perfectDistance);
+        } else {
+            //both perfectDistance and distance are > 0;
+            // calculate distance smartly
+            if (distance < perfectDistance)
+                 distance = sqrt(distance / perfectDistance);
+            else
+                distance = fmax(perfectDistance - distance + 1, 0.00001);
+        }
+        //qDebug() << "Returning distance for" << offerAttribute->toString() << m_attribute.toString() << distance;
+        return distance; //fmax(-0.1, distance);
+    } else {
+        return 0.0;
+    }
+#endif
 }
 
 bool Relationship::supersedes(const Relationship& other) const

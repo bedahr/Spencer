@@ -51,13 +51,13 @@ bool AspectFactory::parseStructure(const QString& path)
     return true;
 }
 
-static Aspect* findAspect(const QString& id, QList<Aspect*> list)
+static Aspect* findAspect(const QString& id, QList<Aspect*> list, bool isId=true)
 {
     Aspect *found = 0;
     foreach (Aspect *c, list) {
-        if (c->id() == id)
+        if ((isId && (c->id() == id)) || (!isId && (c->name().toUpper() == id.toUpper())))
             return c;
-        if ((found = findAspect(id, c->children())) != 0)
+        if ((found = findAspect(id, c->children(), isId)) != 0)
             return found;
     }
     return 0;
@@ -66,4 +66,8 @@ static Aspect* findAspect(const QString& id, QList<Aspect*> list)
 Aspect* AspectFactory::getAspect(const QString& id)
 {
     return findAspect(id, m_aspects);
+}
+Aspect* AspectFactory::getAspectByName(const QString& name)
+{
+    return findAspect(name, m_aspects, false);
 }

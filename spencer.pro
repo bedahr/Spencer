@@ -102,7 +102,8 @@ HEADERS += \
     src/nlu/token.h \
     src/nlu/observedtoken.h \
     src/nlu/usecasestatement.h \
-    src/nlu/aspectstatement.h
+    src/nlu/aspectstatement.h \
+    src/dialogmanager/dialogstrategy.h
 
 
 INCLUDEPATH += ../BBSimoneShared $${BBSIMONECOMMONIPATH} src/

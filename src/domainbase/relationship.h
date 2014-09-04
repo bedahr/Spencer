@@ -28,7 +28,7 @@ public:
     };
     Q_DECLARE_FLAGS(Type, TypeE)
 
-    Relationship(const QString& id, Type type, QSharedPointer<Attribute> attribute, double modifierFactor=1.0) :
+    Relationship(const QString& id, Type type, QSharedPointer<Attribute> attribute = QSharedPointer<Attribute>(), double modifierFactor=1.0) :
         m_id(id), m_type(type), m_attribute(attribute), m_modifierFactor(modifierFactor)
     {
         if (attribute.isNull()) {

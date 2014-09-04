@@ -29,10 +29,14 @@ static AttributeCreator* createAttributeCreator(const QDomElement& typeElem, boo
     //"compound" => CompoundAttribute
     //"list" => ListAttribute
     QString type = typeElem.tagName();
+    QString optimality = typeElem.attribute("optimality");
+    QString worst = typeElem.attribute("worst");
+
     if (type == "symbol") {
-        return new StringAttributeCreator(internal, shownByDefault);
+        return new StringAttributeCreator(optimality, worst, internal, shownByDefault);
     } else if (type == "bool") {
-        return new BooleanAttributeCreator(internal, shownByDefault);
+        bool bOptimality = optimality.isNull() ? true : optimality == "true";
+        return new BooleanAttributeCreator(bOptimality, internal, shownByDefault);
     } else if (type == "number") {
         QString format;
         double multiplier = 1;
@@ -44,14 +48,14 @@ static AttributeCreator* createAttributeCreator(const QDomElement& typeElem, boo
         if (!multiplierElem.isNull())
             multiplier = multiplierElem.text().toDouble();
 
-        NumericalAttribute::Optimality optimality;
-        if (typeElem.attribute("optimality") == "max")
-            optimality = NumericalAttribute::Max;
+        NumericalAttribute::Optimality nOptimality;
+        if (optimality == "min")
+            nOptimality = NumericalAttribute::Min;
         else
-            optimality = NumericalAttribute::Max;
+            nOptimality = NumericalAttribute::Max;
 
         return new NumericalAttributeCreator(internal, shownByDefault, format,
-                                             optimality, multiplier);
+                                             nOptimality, multiplier);
     } else if (type == "compound") {
         QString separator = typeElem.attribute("separator");
         AttributeCreator *child = createAttributeCreator(typeElem.firstChildElement(), true, false);
@@ -146,11 +150,49 @@ bool AttributeFactory::parseStructure(const QString& path)
     return true;
 }
 
-Record AttributeFactory::getAttribute(const QString& name, const QVariant& data) const
+Record AttributeFactory::getAttribute(const QString& name, const QVariant& data, bool inDomain)
 {
-    //TODO: Parse storageMedia[_].capacity
-    // stuff referenced with [_] must be a ListAttributeCreator
+    AttributeCreatorInfo creatorInfo = getCreator(name);
+    AttributeCreator* creator = creatorInfo.second;
+    if (!creator) return qMakePair(QString(), QSharedPointer<Attribute>());
+    QSharedPointer<Attribute> att = creator->getAttribute(data, inDomain);
+    return Record(creatorInfo.first, att);
+}
 
+QSharedPointer<Attribute> AttributeFactory::getBestInstance(const QString& id)
+{
+    AttributeCreatorInfo creatorInfo = getCreator(id);
+    if (!creatorInfo.second)
+        return QSharedPointer<Attribute>();
+    return creatorInfo.second->getBestInstance();
+}
+
+QSharedPointer<Attribute> AttributeFactory::getWorstInstance(const QString& id)
+{
+    AttributeCreatorInfo creatorInfo = getCreator(id);
+    if (!creatorInfo.second)
+        return QSharedPointer<Attribute>();
+    return creatorInfo.second->getWorstInstance();
+}
+
+QSharedPointer<Attribute> AttributeFactory::getLargestInstance(const QString& id)
+{
+    AttributeCreatorInfo creatorInfo = getCreator(id);
+    if (!creatorInfo.second)
+        return QSharedPointer<Attribute>();
+    return creatorInfo.second->getLargestInstance();
+}
+
+QSharedPointer<Attribute> AttributeFactory::getSmallestInstance(const QString& id)
+{
+    AttributeCreatorInfo creatorInfo = getCreator(id);
+    if (!creatorInfo.second)
+        return QSharedPointer<Attribute>();
+    return creatorInfo.second->getSmallestInstance();
+}
+
+AttributeCreatorInfo AttributeFactory::getCreator(const QString& name) const
+{
     AttributeCreatorInfo creatorInfo;
     QString creatorName(name);
     creatorInfo.second = 0;
@@ -160,7 +202,7 @@ Record AttributeFactory::getAttribute(const QString& name, const QVariant& data)
         if (!creatorInfo.second) {
             if (!m_creators.contains(plainCreatorName)) {
                 qWarning() << "No list creator called " << plainCreatorName;
-                return Record(Record(QString(), QSharedPointer<Attribute>()));
+                return qMakePair(QString(), (AttributeCreator*) 0);
             }
             creatorInfo = m_creators.value(plainCreatorName);
         }
@@ -175,13 +217,13 @@ Record AttributeFactory::getAttribute(const QString& name, const QVariant& data)
             idx = idxString.toInt(&indexExtractionOkay);
             if (!indexExtractionOkay) {
                 qWarning() << "Index extraction failed for " << creatorName << idxString;
-                return Record(Record(QString(), QSharedPointer<Attribute>()));
+                return qMakePair(QString(), (AttributeCreator*) 0);
             }
         }
         ListAttributeCreator *lac(dynamic_cast<ListAttributeCreator*>(creatorInfo.second));
         if (!lac) {
             qWarning() << "Creator is not a list attribute creator, indexing won't work: " << name;
-            return Record(Record(QString(), QSharedPointer<Attribute>()));
+            return qMakePair(QString(), (AttributeCreator*) 0);
         }
         creatorInfo.second = lac->getCreator(idx);
         creatorName = creatorName.mid(creatorName.indexOf(']') + 1);
@@ -190,17 +232,10 @@ Record AttributeFactory::getAttribute(const QString& name, const QVariant& data)
     if (!creatorInfo.second) {
         if (!m_creators.contains(name)) {
             qDebug() << "Didn't create attribute for " << name;
-            return Record(Record(QString(), QSharedPointer<Attribute>()));
+            //qDebug() << m_creators.keys();
+            return qMakePair(QString(), (AttributeCreator*) 0);
         }
         creatorInfo = m_creators.value(name);
     }
-
-    AttributeCreator* creator = creatorInfo.second;
-    QSharedPointer<Attribute> att = creator->getAttribute(data);
-    return Record(creatorInfo.first, att);
-}
-
-AttributeCreator* AttributeFactory::getCreator(const QString& id) const
-{
-    return m_creators.value(id).second;
+    return creatorInfo;
 }

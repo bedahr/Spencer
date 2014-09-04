@@ -116,7 +116,7 @@
       <id>graphicsModel</id>
       <name>Grafikkarte</name>
       <type>
-        <symbol optimality=".* GTX .*" />
+        <symbol optimality="* GTX*" worst="*IGP*" />
       </type>
     </feature>
     <feature nr="13">

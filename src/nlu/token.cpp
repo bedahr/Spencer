@@ -9,6 +9,7 @@
 #include "domainbase/offer.h"
 #include "domainbase/attribute.h"
 #include "domainbase/attributefactory.h"
+#include "domainbase/aspectfactory.h"
 #include <QDebug>
 
 static QSharedPointer<Attribute> getAttribute(const QString& target, const QString& value)
@@ -281,7 +282,8 @@ QList<Statement*> AspectToken::makeStatements(const Offer *currentRecommendation
         foreach (Statement *s, out)
             s->discountPolarity(0.1);
     }
-    out << new AspectStatement(m_name);
+    qDebug() << "===== Creating aspect by name: " << m_name;
+    out << new AspectStatement(AspectFactory::getInstance()->getAspectByName(m_name));
     return out;
 }
 

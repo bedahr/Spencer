@@ -1,7 +1,9 @@
 #ifndef STATEMENT_H
 #define STATEMENT_H
 
+#include "dialogmanager/dialogstrategy.h"
 #include <QString>
+
 static const double defaultLexiconPolarity = 1.0;
 static const double defaultImportance = 1.0;
 
@@ -12,7 +14,7 @@ class Statement
 public:
     Statement(double lexicalPolarity, double statementQuality);
     virtual QString toString() const=0;
-    virtual bool act(CritiqueRecommender* r) const=0;
+    virtual bool act(DialogStrategy::DialogState state, CritiqueRecommender* r) const=0;
     void setLexicalPolarity(double polarity) {
         m_lexicalPolarity = polarity;
     }

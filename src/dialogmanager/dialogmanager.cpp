@@ -56,31 +56,9 @@
     Card Reader
  */
 
-DialogManager::DialogManager() : recommender(0), consecutiveMisunderstandingCounter(0)
+DialogManager::DialogManager() :
+    state(DialogStrategy::InitState), recommender(0), consecutiveMisunderstandingCounter(0)
 {
-    // set up dialog strategy
-    QState *initState = new QState();
-    QState *askForUseCase = new QState();
-    QState *askForImportantAttribute = new QState();
-    QState *askForPerformanceImportant = new QState();
-    QState *askForPriceImportant = new QState();
-    QState *askForPortabilityImportant = new QState();
-    QState *recommendation = new QState();
-    QState *misunderstoodInput = new QState();
-
-    dialogStateMachine.addState(initState);
-    dialogStateMachine.addState(askForUseCase);
-    dialogStateMachine.addState(askForImportantAttribute);
-    dialogStateMachine.addState(askForPerformanceImportant);
-    dialogStateMachine.addState(askForPriceImportant);
-    dialogStateMachine.addState(askForPortabilityImportant);
-    dialogStateMachine.addState(recommendation);
-    dialogStateMachine.addState(misunderstoodInput);
-
-    dialogStateMachine.setInitialState(initState);
-
-
-    connect(initState, SIGNAL(entered()), this, SLOT(greet()));
 }
 
 void DialogManager::userInput(const QList<Statement*> statements)
@@ -97,13 +75,15 @@ void DialogManager::userInput(const QList<Statement*> statements)
 
     qDebug() << "Got statements: " << statements.count();
     foreach (Statement *s, statements) {
-        if (!s->act(recommender)) {
-            qWarning() << "No match for " << s->toString();
-            emit elicit(AvatarTask(AvatarTask::Custom, tr("Leider konnte ich kein passendes Produkt finden mit %1").arg(s->toString()),
-                                   tr("Kein passendes Produkt.")));
+        if (!s->act(state, recommender)) {
+            qWarning() << "Failed to act on statement " << s->toString();
+            //qWarning() << "No match for " << s->toString();
+            //emit elicit(AvatarTask(AvatarTask::Custom, tr("Leider konnte ich kein passendes Produkt finden mit %1").arg(s->toString()),
+            //                       tr("Kein passendes Produkt.")));
+        } else {
+            // FIXME: explanation!
+            qDebug() << "Processed: " << s->toString();
         }
-        // FIXME: explanation!
-        qDebug() << "Processed: " << s->toString();
     }
     completeTurn();
 }
@@ -164,18 +144,9 @@ void DialogManager::completeTurn()
 
 void DialogManager::init(CritiqueRecommender *recommender)
 {
-    if (dialogStateMachine.isRunning()) {
-        //hackety hack
-        QEventLoop l;
-        connect(&dialogStateMachine, SIGNAL(stopped()), &l, SLOT(quit()));
-        dialogStateMachine.stop();
-        l.exec();
-    }
-
     this->recommender = recommender;
-    qDebug() << "Starting state machine";
-
-    dialogStateMachine.start();
+    state = DialogStrategy::InitState;
+    greet();
 }
 
 void DialogManager::greet()

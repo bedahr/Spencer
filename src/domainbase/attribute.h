@@ -34,11 +34,13 @@ public:
     bool getShownByDefault() const { return m_shownByDefault; }
     Relationship::Type getDefinedFor() const { return m_definedFor; }
     virtual double value() const { return 0; }
+    virtual bool booleanValue() const { return false; }
 
 private:
     Relationship::Type m_definedFor;
     bool m_internal;
     bool m_shownByDefault;
+
 };
 
 #endif // ATTRIBUTE_H

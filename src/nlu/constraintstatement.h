@@ -9,7 +9,7 @@ class ConstraintStatement : public Statement
 public:
     ConstraintStatement(Relationship *relationship, double lexicalPolarity=1.0, double quality=1.0);
     QString toString() const;
-    bool act(CritiqueRecommender *r) const;
+    bool act(DialogStrategy::DialogState state, CritiqueRecommender *r) const;
 protected:
     virtual bool comparePrivate(const Statement *s) const;
 
