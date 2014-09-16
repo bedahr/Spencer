@@ -13,7 +13,7 @@ class CritiqueRecommender;
 class Offer;
 class Relationship;
 class NLU;
-class DialogManager;
+class SimpleDialogManager;
 class DatabaseConnector;
 
 class Spencer : public QObject
@@ -44,7 +44,7 @@ public slots:
 private:
     DatabaseConnector *m_databaseConnector;
     NLU *m_nlu;
-    DialogManager *m_dialogManager;
+    SimpleDialogManager *m_dialogManager;
     CritiqueRecommender *m_recommender;
     const Offer *m_currentRecommendation;
 

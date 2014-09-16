@@ -43,7 +43,6 @@ SOURCES += src/main.cpp \
         src/domainbase/attribute.cpp \
         src/recommender/critiquerecommender.cpp \
         src/recommender/critique.cpp \
-        src/dialogmanager/dialogmanager.cpp \
         src/ui/spencerview.cpp \
         src/ui/qmlspencerview.cpp \
         src/ui/avatar/avatar.cpp \
@@ -63,7 +62,8 @@ SOURCES += src/main.cpp \
     src/nlu/token.cpp \
     src/nlu/observedtoken.cpp \
     src/nlu/usecasestatement.cpp \
-    src/nlu/aspectstatement.cpp
+    src/nlu/aspectstatement.cpp \
+    src/dialogmanager/simpledialogmanager.cpp
 
 HEADERS += \
         src/spencer.h \
@@ -80,7 +80,6 @@ HEADERS += \
         src/domainbase/attributecreators.h \
         src/recommender/critique.h \
         src/recommender/critiquerecommender.h \
-        src/dialogmanager/dialogmanager.h \
         src/ui/spencerview.h \
         src/ui/qmlspencerview.h \
         src/ui/avatar/avatar.h \
@@ -103,7 +102,9 @@ HEADERS += \
     src/nlu/observedtoken.h \
     src/nlu/usecasestatement.h \
     src/nlu/aspectstatement.h \
-    src/dialogmanager/dialogstrategy.h
+    src/dialogmanager/dialogstrategy.h \
+    src/nlu/dialogmanager.h \
+    src/dialogmanager/simpledialogmanager.h
 
 
 INCLUDEPATH += ../BBSimoneShared $${BBSIMONECOMMONIPATH} src/

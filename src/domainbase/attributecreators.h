@@ -52,6 +52,7 @@ public:
     }
 
     virtual QSharedPointer<Attribute> getAttribute(const QVariant& data, bool inDomain = false) {
+        Q_UNUSED(inDomain);
         double value = 0;
         bool okay = false;
         QString dataStr;
@@ -82,7 +83,7 @@ public:
         }
         value *= m_multiplier;
 
-        if (okay) {
+        if (okay && inDomain) {
             if (m_optimality == NumericalAttribute::Min) {
                 if (value < m_bestValue)
                     m_bestValue = value;
@@ -98,7 +99,9 @@ public:
         }
 
         return (okay) ? QSharedPointer<NumericalAttribute>(new NumericalAttribute(m_internal, m_shownByDefault,
-                                                                                  value, m_format, m_optimality))
+                                                                                  value, m_format, m_optimality,
+                                                                                  m_bestValue < m_worstValue ? m_bestValue : m_worstValue,
+                                                                                  m_bestValue > m_worstValue ? m_bestValue : m_worstValue))
                       : QSharedPointer<NumericalAttribute>();
     }
     QSharedPointer<Attribute> getBestInstance() {
@@ -131,6 +134,7 @@ public:
     {}
 
     virtual QSharedPointer<Attribute> getAttribute(const QVariant& data, bool inDomain = false) {
+        Q_UNUSED(inDomain);
         if (!data.canConvert(QVariant::String))
             return QSharedPointer<Attribute>();
         return QSharedPointer<Attribute>(new StringAttribute(m_internal, m_shownByDefault, data.toString()));
@@ -154,6 +158,7 @@ public:
     {}
 
     virtual QSharedPointer<Attribute> getAttribute(const QVariant& data, bool inDomain = false) {
+        Q_UNUSED(inDomain);
         if (!data.canConvert(QVariant::Bool)) {
             qDebug() << "Can not convert to bool: " << data.toString();
             return QSharedPointer<Attribute>();

@@ -1,8 +1,9 @@
-#ifndef DIALOGMANAGER_H
-#define DIALOGMANAGER_H
+#ifndef SIMPLEDIALOGMANAGER_H
+#define SIMPLEDIALOGMANAGER_H
 
 #include "dialogstrategy.h"
 #include "ui/avatar/avatartask.h"
+#include "nlu/dialogmanager.h"
 #include "domainbase/recommendationattribute.h"
 #include "domainbase/offer.h"
 #include <QStateMachine>
@@ -13,7 +14,7 @@ class Statement;
 class Recommendation;
 class Offer;
 
-class DialogManager : public QObject
+class SimpleDialogManager : public QObject, public DialogManager
 {
 Q_OBJECT
 signals:
@@ -24,9 +25,13 @@ signals:
                         const SentimentMap& userSentiment, const QString& explanation);
 
 public:
-    DialogManager();
+    SimpleDialogManager();
     void init(CritiqueRecommender *recommender);
     void userInput(const QList<Statement *> statements);
+    virtual void yes();
+    virtual void no();
+    virtual void constrain(Critique* c);
+    virtual void applyAspect(Aspect* c);
 
 public slots:
     //these should be private slots, just here for the wizard of oz evaluation
@@ -48,4 +53,4 @@ private slots:
     void greet();
 };
 
-#endif // DIALOGMANAGER_H
+#endif // SIMPLEDIALOGMANAGER_H

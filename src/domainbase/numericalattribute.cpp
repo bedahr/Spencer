@@ -12,30 +12,39 @@ bool NumericalAttribute::operator >(const Attribute& other) const
     return distance(other) > 0;
 }
 
-//TODO
-double NumericalAttribute::distance(double a, double b)
-{
+//double NumericalAttribute::distance(double a, double b) const
+//{
+    // a = 5
+    // b = 10
+    //
+    // -
+    // a = 10
+    // b = 5
+    // 10 / 5 -1 = 1
+    //
+    // -1
     //qDebug() << "Distance from a=" << a << " to b=" << b;
-    if (a < b)
-        return -distance(b, a);
+    //if (a < b)
+        //return -distance(b, a);
 
     //if (minSet) {
     //    a -= min;
     //    b -= min;
     //}
-    if (b == 0) {
+    //if (b == 0) {
         //qDebug() << "b is minimal returning " << a;
-        return a;
-    }
+        //return a;
+    //}
 
-    return a / b - 1;
-}
+    //return a / b - 1;
+//}
 
 double NumericalAttribute::distance(const Attribute& other) const
 {
     if (dynamic_cast<const NumericalAttribute*>(&other)) {
         double otherVal = static_cast<const NumericalAttribute&>(other).m_value;
-        return distance(otherVal, m_value);
+        double range = m_max - m_min;
+        return (otherVal - m_value) / range;
     }
 
     qDebug() << "Returning infinity";

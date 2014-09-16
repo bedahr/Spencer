@@ -70,6 +70,9 @@ float Relationship::utility(const Offer& offer) const
                 //discount based on distance of m_attribute
                 double oldDistance = qAbs(goal->distance(*m_attribute));
                 distance -= oldDistance;
+
+                // rescale
+                distance *= 1 / (1 - oldDistance);
             }
 
             out += (1 - distance) * m_modifierFactor;

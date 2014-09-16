@@ -21,7 +21,6 @@
 #include "spenceradapter.h"
 #include "spencer.h"
 #include "ui/qmlspencerview.h"
-#include "dialogmanager/dialogmanager.h"
 #include <QObject>
 #include <QtDBus/QDBusConnection>
 #include <QDebug>

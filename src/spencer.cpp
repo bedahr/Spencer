@@ -9,7 +9,7 @@
 #include "domainbase/relationship.h"
 #include "domainbase/attributefactory.h"
 #include "domainbase/stringattribute.h"
-#include "dialogmanager/dialogmanager.h"
+#include "dialogmanager/simpledialogmanager.h"
 #include <QHash>
 #include <QFile>
 #include <QSet>
@@ -28,7 +28,7 @@ Spencer::Spencer(QObject *parent) :
     QObject(parent),
     m_databaseConnector(new DatabaseConnector),
     m_nlu(new NLU),
-    m_dialogManager(new DialogManager),
+    m_dialogManager(new SimpleDialogManager),
     m_recommender(new CritiqueRecommender),
     m_currentRecommendation(0)
 {

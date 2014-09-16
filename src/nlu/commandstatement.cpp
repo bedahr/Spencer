@@ -33,12 +33,12 @@ QString CommandStatement::toString() const
 bool CommandStatement::act(DialogStrategy::DialogState state, CritiqueRecommender* r) const
 {
     switch (m_type) {
-        case CommandStatement::RequestForHelp:
-            //TODO
-            break;
         case CommandStatement::Back:
             r->undo();
             return true;
+        case CommandStatement::RequestForHelp:
+            //TODO
+            break;
         case CommandStatement::AcceptProduct:
             //TODO
             break;

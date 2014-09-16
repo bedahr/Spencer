@@ -1,4 +1,4 @@
-#include "dialogmanager.h"
+#include "simpledialogmanager.h"
 #include "nlu/statement.h"
 #include "domainbase/attributefactory.h"
 #include "recommender/critiquerecommender.h"
@@ -56,12 +56,12 @@
     Card Reader
  */
 
-DialogManager::DialogManager() :
+SimpleDialogManager::SimpleDialogManager() :
     state(DialogStrategy::InitState), recommender(0), consecutiveMisunderstandingCounter(0)
 {
 }
 
-void DialogManager::userInput(const QList<Statement*> statements)
+void SimpleDialogManager::userInput(const QList<Statement*> statements)
 {
     //qDebug() << "Misunderstanding counter: " << consecutiveMisunderstandingCounter;
     if (!statements.isEmpty())
@@ -88,7 +88,7 @@ void DialogManager::userInput(const QList<Statement*> statements)
     completeTurn();
 }
 
-void DialogManager::completeTurn()
+void SimpleDialogManager::completeTurn()
 {
     recommender->feedbackCycleComplete();
     Recommendation* r = recommender->suggestOffer();
@@ -142,43 +142,63 @@ void DialogManager::completeTurn()
     //               Relationship::Inequality, m_currentRecommendation->getAttribute(modelName)), 0.1));
 }
 
-void DialogManager::init(CritiqueRecommender *recommender)
+void SimpleDialogManager::init(CritiqueRecommender *recommender)
 {
     this->recommender = recommender;
     state = DialogStrategy::InitState;
     greet();
 }
 
-void DialogManager::greet()
+void SimpleDialogManager::greet()
 {
     qDebug() << "Greeting";
     emit elicit(AvatarTask(AvatarTask::Intro), true);
     //emit elicit(AvatarTask(AvatarTask::Custom, "Hallo du Ei"), true);
 }
 
-void DialogManager::askForUseCase()
+void SimpleDialogManager::askForUseCase()
 {
     emit elicit(AvatarTask(AvatarTask::AskUseCase));
 }
 
-void DialogManager::askForMostImportantAttribute()
+void SimpleDialogManager::askForMostImportantAttribute()
 {
     emit elicit(AvatarTask(AvatarTask::AskMostImportantAttribute));
 }
-void DialogManager::askForPerformanceImportant()
+void SimpleDialogManager::askForPerformanceImportant()
 {
     emit elicit(AvatarTask(AvatarTask::AskPerformanceImportant));
 }
 
-void DialogManager::askForPriceImportant()
+void SimpleDialogManager::askForPriceImportant()
 {
     emit elicit(AvatarTask(AvatarTask::AskPriceImporant));
 }
-void DialogManager::askForPortabilityImportant()
+void SimpleDialogManager::askForPortabilityImportant()
 {
     emit elicit(AvatarTask(AvatarTask::AskEasyTransportImportant));
 }
-void DialogManager::randomRecommendation()
+void SimpleDialogManager::randomRecommendation()
 {
     completeTurn();
+}
+
+void SimpleDialogManager::yes()
+{
+
+}
+
+void SimpleDialogManager::no()
+{
+
+}
+
+void SimpleDialogManager::constrain(Critique* c)
+{
+
+}
+
+void SimpleDialogManager::applyAspect(Aspect* c)
+{
+
 }
