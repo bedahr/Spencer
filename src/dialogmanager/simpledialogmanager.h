@@ -32,7 +32,6 @@ public:
     virtual bool constrain(Critique* c);
     virtual bool applyAspect(MentionedAspect *c);
     virtual bool accept(double strength);
-    virtual bool reject(double strength);
     virtual bool requestForHelp(double strength);
 
 public slots:
@@ -47,6 +46,7 @@ public slots:
 private:
     DialogStrategy::DialogState state;
     CritiqueRecommender *recommender;
+    const Offer* currentOffer;
     int consecutiveMisunderstandingCounter;
 
     void completeTurn();

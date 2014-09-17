@@ -12,8 +12,10 @@ QString AspectStatement::toString() const
     return formatStatementString(QObject::tr("Aspect: %1").arg(m_aspect->id()));
 }
 
-bool AspectStatement::act(DialogStrategy::DialogState state, DialogManager *dm) const
+bool AspectStatement::act(DialogStrategy::DialogState state, DialogManager *dm, const Offer *currentOffer) const
 {
+    Q_UNUSED(state);
+    Q_UNUSED(currentOffer);
     return dm->applyAspect(new MentionedAspect(m_aspect, effect()));
 }
 bool AspectStatement::comparePrivate(const Statement *s) const

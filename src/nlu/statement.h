@@ -5,6 +5,8 @@
 #include "dialogmanager/dialogstrategy.h"
 #include <QString>
 
+class Offer;
+
 static const double defaultLexiconPolarity = 1.0;
 static const double defaultQuality = 1.0;
 static const double defaultImportance = 1.0;
@@ -14,7 +16,7 @@ class Statement
 public:
     Statement(double lexicalPolarity, double statementQuality, double statementImportance = defaultImportance);
     virtual QString toString() const=0;
-    virtual bool act(DialogStrategy::DialogState state, DialogManager* dm) const=0;
+    virtual bool act(DialogStrategy::DialogState state, DialogManager* dm, const Offer *currentOffer) const=0;
     void setLexicalPolarity(double polarity) {
         m_lexicalPolarity = polarity;
     }

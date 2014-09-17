@@ -12,7 +12,6 @@ public:
     virtual bool constrain(Critique* c) = 0;
     virtual bool applyAspect(MentionedAspect* c) = 0;
     virtual bool accept(double strength) = 0;
-    virtual bool reject(double strength) = 0;
     virtual bool requestForHelp(double strength) = 0;
 };
 

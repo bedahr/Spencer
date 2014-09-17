@@ -11,9 +11,10 @@ QString ConstraintStatement::toString() const
     return formatStatementString(m_relationship->toString());
 }
 
-bool ConstraintStatement::act(DialogStrategy::DialogState state, DialogManager *dm) const
+bool ConstraintStatement::act(DialogStrategy::DialogState state, DialogManager *dm, const Offer *currentOffer) const
 {
     Q_UNUSED(state);
+    Q_UNUSED(currentOffer);
     Critique *c = new Critique(m_relationship);
     return dm->constrain(c);
 }

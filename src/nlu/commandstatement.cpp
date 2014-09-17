@@ -35,7 +35,7 @@ QString CommandStatement::toString() const
     return formatStatementString(cmd);
 }
 
-bool CommandStatement::act(DialogStrategy::DialogState state, DialogManager *dm) const
+bool CommandStatement::act(DialogStrategy::DialogState state, DialogManager *dm, const Offer *currentOffer) const
 {
     QList<Statement*> subStatements;
     switch (m_type) {
@@ -82,14 +82,16 @@ bool CommandStatement::act(DialogStrategy::DialogState state, DialogManager *dm)
         case CommandStatement::No:
             switch (state) {
                 case DialogStrategy::Recommendation:
-                  dm->reject(effect());
-                  return true;
+                  if (currentOffer)
+                      subStatements << new ConstraintStatement(new Relationship("name", Relationship::Inequality,
+                                                                                AttributeFactory::getInstance()->getAttribute("name", currentOffer->getName()).second));
+                  break;
             }
     }
 
     bool out = true;
     foreach (Statement *s, subStatements) {
-        if (!s->act(state, dm)) {
+        if (!s->act(state, dm, currentOffer)) {
             out = false;
             break;
         }

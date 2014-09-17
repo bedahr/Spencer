@@ -17,7 +17,7 @@ public:
     CommandStatement(Type type, double lexicalPolarity = defaultLexiconPolarity,
                      double quality = defaultQuality, double importance = defaultImportance);
     QString toString() const;
-    bool act(DialogStrategy::DialogState state, DialogManager *dm) const;
+    bool act(DialogStrategy::DialogState state, DialogManager *dm, const Offer* currentOffer) const;
 protected:
     virtual bool comparePrivate(const Statement *s) const;
 

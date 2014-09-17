@@ -57,7 +57,8 @@
  */
 
 SimpleDialogManager::SimpleDialogManager() :
-    state(DialogStrategy::InitState), recommender(0), consecutiveMisunderstandingCounter(0)
+    state(DialogStrategy::InitState), recommender(0),
+    currentOffer(0), consecutiveMisunderstandingCounter(0)
 {
 }
 
@@ -78,7 +79,7 @@ void SimpleDialogManager::userInput(const QList<Statement*> statements)
 
     qDebug() << "Got statements: " << statements.count();
     foreach (Statement *s, statements) {
-        if (!s->act(state, this)) {
+        if (!s->act(state, this, currentOffer)) {
             qWarning() << "Failed to act on statement " << s->toString();
             //qWarning() << "No match for " << s->toString();
             //emit elicit(AvatarTask(AvatarTask::Custom, tr("Leider konnte ich kein passendes Produkt finden mit %1").arg(s->toString()),
@@ -97,6 +98,7 @@ void SimpleDialogManager::completeTurn()
     Recommendation* r = recommender->suggestOffer();
 
     if (r) {
+        currentOffer = r->offer();
         QString explanation = "Explanations not implemented yet."; // TODO
 
         emit elicit(AvatarTask(AvatarTask::PresentItem), false);
@@ -143,6 +145,7 @@ void SimpleDialogManager::completeTurn()
     // model if he was interested in it, add a *slight* bias against it
     //m_recommender->critique(new Critique(new Relationship(modelName,
     //               Relationship::Inequality, m_currentRecommendation->getAttribute(modelName)), 0.1));
+    delete r;
 }
 
 void SimpleDialogManager::init(CritiqueRecommender *recommender)
@@ -209,11 +212,6 @@ bool SimpleDialogManager::accept(double strength)
         state = DialogStrategy::FinalState;
         return true;
     }
-    return false;
-}
-
-bool SimpleDialogManager::reject(double strength)
-{
     return false;
 }
 

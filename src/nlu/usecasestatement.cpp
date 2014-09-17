@@ -18,8 +18,10 @@ QString UsecaseStatement::toString() const
     return formatStatementString(QObject::tr("Use case: %1").arg(m_useCase));
 }
 
-bool UsecaseStatement::act(DialogStrategy::DialogState state, DialogManager *dm) const
+bool UsecaseStatement::act(DialogStrategy::DialogState state, DialogManager *dm, const Offer *currentOffer) const
 {
+    Q_UNUSED(state);
+    Q_UNUSED(currentOffer);
     //expand use case to relevant domain information
     //expand to substatements
     QList<Statement*> subStatements;
@@ -56,7 +58,7 @@ bool UsecaseStatement::act(DialogStrategy::DialogState state, DialogManager *dm)
 
     bool out = true;
     foreach (Statement *s, subStatements) {
-        if (!s->act(state, dm)) {
+        if (!s->act(state, dm, currentOffer)) {
             out = false;
             break;
         }
