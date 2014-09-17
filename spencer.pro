@@ -63,7 +63,9 @@ SOURCES += src/main.cpp \
     src/nlu/observedtoken.cpp \
     src/nlu/usecasestatement.cpp \
     src/nlu/aspectstatement.cpp \
-    src/dialogmanager/simpledialogmanager.cpp
+    src/dialogmanager/simpledialogmanager.cpp \
+    src/recommender/recommenderitem.cpp \
+    src/recommender/mentionedaspect.cpp
 
 HEADERS += \
         src/spencer.h \
@@ -104,7 +106,9 @@ HEADERS += \
     src/nlu/aspectstatement.h \
     src/dialogmanager/dialogstrategy.h \
     src/nlu/dialogmanager.h \
-    src/dialogmanager/simpledialogmanager.h
+    src/dialogmanager/simpledialogmanager.h \
+    src/recommender/recommenderitem.h \
+    src/recommender/mentionedaspect.h
 
 
 INCLUDEPATH += ../BBSimoneShared $${BBSIMONECOMMONIPATH} src/

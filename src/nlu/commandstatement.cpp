@@ -1,9 +1,12 @@
 #include "commandstatement.h"
+#include "constraintstatement.h"
+#include "aspectstatement.h"
 #include "recommender/critiquerecommender.h"
 #include <QObject>
 
-CommandStatement::CommandStatement(CommandStatement::Type type, double lexicalPolarity, double quality) :
-    Statement(lexicalPolarity, quality), m_type(type)
+CommandStatement::CommandStatement(CommandStatement::Type type, double lexicalPolarity,
+                                   double quality, double importance) :
+    Statement(lexicalPolarity, quality, importance), m_type(type)
 {
 }
 
@@ -30,26 +33,62 @@ QString CommandStatement::toString() const
     return formatStatementString(cmd);
 }
 
-bool CommandStatement::act(DialogStrategy::DialogState state, CritiqueRecommender* r) const
+bool CommandStatement::act(DialogStrategy::DialogState state, DialogManager *dm) const
 {
+    QList<Statement*> subStatements;
     switch (m_type) {
         case CommandStatement::Back:
-            r->undo();
+            dm->undo();
             return true;
         case CommandStatement::RequestForHelp:
-            //TODO
+            dm->requestForHelp(effect());
             break;
         case CommandStatement::AcceptProduct:
-            //TODO
+            dm->accept(effect());
             break;
         case CommandStatement::Yes:
-            //TODO
+            switch (state) {
+              case Recommendation:
+                dm->accept(effect());
+                return true;
+              case DialogStrategy::AskForPerformanceImportant:
+                //expand
+                subStatements << new ConstraintStatement(new Relationship("processorSpeed", Relationship::Large), m_lexicalPolarity, m_quality, m_importance);
+                subStatements << new ConstraintStatement(new Relationship("mainMemoryCapacity", Relationship::Large), m_lexicalPolarity, m_quality, m_importance);
+                subStatements << new AspectStatement(AspectFactory::getInstance()->getAspect("Speed"), m_lexicalPolarity, m_quality, m_importance);
+                break;
+              case DialogStrategy::AskForPortabilityImportant:
+                subStatements << new ConstraintStatement(new Relationship("weight", Relationship::Small), m_lexicalPolarity, m_quality, m_importance);
+                subStatements << new ConstraintStatement(new Relationship("screenSize", Relationship::Small), m_lexicalPolarity, m_quality, m_importance);
+                subStatements << new ConstraintStatement(new Relationship("averageRuntimeOnBattery", Relationship::Large), m_lexicalPolarity, m_quality, m_importance);
+                subStatements << new AspectStatement(AspectFactory::getInstance()->getAspect("Weight"), m_lexicalPolarity, m_quality, m_importance);
+                subStatements << new AspectStatement(AspectFactory::getInstance()->getAspect("Display Size"), m_lexicalPolarity, m_quality, m_importance);
+                subStatements << new AspectStatement(AspectFactory::getInstance()->getAspect("Battery"), m_lexicalPolarity, m_quality, m_importance);
+                break;
+              case DialogStrategy::AskForPriceImportant:
+                subStatements << new ConstraintStatement(new Relationship("price", Relationship::Small), m_lexicalPolarity, m_quality, m_importance);
+                subStatements << new AspectStatement(AspectFactory::getInstance()->getAspect("Price"), m_lexicalPolarity, m_quality, m_importance);
+                break;
+            }
             break;
         case CommandStatement::No:
-            //TODO
-            break;
+            switch (state) {
+                case Recommendation:
+                  dm->reject(effect());
+                  return true;
+            }
     }
-    return false;
+
+    bool out = true;
+    foreach (Statement *s, subStatements) {
+        if (!s->act(state, dm)) {
+            out = false;
+            break;
+        }
+    }
+    qDeleteAll(subStatements);
+
+    return out;
 }
 
 bool CommandStatement::comparePrivate(const Statement *s) const

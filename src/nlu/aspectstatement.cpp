@@ -1,10 +1,9 @@
 #include "aspectstatement.h"
 #include <QObject>
 
-AspectStatement::AspectStatement(const Aspect* aspect, double lexicalPolarity, double quality) :
-    Statement(lexicalPolarity, quality), m_aspect(aspect)
+AspectStatement::AspectStatement(const Aspect* aspect, double lexicalPolarity, double quality, double importance) :
+    Statement(lexicalPolarity, quality, importance), m_aspect(aspect)
 {
-    Q_ASSERT(aspect);
 }
 
 QString AspectStatement::toString() const
@@ -12,10 +11,9 @@ QString AspectStatement::toString() const
     return formatStatementString(QObject::tr("Aspect: %1").arg(m_aspect->id()));
 }
 
-bool AspectStatement::act(DialogStrategy::DialogState state, CritiqueRecommender *r) const
+bool AspectStatement::act(DialogStrategy::DialogState state, DialogManager *dm) const
 {
-    //TODO
-    return false;
+    return dm->applyAspect(m_aspect);
 }
 bool AspectStatement::comparePrivate(const Statement *s) const
 {

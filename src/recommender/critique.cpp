@@ -8,34 +8,6 @@ Critique::~Critique()
     qDeleteAll(m_supersededCritiques);
 }
 
-float Critique::influence() const
-{
-    float inf = ((float) m_ttl) / maxTTL;
-    return inf * inf * m_baseInfluence;
-}
-
-float Critique::utility(const Offer& offer) const
-{
-    float relUtility = m_relationship->utility(offer);
-    float critUtility = relUtility * influence();
-    //qDebug() << "Relationship utility: " << relUtility << " critique: " << critUtility;
-    return critUtility;
-}
-
-int Critique::age()
-{
-    return --m_ttl;
-}
-int Critique::antiAge()
-{
-    return ++m_ttl;
-}
-
-int Critique::getAge() const
-{
-    return maxTTL - m_ttl;
-}
-
 QString Critique::getDescription() const
 {
     return m_relationship->toString();
@@ -52,4 +24,12 @@ bool Critique::supersedes(const Critique& other) const
 bool Critique::appliesTo(const Record& record) const
 {
     return m_relationship->appliesTo(record.first);
+}
+
+float Critique::utility(const Offer& offer) const
+{
+    float relUtility = m_relationship->utility(offer);
+    float critUtility = relUtility * influence();
+    //qDebug() << "Relationship utility: " << relUtility << " critique: " << critUtility;
+    return critUtility;
 }

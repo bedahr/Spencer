@@ -28,10 +28,12 @@ public:
     SimpleDialogManager();
     void init(CritiqueRecommender *recommender);
     void userInput(const QList<Statement *> statements);
-    virtual void yes();
-    virtual void no();
-    virtual void constrain(Critique* c);
-    virtual void applyAspect(Aspect* c);
+    virtual bool undo();
+    virtual bool constrain(Critique* c);
+    virtual bool applyAspect(const Aspect* c);
+    virtual bool accept(double strength);
+    virtual bool reject(double strength);
+    virtual bool requestForHelp(double strength);
 
 public slots:
     //these should be private slots, just here for the wizard of oz evaluation

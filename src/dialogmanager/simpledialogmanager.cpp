@@ -75,7 +75,7 @@ void SimpleDialogManager::userInput(const QList<Statement*> statements)
 
     qDebug() << "Got statements: " << statements.count();
     foreach (Statement *s, statements) {
-        if (!s->act(state, recommender)) {
+        if (!s->act(state, this)) {
             qWarning() << "Failed to act on statement " << s->toString();
             //qWarning() << "No match for " << s->toString();
             //emit elicit(AvatarTask(AvatarTask::Custom, tr("Leider konnte ich kein passendes Produkt finden mit %1").arg(s->toString()),
@@ -183,22 +183,32 @@ void SimpleDialogManager::randomRecommendation()
     completeTurn();
 }
 
-void SimpleDialogManager::yes()
+bool SimpleDialogManager::undo()
 {
-
+    recommender->undo();
+    return true;
 }
 
-void SimpleDialogManager::no()
+bool SimpleDialogManager::constrain(Critique* c)
 {
-
+    return recommender->critique(c);
 }
 
-void SimpleDialogManager::constrain(Critique* c)
+bool SimpleDialogManager::applyAspect(const Aspect* c)
 {
-
+    return false;
+}
+bool SimpleDialogManager::accept(double strength)
+{
+    return false;
 }
 
-void SimpleDialogManager::applyAspect(Aspect* c)
+bool SimpleDialogManager::reject(double strength)
 {
+    return false;
+}
 
+bool SimpleDialogManager::requestForHelp(double strength)
+{
+    return false;
 }

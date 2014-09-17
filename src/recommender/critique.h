@@ -3,21 +3,18 @@
 
 #include "domainbase/relationship.h"
 #include "domainbase/attribute.h"
+#include "recommender/recommenderitem.h"
 
 class Offer;
 
-class Critique
+class Critique : public RecommenderItem
 {
 public:
-    static const int maxTTL = 15;
-
     Critique(const Relationship* relationship, float baseInfluence=1.0) :
-        m_ttl(maxTTL + 1),
-        m_baseInfluence(baseInfluence),
+        RecommenderItem(baseInfluence),
         m_relationship(relationship)
     {}
-    Critique(const Critique& other) : m_ttl(other.m_ttl),
-        m_baseInfluence(other.m_baseInfluence),
+    Critique(const Critique& other) : RecommenderItem(other),
         m_name(other.m_name), m_relationship(new Relationship(*other.m_relationship)),
         m_supersededCritiques(other.m_supersededCritiques)
     {
@@ -28,19 +25,8 @@ public:
     /// a perfect match, 0 is a violation)
     float utility(const Offer& offer) const;
 
-    /// Decrements the time to life and returns the new value
-    int age();
-    /// Increments the time to life and returns the new value
-    int antiAge();
-
     /// returns a description of the constraints entailed in this critique
     QString getDescription() const;
-
-    /// returns the current age
-    int getAge() const;
-
-    /// returns the base influence
-    bool getIsInternal() const { return m_baseInfluence < 0.5; }
 
     /// returns true if this critique replaces the given one
     bool supersedes(const Critique& other) const;
@@ -52,10 +38,6 @@ public:
 
     /// Returns true iff the critique makes a statement about the given record
     bool appliesTo(const Record& record) const;
-
-    /// Influence modifier [1..0]; higher, the close
-    /// m_ttl is to maxTTL (the younger the critique)
-    float influence() const;
 
 private:
     int m_ttl;

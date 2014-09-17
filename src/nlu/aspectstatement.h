@@ -6,9 +6,10 @@
 class AspectStatement : public Statement
 {
 public:
-    AspectStatement(const Aspect* aspect, double lexicalPolarity=1.0, double quality=1.0);
+    AspectStatement(const Aspect* aspect, double lexicalPolarity = defaultLexiconPolarity,
+                    double quality = defaultQuality, double importance = defaultImportance);
     QString toString() const;
-    bool act(DialogStrategy::DialogState state, CritiqueRecommender *r) const;
+    bool act(DialogStrategy::DialogState state, DialogManager *dm) const;
 protected:
     virtual bool comparePrivate(const Statement *s) const;
 private:

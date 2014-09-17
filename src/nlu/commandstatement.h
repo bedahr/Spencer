@@ -14,9 +14,10 @@ public:
         No
     };
 
-    CommandStatement(Type type, double lexicalPolarity=1.0, double quality=1.0);
+    CommandStatement(Type type, double lexicalPolarity = defaultLexiconPolarity,
+                     double quality = defaultQuality, double importance = defaultImportance);
     QString toString() const;
-    bool act(DialogStrategy::DialogState state, CritiqueRecommender* r) const;
+    bool act(DialogStrategy::DialogState state, DialogManager *dm) const;
 protected:
     virtual bool comparePrivate(const Statement *s) const;
 

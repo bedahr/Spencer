@@ -1,20 +1,20 @@
 #ifndef STATEMENT_H
 #define STATEMENT_H
 
+#include "nlu/dialogmanager.h"
 #include "dialogmanager/dialogstrategy.h"
 #include <QString>
 
 static const double defaultLexiconPolarity = 1.0;
+static const double defaultQuality = 1.0;
 static const double defaultImportance = 1.0;
-
-class CritiqueRecommender;
 
 class Statement
 {
 public:
-    Statement(double lexicalPolarity, double statementQuality);
+    Statement(double lexicalPolarity, double statementQuality, double statementImportance = defaultImportance);
     virtual QString toString() const=0;
-    virtual bool act(DialogStrategy::DialogState state, CritiqueRecommender* r) const=0;
+    virtual bool act(DialogStrategy::DialogState state, DialogManager* dm) const=0;
     void setLexicalPolarity(double polarity) {
         m_lexicalPolarity = polarity;
     }
@@ -32,6 +32,10 @@ public:
     }
 
     bool compare(const Statement *s) const;
+
+    /// Total, combined effect of this statements
+    /// Caluclated using quality, importance and lexical polarity
+    double effect() const;
 
 protected:
     /// returns a description of the full statement based on userData

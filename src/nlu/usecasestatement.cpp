@@ -8,8 +8,8 @@
 #include <QObject>
 #include <QList>
 
-UsecaseStatement::UsecaseStatement(const QString& useCase, double lexicalPolarity, double quality) :
-    Statement(lexicalPolarity, quality), m_useCase(useCase)
+UsecaseStatement::UsecaseStatement(const QString& useCase, double lexicalPolarity, double quality, double importance) :
+    Statement(lexicalPolarity, quality, importance), m_useCase(useCase)
 {
 }
 
@@ -18,7 +18,7 @@ QString UsecaseStatement::toString() const
     return formatStatementString(QObject::tr("Use case: %1").arg(m_useCase));
 }
 
-bool UsecaseStatement::act(DialogStrategy::DialogState state, CritiqueRecommender* r) const
+bool UsecaseStatement::act(DialogStrategy::DialogState state, DialogManager *dm) const
 {
     //expand use case to relevant domain information
     //expand to substatements
@@ -55,7 +55,7 @@ bool UsecaseStatement::act(DialogStrategy::DialogState state, CritiqueRecommende
 
     bool out = true;
     foreach (Statement *s, subStatements) {
-        if (!s->act(state, r)) {
+        if (!s->act(state, dm)) {
             out = false;
             break;
         }

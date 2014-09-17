@@ -7,11 +7,12 @@ class Aspect;
 class DialogManager
 {
 public:
-    virtual void yes() = 0;
-    virtual void no() = 0;
-    virtual void constrain(Critique* c) = 0;
-    virtual void applyAspect(Aspect* c) = 0;
-
+    virtual bool undo() = 0;
+    virtual bool constrain(Critique* c) = 0;
+    virtual bool applyAspect(const Aspect* c) = 0;
+    virtual bool accept(double strength) = 0;
+    virtual bool reject(double strength) = 0;
+    virtual bool requestForHelp(double strength) = 0;
 };
 
 #endif // DIALOGMANAGER_H

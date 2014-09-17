@@ -1,8 +1,8 @@
 #include "constraintstatement.h"
 #include "recommender/critiquerecommender.h"
 
-ConstraintStatement::ConstraintStatement(Relationship *relationship, double lexicalPolarity, double quality) :
-    Statement(lexicalPolarity, quality), m_relationship(relationship)
+ConstraintStatement::ConstraintStatement(Relationship *relationship, double lexicalPolarity, double quality, double importance) :
+    Statement(lexicalPolarity, quality, importance), m_relationship(relationship)
 {
 }
 
@@ -11,10 +11,10 @@ QString ConstraintStatement::toString() const
     return formatStatementString(m_relationship->toString());
 }
 
-bool ConstraintStatement::act(DialogStrategy::DialogState state, CritiqueRecommender* r) const
+bool ConstraintStatement::act(DialogStrategy::DialogState state, DialogManager *dm) const
 {
     Critique *c = new Critique(m_relationship);
-    return r->critique(c);
+    return dm->constrain(c);
 }
 
 

@@ -1,8 +1,8 @@
 #include "statement.h"
 
-Statement::Statement(double lexiconPolarity, double statementQuality) :
+Statement::Statement(double lexiconPolarity, double statementQuality, double statementImportance) :
     m_quality(statementQuality),
-    m_lexicalPolarity(lexiconPolarity), m_importance(defaultImportance)
+    m_lexicalPolarity(lexiconPolarity), m_importance(statementImportance)
 {
 }
 
@@ -22,4 +22,9 @@ bool Statement::compare(const Statement *s) const
             !fuzzyCompare(s->m_importance, m_importance))
         return false;
     return comparePrivate(s);
+}
+
+double Statement::effect(const Statement *s) const
+{
+    return m_quality * (m_lexicalPolarity + m_importance);
 }
