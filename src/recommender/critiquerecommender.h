@@ -2,6 +2,7 @@
 #define CRITIQUERECOMMENDER_H
 
 #include "critique.h"
+#include "mentionedaspect.h"
 #include "domainbase/offer.h"
 #include "domainbase/attribute.h"
 
@@ -25,12 +26,17 @@ public slots:
     /// Resets user model and suggests an initial offer
     void init();
 
-    /// Updates the given critique to the user model
+    /// Adds the given critique to the user model
     /// If there are no matching products, the critique is rejected and
     /// this method returns false;
     /// The CritiqueRecommender will take over ownership of @p critique
     /// in any case.
     bool critique(Critique* critique);
+
+    /// Adds the given aspect observation to the user model
+    /// The CritiqueRecommender will take over ownership of aspect @a
+    /// in any case.
+    bool applyAspect(MentionedAspect* a);
 
     /// Removes the most current critique
     void undo();

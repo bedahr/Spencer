@@ -30,7 +30,7 @@ public:
     void userInput(const QList<Statement *> statements);
     virtual bool undo();
     virtual bool constrain(Critique* c);
-    virtual bool applyAspect(const Aspect* c);
+    virtual bool applyAspect(MentionedAspect *c);
     virtual bool accept(double strength);
     virtual bool reject(double strength);
     virtual bool requestForHelp(double strength);

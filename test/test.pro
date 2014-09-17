@@ -19,6 +19,8 @@ HEADERS += nlptest.h \
            ../src/nlu/aspectstatement.h \
            ../src/nlu/constraintstatement.h \
            ../src/recommender/critiquerecommender.h \
+           ../src/recommender/mentionedaspect.h \
+           ../src/recommender/recommenderitem.h \
            ../src/recommender/critique.h \
            ../src/domainbase/offer.h \
            ../src/domainbase/attribute.h \
@@ -42,6 +44,8 @@ SOURCES += nlptest.cpp \
            ../src/nlu/commandstatement.cpp \
            ../src/nlu/constraintstatement.cpp \
            ../src/recommender/critiquerecommender.cpp \
+           ../src/recommender/mentionedaspect.cpp \
+           ../src/recommender/recommenderitem.cpp \
            ../src/recommender/critique.cpp \
            ../src/domainbase/offer.cpp \
            ../src/domainbase/attribute.cpp \

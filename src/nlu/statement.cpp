@@ -24,7 +24,7 @@ bool Statement::compare(const Statement *s) const
     return comparePrivate(s);
 }
 
-double Statement::effect(const Statement *s) const
+double Statement::effect() const
 {
     return m_quality * (m_lexicalPolarity + m_importance);
 }

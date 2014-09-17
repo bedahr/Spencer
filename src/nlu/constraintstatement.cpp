@@ -13,6 +13,7 @@ QString ConstraintStatement::toString() const
 
 bool ConstraintStatement::act(DialogStrategy::DialogState state, DialogManager *dm) const
 {
+    Q_UNUSED(state);
     Critique *c = new Critique(m_relationship);
     return dm->constrain(c);
 }

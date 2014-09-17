@@ -18,12 +18,12 @@ static QSharedPointer<Attribute> getAttribute(const QString& target, const QStri
 }
 static ConstraintStatement* getConstraintStatement(const QString& target, Relationship::Type type, QSharedPointer<Attribute> attribute, double factor, double quality = 1.0)
 {
-    return new ConstraintStatement(new Relationship(target, type, attribute, factor), factor, quality);
+    return new ConstraintStatement(new Relationship(target, type, attribute, factor), 1.0, quality);
 }
 static ConstraintStatement* getConstraintStatement(const QString& target, Relationship::Type type, const QString& value, double factor, double quality = 1.0)
 {
     QSharedPointer<Attribute> attribute = getAttribute(target, value);
-    return new ConstraintStatement(new Relationship(target, type, attribute, factor), factor, quality);
+    return new ConstraintStatement(new Relationship(target, type, attribute, factor), 1.0, quality);
 }
 
 static QString parseTarget(const QString& targetDef, const QString& data=QString())

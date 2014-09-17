@@ -1,4 +1,5 @@
 #include "aspectstatement.h"
+#include "recommender/mentionedaspect.h"
 #include <QObject>
 
 AspectStatement::AspectStatement(const Aspect* aspect, double lexicalPolarity, double quality, double importance) :
@@ -13,7 +14,7 @@ QString AspectStatement::toString() const
 
 bool AspectStatement::act(DialogStrategy::DialogState state, DialogManager *dm) const
 {
-    return dm->applyAspect(m_aspect);
+    return dm->applyAspect(new MentionedAspect(m_aspect, effect()));
 }
 bool AspectStatement::comparePrivate(const Statement *s) const
 {

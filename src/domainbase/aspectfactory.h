@@ -15,11 +15,11 @@ public:
 
     /// Returns an instance of the aspect
     /// The returned aspect is null if an error occured (e.g. unassigned id)
-    Aspect* getAspect(const QString& id);
+    const Aspect* getAspect(const QString& id);
 
     /// Returns an instance of the aspect
     /// The returned aspect is null if an error occured (e.g. unassigned name)
-    Aspect* getAspectByName(const QString& name);
+    const Aspect* getAspectByName(const QString& name);
 
     /// Instance method for the Singleton
     static AspectFactory* getInstance() {
@@ -30,7 +30,7 @@ public:
 private:
     static AspectFactory* instance;
 
-    QList<Aspect*> m_aspects;
+    QList<const Aspect*> m_aspects;
 
     AspectFactory() {}
 };

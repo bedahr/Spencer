@@ -15,16 +15,20 @@ public:
     {}
 
     Aspect(const QString& id, const QString& name, const QList<Aspect*> children) :
-        m_parent(0), m_id(id), m_name(name), m_children(children)
+        m_parent(0), m_id(id), m_name(name)
     {
-        foreach (Aspect* c, children)
+        foreach (Aspect* c, children) {
+            m_children << c;
             c->setParent(this);
+        }
     }
 
     Aspect* parent() const { return m_parent; }
     QString id() const { return m_id; }
     QString name() const { return m_name; }
-    QList<Aspect*> children() const { return m_children; }
+    QList<const Aspect*> children() const {
+        return m_children;
+    }
 
     void setParent(Aspect* p) {
         m_parent = p;
@@ -38,7 +42,7 @@ private:
     Aspect* m_parent;
     QString m_id;
     QString m_name;
-    QList<Aspect*> m_children;
+    QList<const Aspect*> m_children;
 };
 
 Q_DECLARE_METATYPE(Aspect);

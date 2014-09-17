@@ -10,7 +10,8 @@ namespace DialogStrategy {
         AskForPriceImportant,
         AskForPortabilityImportant,
         Recommendation,
-        MisunderstoodInput
+        MisunderstoodInput,
+        FinalState
     };
 }
 

@@ -47,27 +47,28 @@ bool AspectFactory::parseStructure(const QString& path)
         return false;
     }
 
-    m_aspects = parseAspects(rootElement);
+    foreach (Aspect *a, parseAspects(rootElement))
+        m_aspects << a;
     return true;
 }
 
-static Aspect* findAspect(const QString& id, QList<Aspect*> list, bool isId=true)
+static const Aspect* findAspect(const QString& id, QList<const Aspect*> list, bool isId=true)
 {
-    Aspect *found = 0;
-    foreach (Aspect *c, list) {
+    foreach (const Aspect *c, list) {
         if ((isId && (c->id() == id)) || (!isId && (c->name().toUpper() == id.toUpper())))
             return c;
-        if ((found = findAspect(id, c->children(), isId)) != 0)
+        const Aspect* found = findAspect(id, c->children(), isId);
+        if (found != 0)
             return found;
     }
     return 0;
 }
 
-Aspect* AspectFactory::getAspect(const QString& id)
+const Aspect* AspectFactory::getAspect(const QString& id)
 {
     return findAspect(id, m_aspects);
 }
-Aspect* AspectFactory::getAspectByName(const QString& name)
+const Aspect* AspectFactory::getAspectByName(const QString& name)
 {
     return findAspect(name, m_aspects, false);
 }

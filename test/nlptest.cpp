@@ -95,7 +95,7 @@ void NLPTest::testNLP_data()
     QTest::addColumn<Offer*>("currentOffer");
     QTest::addColumn<StatementList>("reference");
     RecordMap r;
-    r.insert("processorSpeed", qMakePair(QString("processorSpeed"), QSharedPointer<Attribute>(new NumericalAttribute(true, true, 0, QString(), NumericalAttribute::Max))));
+    r.insert("processorSpeed", qMakePair(QString("processorSpeed"), QSharedPointer<Attribute>(new NumericalAttribute(true, true, 0, QString(), NumericalAttribute::Max, dummyData, dummyData))));
     r.insert("mainMemoryCapacity", qMakePair(QString("mainMemoryCapacity"), AttributeFactory::getInstance()->getAttribute("mainMemoryCapacity", 0).second));
     r.insert("weight", qMakePair(QString("weight"), AttributeFactory::getInstance()->getAttribute("weight", 0).second));
     r.insert("operatingSystem", qMakePair(QString("operatingSystem"), AttributeFactory::getInstance()->getAttribute("operatingSystem", "Windows").second));
@@ -104,7 +104,7 @@ void NLPTest::testNLP_data()
 
     Offer *o = new Offer(QSharedPointer<Attribute>(new StringAttribute(true, true, "Testlaptop")),
                          AttributeFactory::getInstance()->getAttribute("price", 599).second,
-                         QSharedPointer<Attribute>(new NumericalAttribute(true, true, 50, QString(), NumericalAttribute::Max)),
+                         QSharedPointer<Attribute>(new NumericalAttribute(true, true, 50, QString(), NumericalAttribute::Max, dummyData, dummyData)),
                          1, QStringList(), r, SentimentMap());
     /*
     QTest::newRow("blank") << QString::fromUtf8("+uhm+") << o << StatementList();
@@ -233,7 +233,7 @@ void NLPTest::testNLP_data()
                 else
                     attr = r.value(attribute).second;
             }
-            statements << new ConstraintStatement(new Relationship(attribute, type, attr, lexicalPolarity), lexicalPolarity, quality);
+            statements << new ConstraintStatement(new Relationship(attribute, type, attr, lexicalPolarity), 1.0, quality);
         }
 
 

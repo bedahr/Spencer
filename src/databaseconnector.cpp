@@ -200,7 +200,7 @@ QList<Offer*> DatabaseConnector::loadOffers(bool* okay) const
             else if (!optionalSentimentDimensions.contains(key))
                 continue;
 
-            Aspect* thisAspect(AspectFactory::getInstance()->getAspect(key));
+            const Aspect* thisAspect(AspectFactory::getInstance()->getAspect(key));
             double value = userSentiments.getField(*i).numberDouble();
             if (thisAspect)
                 extractedSentiment.insert(Aspect(*thisAspect), value);

@@ -44,7 +44,6 @@ protected:
     virtual QString formatStatementString(const QString& userData) const;
     virtual bool comparePrivate(const Statement *s) const=0;
 
-private:
     /// determines how secure we are in identifying this statement as true
     /// user intention; [0,1]
     double m_quality;

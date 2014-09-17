@@ -63,6 +63,9 @@ SimpleDialogManager::SimpleDialogManager() :
 
 void SimpleDialogManager::userInput(const QList<Statement*> statements)
 {
+    if (state == DialogStrategy::FinalState)
+        return;
+
     //qDebug() << "Misunderstanding counter: " << consecutiveMisunderstandingCounter;
     if (!statements.isEmpty())
         consecutiveMisunderstandingCounter = 0;
@@ -194,12 +197,18 @@ bool SimpleDialogManager::constrain(Critique* c)
     return recommender->critique(c);
 }
 
-bool SimpleDialogManager::applyAspect(const Aspect* c)
+bool SimpleDialogManager::applyAspect(MentionedAspect* a)
 {
-    return false;
+    return recommender->applyAspect(a);
 }
 bool SimpleDialogManager::accept(double strength)
 {
+    // TODO: experiment with cutoff
+    if (strength > 0.5) {
+        emit elicit(AvatarTask(AvatarTask::Custom, tr("Vielen Dank für Ihre Teilnahme an dieser Studie"), tr("Aufgabe abgeschlossen")));
+        state = DialogStrategy::FinalState;
+        return true;
+    }
     return false;
 }
 

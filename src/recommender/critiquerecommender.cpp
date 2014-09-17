@@ -194,3 +194,8 @@ Recommendation* CritiqueRecommender::suggestOffer() const
 
     return 0;
 }
+
+bool CritiqueRecommender::applyAspect(MentionedAspect *a)
+{
+    return false;
+}

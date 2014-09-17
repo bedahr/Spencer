@@ -13,6 +13,7 @@ private slots:
   
 private:
   NLU nlu;
+  double dummyData;
 };
 
 #endif

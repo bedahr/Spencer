@@ -1,6 +1,8 @@
 #include "commandstatement.h"
 #include "constraintstatement.h"
 #include "aspectstatement.h"
+#include "domainbase/aspectfactory.h"
+#include "domainbase/attributefactory.h"
 #include "recommender/critiquerecommender.h"
 #include <QObject>
 
@@ -48,32 +50,38 @@ bool CommandStatement::act(DialogStrategy::DialogState state, DialogManager *dm)
             break;
         case CommandStatement::Yes:
             switch (state) {
-              case Recommendation:
+              case DialogStrategy::Recommendation:
                 dm->accept(effect());
                 return true;
               case DialogStrategy::AskForPerformanceImportant:
                 //expand
-                subStatements << new ConstraintStatement(new Relationship("processorSpeed", Relationship::Large), m_lexicalPolarity, m_quality, m_importance);
-                subStatements << new ConstraintStatement(new Relationship("mainMemoryCapacity", Relationship::Large), m_lexicalPolarity, m_quality, m_importance);
+                subStatements << new ConstraintStatement(new Relationship("processorSpeed", Relationship::Large,
+                                                                          QSharedPointer<Attribute>(), m_lexicalPolarity), 1.0, m_quality, m_importance);
+                subStatements << new ConstraintStatement(new Relationship("mainMemoryCapacity", Relationship::Large,
+                                                                          QSharedPointer<Attribute>(),  m_lexicalPolarity), 1.0, m_quality, m_importance);
                 subStatements << new AspectStatement(AspectFactory::getInstance()->getAspect("Speed"), m_lexicalPolarity, m_quality, m_importance);
                 break;
               case DialogStrategy::AskForPortabilityImportant:
-                subStatements << new ConstraintStatement(new Relationship("weight", Relationship::Small), m_lexicalPolarity, m_quality, m_importance);
-                subStatements << new ConstraintStatement(new Relationship("screenSize", Relationship::Small), m_lexicalPolarity, m_quality, m_importance);
-                subStatements << new ConstraintStatement(new Relationship("averageRuntimeOnBattery", Relationship::Large), m_lexicalPolarity, m_quality, m_importance);
+                subStatements << new ConstraintStatement(new Relationship("weight", Relationship::Small,
+                                                                          QSharedPointer<Attribute>(),  m_lexicalPolarity), 1.0, m_quality, m_importance);
+                subStatements << new ConstraintStatement(new Relationship("screenSize", Relationship::Small,
+                                                                          QSharedPointer<Attribute>(),  m_lexicalPolarity), 1.0, m_quality, m_importance);
+                subStatements << new ConstraintStatement(new Relationship("averageRuntimeOnBattery", Relationship::Large,
+                                                                          QSharedPointer<Attribute>(),  m_lexicalPolarity), 1.0, m_quality, m_importance);
                 subStatements << new AspectStatement(AspectFactory::getInstance()->getAspect("Weight"), m_lexicalPolarity, m_quality, m_importance);
                 subStatements << new AspectStatement(AspectFactory::getInstance()->getAspect("Display Size"), m_lexicalPolarity, m_quality, m_importance);
                 subStatements << new AspectStatement(AspectFactory::getInstance()->getAspect("Battery"), m_lexicalPolarity, m_quality, m_importance);
                 break;
               case DialogStrategy::AskForPriceImportant:
-                subStatements << new ConstraintStatement(new Relationship("price", Relationship::Small), m_lexicalPolarity, m_quality, m_importance);
+                subStatements << new ConstraintStatement(new Relationship("price", Relationship::Small,
+                                                                          QSharedPointer<Attribute>(),  m_lexicalPolarity), 1.0, m_quality, m_importance);
                 subStatements << new AspectStatement(AspectFactory::getInstance()->getAspect("Price"), m_lexicalPolarity, m_quality, m_importance);
                 break;
             }
             break;
         case CommandStatement::No:
             switch (state) {
-                case Recommendation:
+                case DialogStrategy::Recommendation:
                   dm->reject(effect());
                   return true;
             }
