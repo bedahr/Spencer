@@ -157,9 +157,7 @@ void SimpleDialogManager::init(CritiqueRecommender *recommender)
 
 void SimpleDialogManager::greet()
 {
-    qDebug() << "Greeting";
     emit elicit(AvatarTask(AvatarTask::Intro), true);
-    //emit elicit(AvatarTask(AvatarTask::Custom, "Hallo du Ei"), true);
 }
 
 void SimpleDialogManager::askForUseCase()
@@ -217,5 +215,11 @@ bool SimpleDialogManager::accept(double strength)
 
 bool SimpleDialogManager::requestForHelp(double strength)
 {
+    if (strength > 0.2) {
+        emit elicit(AvatarTask(AvatarTask::Custom, tr("Sie können mit mir gleich sprechen, wie mit einem menschlichen Verkäufer. "
+                                                      "Sollte ich einmal etwas nicht auf Anhieb verstehen, so versuchen Sie es bitte "
+                                                      "Ihren in anderen Worten auszudrücken. Viel Spaß!"), tr("Hilfestellung")));
+        return true;
+    }
     return false;
 }
