@@ -12,6 +12,11 @@ DatabaseConnector::DatabaseConnector() : c(new mongo::DBClientConnection)
 {
 }
 
+DatabaseConnector::~DatabaseConnector()
+{
+    delete c;
+}
+
 bool DatabaseConnector::init()
 {
     try {

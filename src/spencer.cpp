@@ -42,6 +42,9 @@ Spencer::Spencer(QObject *parent) :
 Spencer::~Spencer()
 {
     delete m_recommender;
+    delete m_databaseConnector;
+    delete m_dialogManager;
+    delete m_nlu;
 }
 
 bool Spencer::init()

@@ -13,6 +13,7 @@ class DatabaseConnector
 {
 public:
     DatabaseConnector();
+    ~DatabaseConnector();
     bool init();
     QList<Offer*> loadOffers(bool *okay) const;
 
