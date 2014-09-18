@@ -79,7 +79,7 @@ bool CritiqueRecommender::applyAspect(MentionedAspect *a)
     Q_ASSERT(a);
 
     m_userModel << a;
-    return false;
+    return true;
 }
 
 void CritiqueRecommender::undo()

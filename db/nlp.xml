@@ -239,7 +239,7 @@
       </names>
     </attribute>
     <attribute type="unOpinionatedUnountable">
-      <actOn>model</actOn>
+      <actOn>name</actOn>
       <names>
         <name>Modell</name>
       </names>
@@ -511,7 +511,7 @@
       <relationship>Equal</relationship>
     </modifier>
 
-    <modifier on="countable,unOpinionatedCountable,unOpinionatedUnountable,uncountable" binding="post" default="Modell">
+    <modifier on="countable,unOpinionatedCountable,unOpinionatedUnountable,uncountable" binding="post" default="name">
       <names>
 	<name>ANDERE</name>
 	<name>ANDERER</name>
@@ -868,7 +868,7 @@
       </names>
       <actions>
 	<action>
-	<attribute>model</attribute>
+	<attribute>name</attribute>
 	<relationship>Inequal</relationship>
         </action>
       </actions>
