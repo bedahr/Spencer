@@ -264,6 +264,9 @@ void Avatar::updateAvatar()
         mediaPlayer->present(* imageCache.object(imageSrc));
     else {
         QImage* img = new QImage(imageSrc);
+        if (img->isNull()) {
+            qDebug() << "Image is null: " << imageSrc;
+        }
         imageCache.insert(imageSrc, img);
         mediaPlayer->present(*img);
     }
