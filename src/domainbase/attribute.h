@@ -21,7 +21,7 @@ public:
     virtual bool operator !=(const Attribute& other) const = 0;
 
     virtual double distance(const Attribute& other) const {
-        return other != *this;
+        return other != *this ? 1 : 0;
     }
     virtual bool operator <(const Attribute& other) const {
         return other != *this;

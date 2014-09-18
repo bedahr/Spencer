@@ -44,7 +44,7 @@ double NumericalAttribute::distance(const Attribute& other) const
     if (dynamic_cast<const NumericalAttribute*>(&other)) {
         double otherVal = static_cast<const NumericalAttribute&>(other).m_value;
         double range = m_max - m_min;
-        return (otherVal - m_value) / range;
+        return (otherVal - m_value) / ((range != 0) ? range : 1);
     }
 
     qDebug() << "Returning infinity";

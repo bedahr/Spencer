@@ -242,7 +242,8 @@ void Avatar::processQueue() {
     } else {
         AvatarTask task = taskQueue.takeFirst();
         if (task.expression() == AvatarTask::Intro) {
-            QTimer::singleShot(25500, Qt::CoarseTimer, this, SLOT(introCompleted()));
+            //QTimer::singleShot(25500, Qt::CoarseTimer, this, SLOT(introCompleted()));
+            introCompleted();
         }
         emit presenting(task.description());
         currentTaskDirectory = getTaskDirectory(task);

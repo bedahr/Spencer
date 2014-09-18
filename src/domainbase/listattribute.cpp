@@ -44,7 +44,7 @@ double ListAttribute::distance(const Attribute& other) const
     for (int i = minCommon; i < maxCommon; ++i)
         distance += 1;
 
-    return distance / maxCommon;
+    return (maxCommon != 0) ? distance / maxCommon : 1;
 }
 
 double ListAttribute::value() const

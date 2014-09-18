@@ -47,7 +47,8 @@ float Relationship::utility(const Offer& offer) const
         if (!goal.isNull()) {
             // size is defined
             double distance = qAbs(goal->distance(*offerAttribute));
-            out += (1 - distance) * m_modifierFactor;
+            //qDebug() << "Perfect: " << goal->toString() << " this: " << offerAttribute->toString() << " distance = " << distance << " (" << (0.5 - distance) * 2 * m_modifierFactor << ")";
+            out += (0.5 - distance) * 2 * m_modifierFactor;
         }
     }
 
@@ -75,7 +76,7 @@ float Relationship::utility(const Offer& offer) const
                 distance *= 1 / (1 - oldDistance);
             }
 
-            out += (1 - distance) * m_modifierFactor;
+            out += (0.5 - distance) * 2 * m_modifierFactor;
         }
     }
 

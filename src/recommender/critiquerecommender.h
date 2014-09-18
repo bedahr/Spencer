@@ -48,13 +48,13 @@ public slots:
 
     /// Yield a recommendation based on the current, potentially
     /// empty, user model
-    Recommendation* suggestOffer() const;
+    Recommendation* suggestOffer();
 
 private:
     QList<Critique*> m_critiques;
     QList<RecommenderItem*> m_userModel;
     QList<Offer*> m_offers;
-
+    const Offer* m_lastRecommendation;
 
 };
 

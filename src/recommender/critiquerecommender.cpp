@@ -8,7 +8,7 @@
 #include <limits>
 #include <QDebug>
 
-CritiqueRecommender::CritiqueRecommender()
+CritiqueRecommender::CritiqueRecommender() : m_lastRecommendation(0)
 {
     qsrand(5);
 }
@@ -118,7 +118,7 @@ void CritiqueRecommender::feedbackCycleComplete()
     }
 }
 
-Recommendation* CritiqueRecommender::suggestOffer() const
+Recommendation* CritiqueRecommender::suggestOffer()
 {
     //random selection
     //return new Recommendation(m_offers[qrand() % m_offers.size()], 0, QList<AppliedCritique>());
@@ -167,6 +167,25 @@ Recommendation* CritiqueRecommender::suggestOffer() const
             thisExplanations << ari;
             thisUtility += ari.utility();
         }
+        // introduce similarity
+        if (m_lastRecommendation) {
+            double productDistance = 0;
+            const RecordMap& r = m_lastRecommendation->getRecords();
+            for (RecordMap::const_iterator i = r.begin(); i != r.end(); ++i) {
+                QString fieldId = i.key();
+                Record offerRecord = o->getRecord(fieldId);
+                if (offerRecord.first.isNull()) {
+                    productDistance += 0.1;
+                    continue;
+                }
+
+                double thisAttributeDistance = qAbs(offerRecord.second->distance(*(i.value().second)));
+                productDistance += thisAttributeDistance;
+            }
+            double normalizedProductDistance = (productDistance / r.count()) * 2;
+            thisUtility -= normalizedProductDistance;
+        }
+
 
         //qDebug() << "Offer " << o->getName() << thisUtility;
         utilitiesOfConsideredProducts << thisUtility;
@@ -202,6 +221,7 @@ Recommendation* CritiqueRecommender::suggestOffer() const
         else
             overallScore = (runnerUpCount * overallScore) / discreditation;
 
+        m_lastRecommendation = bestOffer;
         return new Recommendation(bestOffer, overallScore, bestOfferExplanations);
     } else
         qWarning() << "No best offer!";

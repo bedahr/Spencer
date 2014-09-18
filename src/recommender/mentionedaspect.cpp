@@ -4,7 +4,9 @@
 
 float MentionedAspect::utility(const Offer& offer) const
 {
-    return offer.getUserSentiment().value(*m_aspect, 0) * influence();
+    float u = offer.getUserSentiment().value(*m_aspect, 0) * influence() * 0.01;
+    //qDebug() << "Aspect utility: " << u;
+    return u;
 }
 
 QString MentionedAspect::getDescription() const
