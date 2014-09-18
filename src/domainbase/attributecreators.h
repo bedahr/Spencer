@@ -52,7 +52,6 @@ public:
     }
 
     virtual QSharedPointer<Attribute> getAttribute(const QVariant& data, bool inDomain = false) {
-        Q_UNUSED(inDomain);
         double value = 0;
         bool okay = false;
         QString dataStr;
@@ -81,7 +80,8 @@ public:
             value = data.toDouble();
             okay = true;
         }
-        value *= m_multiplier;
+        if (inDomain)
+            value *= m_multiplier;
 
         if (okay && inDomain) {
             if (m_optimality == NumericalAttribute::Min) {
