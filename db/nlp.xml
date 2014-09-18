@@ -601,7 +601,7 @@
       <relationship>LargerThan</relationship>
     </modifier>
 
-    <modifier on="countable,unOpinionatedCountable" binding="post" default="size">
+    <modifier on="countable,unOpinionatedCountable" binding="post" default="screenSize">
       <names>
         <name>GROSSEN</name>
         <name>GROSSE</name>
