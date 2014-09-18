@@ -1,12 +1,13 @@
 #ifndef CRITIQUERECOMMENDER_H
 #define CRITIQUERECOMMENDER_H
 
-#include "critique.h"
-#include "mentionedaspect.h"
 #include "domainbase/offer.h"
 #include "domainbase/attribute.h"
 
 class Recommendation;
+class Critique;
+class MentionedAspect;
+class RecommenderItem;
 
 class CritiqueRecommender : public QObject
 {
@@ -51,6 +52,7 @@ public slots:
 
 private:
     QList<Critique*> m_critiques;
+    QList<RecommenderItem*> m_userModel;
     QList<Offer*> m_offers;
 
 

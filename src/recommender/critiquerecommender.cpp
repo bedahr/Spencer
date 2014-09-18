@@ -1,7 +1,10 @@
 #include "critiquerecommender.h"
-#include "appliedcritique.h"
+#include "appliedrecommenderitem.h"
 #include "recommendation.h"
 #include "float.h"
+#include "critique.h"
+#include "mentionedaspect.h"
+#include "recommenderitem.h"
 #include <limits>
 #include <QDebug>
 
@@ -18,7 +21,8 @@ void CritiqueRecommender::setupDatabase(const QList<Offer*>& offers)
 
 void CritiqueRecommender::init()
 {
-    qDeleteAll(m_critiques);
+    qDeleteAll(m_userModel);
+    m_userModel.clear();
     m_critiques.clear();
 }
 
@@ -50,7 +54,7 @@ bool CritiqueRecommender::critique(Critique* critique)
         return false;
     }
 
-
+    //superseding old critiques
     QList<Critique*>::iterator i = m_critiques.begin();
     while (i != m_critiques.end()) {
         if (critique->supersedes(**i)) {
@@ -64,8 +68,18 @@ bool CritiqueRecommender::critique(Critique* critique)
         } else
              ++i;
     }
-    m_critiques << new Critique(*critique);
+    m_critiques << critique;
+    m_userModel << critique;
     return true;
+}
+
+
+bool CritiqueRecommender::applyAspect(MentionedAspect *a)
+{
+    Q_ASSERT(a);
+
+    m_userModel << a;
+    return false;
 }
 
 void CritiqueRecommender::undo()
@@ -106,13 +120,13 @@ void CritiqueRecommender::feedbackCycleComplete()
 
 Recommendation* CritiqueRecommender::suggestOffer() const
 {
-    //random selection for now
-    return new Recommendation(m_offers[qrand() % m_offers.size()], 0, QList<AppliedCritique>());
+    //random selection
+    //return new Recommendation(m_offers[qrand() % m_offers.size()], 0, QList<AppliedCritique>());
 
     // apply m_critiques to m_offers to find best offer
     const Offer* bestOffer = 0;
     float bestUtility = std::numeric_limits<float>::min();
-    QList<AppliedCritique> bestOfferExplanations;
+    QList<AppliedRecommenderItem> bestOfferExplanations;
 
     //qDebug() << "Complete db: ";
     //foreach (Critique *c, m_critiques)
@@ -147,11 +161,11 @@ Recommendation* CritiqueRecommender::suggestOffer() const
     QList<float> utilitiesOfConsideredProducts;
     foreach (const Offer* o, consideredProducts) {
         double thisUtility = o->priorPropability();
-        QList<AppliedCritique> thisExplanations;
-        foreach (const Critique* c, m_critiques) {
-            AppliedCritique ac(c, *o);
-            thisExplanations << ac;
-            thisUtility += ac.utility();
+        QList<AppliedRecommenderItem> thisExplanations;
+        foreach (const RecommenderItem* ri, m_userModel) {
+            AppliedRecommenderItem ari(ri, *o);
+            thisExplanations << ari;
+            thisUtility += ari.utility();
         }
 
         //qDebug() << "Offer " << o->getName() << thisUtility;
@@ -169,7 +183,7 @@ Recommendation* CritiqueRecommender::suggestOffer() const
 
     if (bestOffer) {
         qDebug() << "Recommending " << bestOffer->getName() << bestUtility;
-        double overallScore = bestUtility / (m_critiques.size() + 1.0);
+        double overallScore = bestUtility / (m_userModel.size() + 1.0);
 
         //discount score based on other utilites (3 * score ) / (sum_i=1^3{runnerUp[i])
         qSort(utilitiesOfConsideredProducts.begin(), utilitiesOfConsideredProducts.end(), qGreater<float>());
@@ -193,9 +207,4 @@ Recommendation* CritiqueRecommender::suggestOffer() const
         qWarning() << "No best offer!";
 
     return 0;
-}
-
-bool CritiqueRecommender::applyAspect(MentionedAspect *a)
-{
-    return false;
 }

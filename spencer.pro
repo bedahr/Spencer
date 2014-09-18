@@ -92,7 +92,6 @@ HEADERS += \
         src/nlu/commandstatement.h \
         src/nlu/constraintstatement.h \
     src/recommender/recommendation.h \
-    src/recommender/appliedcritique.h \
     src/databaseconnector.h \
     src/domainbase/booleanattribute.h \
     src/domainbase/listattribute.h \
@@ -108,7 +107,8 @@ HEADERS += \
     src/nlu/dialogmanager.h \
     src/dialogmanager/simpledialogmanager.h \
     src/recommender/recommenderitem.h \
-    src/recommender/mentionedaspect.h
+    src/recommender/mentionedaspect.h \
+    src/recommender/appliedrecommenderitem.h
 
 
 INCLUDEPATH += ../BBSimoneShared $${BBSIMONECOMMONIPATH} src/

@@ -1,4 +1,5 @@
 #include "constraintstatement.h"
+#include "recommender/critique.h"
 #include "recommender/critiquerecommender.h"
 
 ConstraintStatement::ConstraintStatement(Relationship *relationship, double lexicalPolarity, double quality, double importance) :
