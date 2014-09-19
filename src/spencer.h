@@ -41,6 +41,9 @@ public slots:
     /// This is just here for wizard of oz testing
     void overwriteDialogStrategy(int code);
 
+    void listening();
+    void recognizing();
+
 private:
     DatabaseConnector *m_databaseConnector;
     NLU *m_nlu;

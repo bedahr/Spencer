@@ -8,6 +8,7 @@
 #include "domainbase/offer.h"
 #include <QStateMachine>
 #include <QList>
+#include <QTimer>
 
 class CritiqueRecommender;
 class Statement;
@@ -43,12 +44,25 @@ public slots:
     void askForPortabilityImportant();
     void randomRecommendation();
 
+    void userIsTalking();
+    void userFinishedTalking();
+
 private:
     DialogStrategy::DialogState state;
+    DialogStrategy::DialogState upcomingState;
+    DialogStrategy::DialogState previousState;
     CritiqueRecommender *recommender;
     const Offer* currentOffer;
+    QTimer turnCompletionTimer;
+    int acceptedStatementsOfThisTurn;
     int consecutiveMisunderstandingCounter;
+    void queueState(DialogStrategy::DialogState newState);
+    void enterState();
 
+    /// queues the most appropriate domain question for execution
+    void askDomainQuestion();
+
+private slots:
     void completeTurn();
 
 private slots:

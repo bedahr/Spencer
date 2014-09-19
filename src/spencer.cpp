@@ -105,6 +105,16 @@ void Spencer::recommendationChanged(const Offer *currentOffer,
     emit recommend(offerName, price, rating, images, offer, userSentiment, explanation);
 }
 
+void Spencer::listening()
+{
+    m_dialogManager->userIsTalking();
+}
+
+void Spencer::recognizing()
+{
+    m_dialogManager->userFinishedTalking();
+}
+
 void Spencer::overwriteDialogStrategy(int code)
 {
     switch (code)

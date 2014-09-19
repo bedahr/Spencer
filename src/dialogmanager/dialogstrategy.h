@@ -11,6 +11,7 @@ namespace DialogStrategy {
         AskForPortabilityImportant,
         Recommendation,
         MisunderstoodInput,
+        AskForHelp,
         FinalState
     };
 }
