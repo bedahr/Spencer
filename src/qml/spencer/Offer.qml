@@ -125,7 +125,7 @@ Item {
 
         imageCycleTimer.stop()
         teName.changeText(title)
-        tePrice.changeText("€ " + price)
+        tePrice.changeText("€ " + price.toFixed(2))
 
         aiDetails.state = "hidden"
         for (var i = 0; i < data.length; ++i) {
