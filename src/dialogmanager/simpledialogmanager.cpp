@@ -118,6 +118,7 @@ void SimpleDialogManager::completeTurn()
         }
         emit recommendation(o, o->getName(), o->getPrice(), o->getRating(), o->getImages(),
                             description, o->getUserSentiment(), explanation);
+        queueState(DialogStrategy::Recommendation);
     } else {
         qDebug() << "No recommendation at this point";
         switch (consecutiveMisunderstandingCounter) {
