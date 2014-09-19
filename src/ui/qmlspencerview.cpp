@@ -199,15 +199,12 @@ void QMLSpencerView::displayMicrophoneLevel(int level, int min, int max)
 {
     if (skipNonEssentialUIUpdates)
         return;
-
-    /*
     QObject *pbVUMeter = viewer->rootObject()->findChild<QObject*>("pbVUMeter");
     if (min != -1)
         pbVUMeter->setProperty("minimumValue", min);
     if (max != -1)
         pbVUMeter->setProperty("maximumValue", max);
     pbVUMeter->setProperty("value", level);
-    */
 }
 
 void QMLSpencerView::displayListening()

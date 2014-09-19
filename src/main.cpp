@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
         QObject::connect(connector, SIGNAL(status(QString)), view, SLOT(displayStatus(QString)));
         QObject::connect(connector, SIGNAL(error(QString)), view, SLOT(displayError(QString)));
         QObject::connect(connector, SIGNAL(listening()), view, SLOT(displayListening()));
-        QObject::connect(connector, SIGNAL(recognizing()), view, SLOT(displayRecognizing()));
+        QObject::connect(connector, SIGNAL(recognizing(qint64, qint64)), view, SLOT(displayRecognizing()));
         QObject::connect(connector, SIGNAL(microphoneLevel(int,int,int)), view, SLOT(displayMicrophoneLevel(int,int,int)));
         //QObject::connect(connector, SIGNAL(recognized(QString)), view, SLOT(displayExecutedAction(QString)));
     }
