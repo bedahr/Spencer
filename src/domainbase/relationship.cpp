@@ -23,12 +23,12 @@ float Relationship::utility(const Offer& offer) const
     if (m_type & Relationship::Equality) {
         // distance is non directional for equality
         double eqDistance = qAbs(attributeDistance);
-        out += (1 - eqDistance) * m_modifierFactor;
+        out += (0.5 - eqDistance) * m_modifierFactor;
     }
     if (m_type & Relationship::Inequality) {
         // distance is non directional for inequality
         double ineqDistance = qAbs(attributeDistance);
-        out += ineqDistance * m_modifierFactor;
+        out += (ineqDistance - 0.5) * m_modifierFactor;
     }
     if (m_type & Relationship::LargerThan) {
         out += attributeDistance * m_modifierFactor;
@@ -48,7 +48,7 @@ float Relationship::utility(const Offer& offer) const
             // size is defined
             double distance = qAbs(goal->distance(*offerAttribute));
             //qDebug() << "Perfect: " << goal->toString() << " this: " << offerAttribute->toString() << " distance = " << distance << " (" << (0.5 - distance) * 2 * m_modifierFactor << ")";
-            out += (0.5 - distance) * 2 * m_modifierFactor;
+            out += (0.5 - distance) * m_modifierFactor;
         }
     }
 
@@ -59,7 +59,7 @@ float Relationship::utility(const Offer& offer) const
     if ((m_type & Relationship::Good) || (m_type & Relationship::Bad) ||
             (m_type & Relationship::BetterThan) || (m_type & Relationship::WorseThan)) {
         QSharedPointer<Attribute> goal;
-        if (m_type & Relationship::Good)
+        if ((m_type & Relationship::Good) || (m_type & Relationship::BetterThan))
             goal = AttributeFactory::getInstance()->getBestInstance(m_id);
         else
             goal = AttributeFactory::getInstance()->getWorstInstance(m_id);
@@ -75,11 +75,10 @@ float Relationship::utility(const Offer& offer) const
                 // rescale
                 distance *= 1 / (1 - oldDistance);
             }
-
-            out += (0.5 - distance) * 2 * m_modifierFactor;
+            //qDebug() << "plain distance: " << distance << " adjusted: " << (0.5 - distance) * m_modifierFactor << " comparing: " << offerAttribute->toString() << " to " << goal->toString();
+            out += (0.5 - distance) * m_modifierFactor;
         }
     }
-
     return out;
 #if 0
     if (isRelative()) {
