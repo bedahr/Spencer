@@ -230,10 +230,10 @@ QList<Offer*> DatabaseConnector::loadOffers(bool* okay) const
         if (imageSrcs.empty())
             continue;
 
-        if (essentialsCovered < 2) {
-            qWarning() << "Poor sentiment coverage for offer " << name->toString();
-            continue;
-        }
+        //if (essentialsCovered < 2) {
+        //    qWarning() << "Poor sentiment coverage for offer " << name->toString();
+        //    continue;
+        //}
 
         availableOffers << new Offer(name, price, rating, priorRank, imageSrcs, records, extractedSentiment);
         ++products;
