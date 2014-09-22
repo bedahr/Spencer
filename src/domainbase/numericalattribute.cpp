@@ -41,14 +41,11 @@ bool NumericalAttribute::operator >(const Attribute& other) const
 
 double NumericalAttribute::distance(const Attribute& other) const
 {
-    if (dynamic_cast<const NumericalAttribute*>(&other)) {
-        double otherVal = static_cast<const NumericalAttribute&>(other).m_value;
-        double range = m_max - m_min;
-        return (otherVal - m_value) / ((range != 0) ? range : 1);
-    }
+    Q_ASSERT(dynamic_cast<const NumericalAttribute*>(&other));
 
-    qDebug() << "Returning infinity";
-    return DBL_MAX;
+    double otherVal = static_cast<const NumericalAttribute&>(other).m_value;
+    double range = m_max - m_min;
+    return (otherVal - m_value) / ((range != 0) ? range : 1);
 }
 
 QString NumericalAttribute::toString() const
