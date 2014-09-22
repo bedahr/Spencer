@@ -24,6 +24,7 @@ void CritiqueRecommender::init()
     qDeleteAll(m_userModel);
     m_userModel.clear();
     m_critiques.clear();
+    m_aspects.clear();
 }
 
 
@@ -79,25 +80,35 @@ bool CritiqueRecommender::applyAspect(MentionedAspect *a)
     Q_ASSERT(a);
 
     m_userModel << a;
+    m_aspects << a;
     return true;
 }
 
 void CritiqueRecommender::undo()
 {
-    if (m_critiques.isEmpty())
+    if (m_userModel.isEmpty())
         return;
-    QList<Critique*>::iterator i = m_critiques.begin();
-    while (i != m_critiques.end()) {
+    QList<RecommenderItem*>::iterator i = m_userModel.begin();
+    while (i != m_userModel.end()) {
         int newAge = (*i)->antiAge();
-        if (newAge > Critique::maxTTL) {
-            Critique *c = *i;
-            i = m_critiques.erase(i);
-            foreach (Critique *super, c->getSuperseding()) {
-                i = m_critiques.insert(i, super);
-                ++i;
+        if (newAge > RecommenderItem::maxTTL) {
+            RecommenderItem *r = *i;
+            i = m_userModel.erase(i);
+
+            Critique *c = dynamic_cast<Critique*>(r);
+            if (c) {
+                Critique *c = static_cast<Critique*>(r);
+                int critiqueIndex = m_critiques.indexOf(c);
+                foreach (Critique *super, c->getSuperseding()) {
+                    i = m_userModel.insert(i, super);
+                    m_critiques.insert(critiqueIndex, super);
+                    ++i;
+                }
+                c->clearSuperseding();
+                m_critiques.removeAll(c);
             }
-            c->clearSuperseding();
-            delete c;
+
+            delete r;
         } else {
             qDebug() << "Keeping: " << (*i)->getAge() << (*i)->getDescription();
              ++i;
@@ -107,15 +118,38 @@ void CritiqueRecommender::undo()
 
 void CritiqueRecommender::feedbackCycleComplete()
 {
-    QList<Critique*>::iterator i = m_critiques.begin();
-    while (i != m_critiques.end()) {
+    QList<RecommenderItem*>::iterator i = m_userModel.begin();
+    while (i != m_userModel.end()) {
         if ((*i)->age() == 0) {
-            Critique *c = *i;
-            i = m_critiques.erase(i);
+            RecommenderItem *c = *i;
+            i = m_userModel.erase(i);
             delete c;
         } else
             ++i;
     }
+}
+
+QList<Offer*> CritiqueRecommender::limitOffers(const QList<Critique*> constraints,
+                                               QList<Offer*> products, LimitBehavior limitBehavior) const
+{
+    QList<Offer*> consideredProducts;
+    if (limitBehavior == MatchAll) {
+        consideredProducts << products;
+    }
+    foreach (Critique *c, constraints) {
+        if (c->getIsInternal())
+            continue;
+        foreach (Offer* o, products) {
+            if (c->utility(*o) > 0) {
+                if (limitBehavior == MatchAny)
+                    consideredProducts << o;
+            } else {
+                if (limitBehavior == MatchAll)
+                    consideredProducts.removeAll(o);
+            }
+        }
+    }
+    return consideredProducts;
 }
 
 Recommendation* CritiqueRecommender::suggestOffer()
@@ -132,25 +166,19 @@ Recommendation* CritiqueRecommender::suggestOffer()
     //foreach (Critique *c, m_critiques)
     //    qDebug() << c->getDescription();
 
-    QList<Offer*> consideredProducts;
 
-    QString explanation;
     int currentAge = INT_MAX;
     //build "considered Products" that are all the products, that match at least one of
     // the constraints added in the last critiquing round
+    QList<Critique*> lastAddedCritiques;
     for (int i = m_critiques.count() - 1; (i >= 0) && (m_critiques[i]->getAge() <= currentAge); --i) {
         Critique *c = m_critiques[i];
         if (c->getIsInternal())
             continue;
-        explanation += c->getDescription() + '\n';
         currentAge = c->getAge();
-
-        foreach (Offer* o, m_offers) {
-            if (c->utility(*o) > 0) {
-                consideredProducts << o;
-            }
-        }
+        lastAddedCritiques << c;
     }
+    QList<Offer*> consideredProducts = limitOffers(lastAddedCritiques, m_offers, MatchAny);
 
     //if we have no matching products, let us know
     if (consideredProducts.isEmpty())
@@ -227,4 +255,30 @@ Recommendation* CritiqueRecommender::suggestOffer()
         qWarning() << "No best offer!";
 
     return 0;
+}
+
+double CritiqueRecommender::assertUsefulness(const QStringList& attributeIds,
+                        const QStringList& aspectIds) const
+{
+    double usefulness = 1;
+    double factor =  1.0 / (attributeIds.count() + aspectIds.count());
+    foreach (const QString& attribute, attributeIds) {
+        foreach (Critique *c, m_critiques) {
+            if (c->appliesTo(attribute))
+                usefulness -= (factor * c->influence());
+        }
+    }
+    foreach (const QString& aspect, aspectIds) {
+        foreach (MentionedAspect *m, m_aspects) {
+            if (m->appliesTo(aspect))
+                usefulness -= (factor * m->influence());
+        }
+    }
+    return usefulness;
+}
+
+double CritiqueRecommender::userModelRichness() const
+{
+    QList<Offer*> matchingOffers = limitOffers(m_critiques, m_offers, MatchAll);
+    return 1 - ((double) matchingOffers.count()) / m_offers.count();
 }

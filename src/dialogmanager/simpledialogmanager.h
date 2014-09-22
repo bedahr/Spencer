@@ -56,6 +56,10 @@ private:
     QTimer turnCompletionTimer;
     int acceptedStatementsOfThisTurn;
     int consecutiveMisunderstandingCounter;
+
+    DialogStrategy::DialogStates allAskedDomainQuestion;
+    DialogStrategy::DialogState lastAskedDomainQuestion;
+
     void queueState(DialogStrategy::DialogState newState);
     void enterState();
 

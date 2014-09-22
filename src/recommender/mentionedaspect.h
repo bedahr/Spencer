@@ -15,6 +15,7 @@ public:
     ~MentionedAspect() {}
     float utility(const Offer& offer) const;
     QString getDescription() const;
+    bool appliesTo(const QString& id) const;
 private:
     const Aspect* m_aspect;
 };

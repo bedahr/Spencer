@@ -20,6 +20,23 @@ public:
     /// a given attribute
     double userInterest(const Record& record) const;
 
+    /// Returns a value between 0 and 1 telling us how much the current
+    /// user model already constricts the search space (1 meaning that
+    /// no known products fit all constraints)
+    double userModelRichness() const;
+
+    /// Returns a value between 0 and 1 telling us how beneficial
+    /// information about the given attributes and aspects would be,
+    /// given the current user model.
+    /// The higher the value, the more "new" information would be
+    /// introduced.
+    /// Note that this does not directly translate to increases in
+    /// user model "richness" as it is defined above as we don't yet
+    /// know the polarity of the statements about the given attributes
+    /// and aspects.
+    double assertUsefulness(const QStringList& attributeIds,
+                            const QStringList& aspectIds) const;
+
 public slots:
     /// Sets the product database to the given list of offers
     void setupDatabase(const QList<Offer*> &offers);
@@ -52,10 +69,18 @@ public slots:
 
 private:
     QList<Critique*> m_critiques;
+    QList<MentionedAspect*> m_aspects;
     QList<RecommenderItem*> m_userModel;
     QList<Offer*> m_offers;
     const Offer* m_lastRecommendation;
 
+    enum LimitBehavior {
+        MatchAny,
+        MatchAll
+    };
+
+    QList<Offer*> limitOffers(const QList<Critique*> constrains,
+                              QList<Offer*> products, LimitBehavior limitBehavior) const;
 };
 
 #endif // CRITIQUERECOMMENDER_H

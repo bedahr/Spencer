@@ -23,7 +23,11 @@ bool Critique::supersedes(const Critique& other) const
 
 bool Critique::appliesTo(const Record& record) const
 {
-    return m_relationship->appliesTo(record.first);
+    return appliesTo(record.first);
+}
+bool Critique::appliesTo(const QString& id) const
+{
+    return m_relationship->appliesTo(id);
 }
 
 float Critique::utility(const Offer& offer) const

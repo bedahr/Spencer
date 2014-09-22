@@ -17,11 +17,23 @@ static const int turnTimeoutAfterStatements = 1500;
 static const int turnTimeoutWithoutStatements = 6000;
 static const int turnTimeoutWithoutStatementsDecay = 2000;
 
+static const QStringList performanceAttributes(QStringList() << "processorSpeed");
+static const QStringList performanceAspects(QStringList() << "Speed");
+
+static const QStringList priceAttributes(QStringList() << "price");
+static const QStringList priceAspects(QStringList() << "Price");
+
+static const QStringList portabilityAttributes(QStringList() << "screenSize" << "averageRuntimeOnBattery");
+static const QStringList portabilityAspects(QStringList() << "Portability");
+
+
 SimpleDialogManager::SimpleDialogManager() :
     state(DialogStrategy::InitState), upcomingState(DialogStrategy::InitState),
     previousState(DialogStrategy::InitState), recommender(0),
     currentOffer(0), acceptedStatementsOfThisTurn(0),
-    consecutiveMisunderstandingCounter(0)
+    consecutiveMisunderstandingCounter(0),
+    allAskedDomainQuestion(0),
+    lastAskedDomainQuestion(DialogStrategy::InitState)
 {
     connect(&turnCompletionTimer, SIGNAL(timeout()), this, SLOT(completeTurn()));
     turnCompletionTimer.setSingleShot(true);
@@ -204,6 +216,8 @@ void SimpleDialogManager::init(CritiqueRecommender *recommender)
     previousState = state;
     state = DialogStrategy::InitState;
     upcomingState = DialogStrategy::InitState;
+    lastAskedDomainQuestion = DialogStrategy::InitState;
+    allAskedDomainQuestion = 0;
     enterState();
 }
 
@@ -241,9 +255,45 @@ void SimpleDialogManager::askDomainQuestion()
 {
     // select the domain question that:
     //  a. we expect to prompt the user for the "most valuable" information
-    //  b. was not the last asked domain question
-    // TODO
-    queueState(DialogStrategy::AskForImportantAttribute);
+    //  b. we haven't asked before
+    //  c. was not the last asked domain question
+    QMap<double, DialogStrategy::DialogState> plan;
+
+    //QList<DialogStrategy::DialogState> plan;
+    double userModelRichness = 100*recommender->userModelRichness();
+    qDebug() << "user model richness: " << userModelRichness;
+    plan.insertMulti(userModelRichness /* bias */, DialogStrategy::AskForUseCase);
+    plan.insertMulti(userModelRichness + 1 /* bias */, DialogStrategy::AskForImportantAttribute);
+
+    double performanceCoverage = 100*recommender->assertUsefulness(performanceAttributes, performanceAspects);
+    plan.insertMulti(100 - performanceCoverage + 2 /* bias */, DialogStrategy::AskForPerformanceImportant);
+    double priceCoverage = 100*recommender->assertUsefulness(priceAttributes, priceAspects);
+    plan.insertMulti(100 - priceCoverage + 2 /* bias */, DialogStrategy::AskForPriceImportant);
+    double portabilityCoverage = 100*recommender->assertUsefulness(portabilityAttributes, portabilityAspects);
+    plan.insertMulti(100 - portabilityCoverage + 2 /* bias */, DialogStrategy::AskForPortabilityImportant);
+
+    for (int round = 0; round < 2; ++round) {
+        // 2 rounds. At the first one we skip everything we asked before
+        // if we can't find anything, ask whatever is necessary in the second round
+        foreach (double score, plan.keys()) {
+            QList<DialogStrategy::DialogState> equivalentlyScored(plan.values(score));
+
+            qDebug() << equivalentlyScored.count() << " decisions at score " << score;
+            foreach (DialogStrategy::DialogState s, equivalentlyScored) {
+                qDebug() << " " << s;
+                if ((s == lastAskedDomainQuestion) ||
+                        ((round == 0) && (allAskedDomainQuestion & s)))
+                    continue;
+                qDebug() << " asking:" << s;
+                lastAskedDomainQuestion = s;
+                allAskedDomainQuestion |= s;
+                queueState(s);
+                return;
+            }
+        }
+    }
+    // we should never hit this
+    Q_ASSERT(false);
 }
 
 void SimpleDialogManager::randomRecommendation()

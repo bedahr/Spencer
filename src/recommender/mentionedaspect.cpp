@@ -13,3 +13,8 @@ QString MentionedAspect::getDescription() const
 {
     return m_aspect->name();
 }
+
+bool MentionedAspect::appliesTo(const QString& id) const
+{
+    return m_aspect->id() == id;
+}
