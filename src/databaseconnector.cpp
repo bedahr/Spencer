@@ -165,7 +165,7 @@ QList<Offer*> DatabaseConnector::loadOffers(bool* okay) const
         for (std::list<mongo::BSONElement>::const_iterator i = portsElements.begin(); i != portsElements.end(); ++i) {
             ports << QString::fromStdString((*i).String());
         }
-        records.insert("ports", AttributeFactory::getInstance()->getAttribute("ports", QVariant::fromValue(ports)));
+        records.insert("ports", AttributeFactory::getInstance()->getAttribute("ports", QVariant::fromValue(ports), true));
 
         QVariantList memoryCardTypes;
         mongo::BSONObj memoryCardTypeObjects = l.getObjectField("memoryCardTypes");
