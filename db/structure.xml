@@ -68,7 +68,8 @@
       <id>processorCores</id>
       <name>Prozessorkerne</name>
       <type>
-        <symbol />
+        <number optimality="max">
+	</number>
       </type>
     </feature>
     <feature nr="61" shownByDefault="true">
@@ -256,7 +257,7 @@
       <id>warrantyType</id>
       <name>Garantieart</name>
       <type>
-        <symbol />
+        <symbol optimality="OnSite" />
       </type>
     </feature>
     <feature nr="34">
