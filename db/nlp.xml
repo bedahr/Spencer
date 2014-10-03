@@ -560,6 +560,10 @@
       <names>
       <name>viel</name>
       <name>hoch</name>
+      <name>HOHER</name>
+      <name>HOHEN</name>
+      <name>HOHES</name>
+      <name>HOHEM</name>
       </names>
       <relationship>Large</relationship>
     </modifier>
@@ -695,6 +699,14 @@
       <names>
         <name>KLEINEN</name>
         <name>KLEINE</name>
+        <name>NIEDERER</name>
+        <name>NIEDEREN</name>
+        <name>NIEDERES</name>
+        <name>NIEDEREM</name>
+        <name>NIEDRIGER</name>
+        <name>NIEDRIGES</name>
+        <name>NIEDRIGEN</name>
+        <name>NIEDRIGEM</name>
       </names>
       <relationship>Small</relationship>
     </modifier>
@@ -841,14 +853,11 @@
 	<name>PREISWERTERE</name>
         <name>PREISWERTERES</name>
         <name>PREISWERTEREN</name>
-        <name>UM ZU TEUER</name>
-        <name>UM \w+ ZU TEUER</name>
-        <name>UM \w+ \w+ ZU TEUER</name>
-        <name>UM \w+ \w+ \w+ ZU TEUER</name>
-        <name>UM \w+ \w+ \w+ \w+ ZU TEUER</name>
+        <name>UM( \w+){0,4} ZU TEUER</name>
         <name>TEUER</name>
         <name>ZU TEUEREN</name>
-	<name polarity="0.4">NICHT ZU Teuer</name>
+	<name>NICHT ZU Teuer</name>
+	<name>NICHT SO Teuer</name>
         <name polarity="0.4">ETWAS TEUER</name>
         <name>BILLIG</name>
         <name>GÜNSTIG</name>
@@ -1220,6 +1229,8 @@
     <command>
       <names>
         <name>filme</name>
+        <name>film</name>
+        <name>videos</name>
         <name>musik</name>
         <name>grafikbearbeitung</name>
         <name>fotos</name>
