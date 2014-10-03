@@ -219,8 +219,14 @@ QList<Offer*> DatabaseConnector::loadOffers(bool* okay) const
         QSharedPointer<Attribute> rating (records.take("rating").second);
 
         double speed;
-        speed = records.value("processorCores").second->value() * records.value("processorFrequency").second->value();
-        records.insert("processorSpeed", AttributeFactory::getInstance()->getAttribute("processorSpeed", speed, true));
+        speed = records.value("processorFrequency").second->value();
+        double cores = records.value("processorCores").second->value();
+        speed *= cores;
+        if (cores < 1)
+            cores = 1;
+        //qDebug() << " dedicated graphics memory: " << records.value("dedicatedGraphicsMemoryCapacity").second->value();
+        Record processorSpeedAttribute = AttributeFactory::getInstance()->getAttribute("processorSpeed", speed, true);
+        records.insert("processorSpeed", processorSpeedAttribute);
 
         QSharedPointer<Attribute> bestsellerRank(records.take("Bestseller Rank").second);
         int priorRank = INT_MAX;
@@ -238,6 +244,9 @@ QList<Offer*> DatabaseConnector::loadOffers(bool* okay) const
         availableOffers << new Offer(name, price, rating, priorRank, imageSrcs, records, extractedSentiment);
         ++products;
     }
+
+    //qDebug() << "Median processor speed: " << AttributeFactory::getInstance()->getMedianInstance("processorSpeed")->toString();
+    //qDebug() << "Median dedicated graphics memory: " << AttributeFactory::getInstance()->getMedianInstance("dedicatedGraphicsMemoryCapacity")->toString();
     qDebug() << "Total products: " << products;
     *okay = true;
     return availableOffers;
