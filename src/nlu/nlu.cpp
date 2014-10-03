@@ -8,11 +8,15 @@
 #include "domainbase/offer.h"
 #include "domainbase/attribute.h"
 #include "domainbase/attributefactory.h"
+#include <iostream>
+#include <limits>
 #include <QRegExp>
 #include <QFile>
 #include <QStringList>
 #include <QDomElement>
 #include <QDebug>
+
+//#define PRINT_NLP_CORPUS
 
 static QList<LexicalFeature> parseNames(const QDomElement& namesElem)
 {
@@ -177,6 +181,7 @@ bool NLU::setupNLP(const QString& nlpDefinition)
         commandElement = commandElement.nextSiblingElement("command");
     }
     m_acceptedTokens << new ValueToken();
+
     return true;
 }
 
@@ -204,12 +209,176 @@ bool NLU::setupAspects(const QString& path)
     return true;
 }
 
+#ifdef PRINT_NLP_CORPUS
+static QStringList getSentences(const Token *t) {
+    QStringList out;
+    foreach (const LexicalFeature& feature, t->lexicalFeatures()) {
+        QString pattern = feature.regExp.pattern();
+        pattern.replace(QRegExp("\\( \\\\w\\+\\)\\{.,.\\}"), "");
+        pattern.replace("\\b", "");
+        int sectionIdx = pattern.indexOf(QRegExp("\\(.*|.*\\)"));
+        if (sectionIdx != -1) {
+            QString prefix = pattern.left(sectionIdx);
+            int sectionCloseIdx = pattern.indexOf(')', sectionIdx + 1) ;
+            QString postfix = pattern.mid(sectionCloseIdx + 1);
+            QStringList options = pattern.mid(sectionIdx+1, sectionCloseIdx - sectionIdx - 1).split('|');
+            foreach (const QString& option, options) {
+                QString o = prefix + option + postfix;
+                out << o;
+            }
+        } else
+            out << pattern;
+    }
+    return out;
+}
+
+static QStringList expandNumbers(const QStringList& modifierList, const QStringList& attributeIds)
+{
+    QStringList out;
+
+    double min = std::numeric_limits<double>::max();
+    double max = std::numeric_limits<double>::lowest();
+    foreach (const QString& attributeId, attributeIds) {
+        QSharedPointer<Attribute> m = AttributeFactory::getInstance()->getSmallestInstance(attributeId);
+        QSharedPointer<Attribute> ma = AttributeFactory::getInstance()->getLargestInstance(attributeId);
+        if (m.isNull()) {
+            qDebug() << "Min Attribute is null: " << attributeId;
+            return modifierList;
+        }
+        if (ma.isNull()) {
+            qDebug() << "Max Attribute is null: " << attributeId;
+            return modifierList;
+        }
+        min = qMin(min, m->value());
+        max = qMax(max, ma->value());
+        //qDebug() << "min: " << min << attributeId << m-> value();
+        //qDebug() << "max: " << max << attributeId << ma-> value();
+    }
+    double range = max - min;
+    static QStringList numberInvitations(QStringList() << " WIE" << " ALS" << "MINDESTENS" << "MAXIMAL" << "ÜBER" << "UNTER" << "WENIGSTENS" << "HÖCHSTENS");
+
+    QStringList additions;
+    foreach (const QString& modifier, modifierList) {
+        foreach (const QString& inv, numberInvitations) {
+            if (modifier.endsWith(inv)) {
+                for (int i = (int) min; i < (int) ceil(max); ++i)
+                    additions << modifier + ' ' + QString::number(i);
+
+                if (range < 10) {
+                    for (int i = (int) min; i < (int) ceil(max); ++i)
+                        for (int j = 1; j <= 9; ++j)
+                            additions << modifier + ' ' + QString::number(i) + " KOMMA " + QString::number(j);
+                }
+            }
+        }
+    }
+    out << modifierList;
+    out << additions;
+    return out;
+}
+
+static QStringList cross(QList<QStringList> lists)
+{
+    int n = lists.count();
+    if (n == 0)
+        return QStringList();
+    else if (n == 1)
+        return lists[0];
+
+    // n > 1
+    QStringList head = lists.takeAt(0);
+    QStringList tail = cross(lists);
+    QStringList out;
+    foreach (const QString& left, head) {
+        foreach (const QString& right, tail) {
+            out << left + ' ' + right;
+        }
+    }
+
+    return out;
+}
+static void print(const QStringList& list)
+{
+    foreach (const QString& l, list)
+        std::cout << l.toUpper().toUtf8().constData() << std::endl;
+}
+#endif
+
 bool NLU::setupLanguage(const QString& nlpDefinition, const QString &aspectsDefinition)
 {
     qDeleteAll(m_acceptedTokens);
     m_acceptedTokens.clear();
 
-    return setupNLP(nlpDefinition) && setupAspects(aspectsDefinition);
+    bool out = setupNLP(nlpDefinition) && setupAspects(aspectsDefinition);
+    // print LM
+#ifdef PRINT_NLP_CORPUS
+    QList<const ModifierToken*> modifierTokens;
+    QList<const AttributeToken*> attributeTokens;
+    QList<const MetaModifierToken*> metaModifierTokens;
+    QList<const AspectToken*> aspectTokens;
+    QList<const CommandToken*> commandTokens;
+    foreach (const Token * t, m_acceptedTokens) {
+        const ModifierToken* modifierToken = dynamic_cast<const ModifierToken*>(t);
+        const AttributeToken* attributeToken = dynamic_cast<const AttributeToken*>(t);
+        const MetaModifierToken* metaModifierToken = dynamic_cast<const MetaModifierToken*>(t);
+        const AspectToken* aspectToken = dynamic_cast<const AspectToken*>(t);
+        const CommandToken* commandToken = dynamic_cast<const CommandToken*>(t);
+        if (modifierToken)
+            modifierTokens << modifierToken;
+        if (attributeToken)
+            attributeTokens << attributeToken;
+        if (metaModifierToken)
+            metaModifierTokens << metaModifierToken;
+        if (aspectToken)
+            aspectTokens << aspectToken;
+        if (commandToken)
+            commandTokens << commandToken;
+    }
+    // set up plain sentence fragments
+    foreach (const Token * t, m_acceptedTokens)
+        print(getSentences(t));
+
+    //combine modifiers and attributes
+    QStringList metaModifierSentences;
+    foreach (const MetaModifierToken* metaModifierToken, metaModifierTokens)
+        metaModifierSentences << getSentences(metaModifierToken);
+    foreach (const AttributeToken* attributeToken, attributeTokens) {
+        QStringList types = attributeToken->getTypes();
+        QStringList attributeSentences = getSentences(attributeToken);
+        // find modifiers that match those types
+        foreach (const ModifierToken* modifierToken, modifierTokens) {
+            bool matches = false;
+            foreach (const QString& attributeType, types) {
+                if (modifierToken->getOn().contains(attributeType)) {
+                    matches = true;
+                    break;
+                }
+            }
+            if (!matches)
+                continue;
+            QStringList modifierSentences = getSentences(modifierToken);
+            QStringList expandedModifierSentences;
+            if (types.contains("countable") || types.contains("unOpinionatedCountable"))
+                expandedModifierSentences = expandNumbers(modifierSentences, attributeToken->getTargets());
+            if (modifierToken->getBinding() & ModifierToken::Pre) {
+                print(cross(QList<QStringList>() << attributeSentences << expandedModifierSentences));
+                print(cross(QList<QStringList>() << metaModifierSentences << attributeSentences << modifierSentences));
+            }
+            if (modifierToken->getBinding() & ModifierToken::Post) {
+                print(cross(QList<QStringList>() << expandedModifierSentences << attributeSentences));
+                print(cross(QList<QStringList>() << metaModifierSentences << modifierSentences << attributeSentences));
+            }
+        }
+    }
+    //combine metamodifiers and commands
+    foreach (const CommandToken* commandToken, commandTokens) {
+        QStringList commandSentences = getSentences(commandToken);
+        print(cross(QList<QStringList>() << metaModifierSentences << commandSentences));
+    }
+#endif
+
+    // end print LM
+    return out;
 }
 
 NLU::NLU()
