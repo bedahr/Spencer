@@ -4,6 +4,13 @@
 #include <math.h>
 #include <QDebug>
 
+static float logisticScale(float in)
+{
+    in *= 6;
+    float out = -0.5 + 1 / (1 + exp(-in));
+    return 2.0 * out;
+}
+
 float Relationship::utility(const Offer& offer) const
 {
     const QSharedPointer<Attribute> offerAttribute = offer.getRecord(m_id).second;
@@ -23,32 +30,43 @@ float Relationship::utility(const Offer& offer) const
     if (m_type & Relationship::Equality) {
         // distance is non directional for equality
         double eqDistance = qAbs(attributeDistance);
-        out += (0.5 - eqDistance) * m_modifierFactor;
+        out += (0.5 - eqDistance) * 2;
     }
     if (m_type & Relationship::Inequality) {
         // distance is non directional for inequality
         double ineqDistance = qAbs(attributeDistance);
-        out += (ineqDistance - 0.5) * m_modifierFactor;
+        out += (ineqDistance - 0.5) * 2;
     }
     if (m_type & Relationship::LargerThan) {
-        out += attributeDistance * m_modifierFactor;
+        out += attributeDistance;
     }
     if (m_type & Relationship::SmallerThan) {
-        out += (-attributeDistance) * m_modifierFactor;
+        out += (-attributeDistance);
     }
 
     if ((m_type & Relationship::Small) || (m_type & Relationship::Large)) {
         QSharedPointer<Attribute> goal;
-
-        if (m_type & Relationship::Small)
-            goal = AttributeFactory::getInstance()->getSmallestInstance(m_id);
-        else
-            goal = AttributeFactory::getInstance()->getLargestInstance(m_id);
+        bool useMedian = AttributeFactory::getInstance()->supportsMedianInstance(m_id);
+        if (useMedian) {
+            goal = AttributeFactory::getInstance()->getMedianInstance(m_id);
+        } else {
+            if (m_type & Relationship::Small)
+                goal = AttributeFactory::getInstance()->getSmallestInstance(m_id);
+            else
+                goal = AttributeFactory::getInstance()->getLargestInstance(m_id);
+        }
         if (!goal.isNull()) {
             // size is defined
-            double distance = qAbs(goal->distance(*offerAttribute));
+            double distance = goal->distance(*offerAttribute);
+
+            if (useMedian) {
+                if (m_type & Relationship::Small)
+                    distance *= -1;
+                out += distance;
+            } else {
+                out += (0.5 - qAbs(distance)) * 2;
+            }
             //qDebug() << "Perfect: " << goal->toString() << " this: " << offerAttribute->toString() << " distance = " << distance << " (" << (0.5 - distance) * 2 * m_modifierFactor << ")";
-            out += (0.5 - distance) * m_modifierFactor;
         }
     }
 
@@ -63,74 +81,34 @@ float Relationship::utility(const Offer& offer) const
             goal = AttributeFactory::getInstance()->getBestInstance(m_id);
         else
             goal = AttributeFactory::getInstance()->getWorstInstance(m_id);
+
+        bool useMedian = AttributeFactory::getInstance()->supportsMedianInstance(m_id);
+        QSharedPointer<Attribute> median;
+        if (useMedian)
+            median = AttributeFactory::getInstance()->getMedianInstance(m_id);
         if (!goal.isNull()) {
             // optimality is defined
             double distance = qAbs(goal->distance(*offerAttribute));
 
-            if ((m_type & Relationship::BetterThan) || (m_type & Relationship::WorseThan)) {
-                //discount based on distance of m_attribute
-                double oldDistance = qAbs(goal->distance(*m_attribute));
-                distance -= oldDistance;
+            if ((m_type & Relationship::BetterThan) || (m_type & Relationship::WorseThan) || useMedian) {
+                //discount based on distance of m_attribute / median
+                double oldDistance;
+                if ((m_type & Relationship::BetterThan) || (m_type & Relationship::WorseThan))
+                    oldDistance = qAbs(goal->distance(*m_attribute));
+                else
+                    oldDistance = qAbs(goal->distance(*median));
+                distance = oldDistance - distance;
 
                 // rescale
                 distance *= 1 / (1 - oldDistance);
-            }
-            //qDebug() << "plain distance: " << distance << " adjusted: " << (0.5 - distance) * m_modifierFactor << " comparing: " << offerAttribute->toString() << " to " << goal->toString();
-            out += (0.5 - distance) * m_modifierFactor;
-        }
-    }
-    return out;
-#if 0
-    if (isRelative()) {
-        double distance = m_attribute->distance(*offerAttribute);
-
-        if (m_type & Relationship::Equality) {
-            if (distance < 0)
-                distance *= -1; // distance is non directional for equality
-            //qDebug() << "Got distance for" << offerAttribute->toString() << m_attribute.toString() << distance;
-            return (0.5 - distance) * m_modifierFactor;
-        }
-
-        //qDebug() << "Got distance for" << offerAttribute->toString() << m_attribute.toString() << distance;
-
-        if (m_type & Relationship::SmallerThan || (m_type & Relationship::Inequality &&
-                                                   (((distance < 0) && (m_modifierFactor > 0)) ||
-                                                    ((distance > 0) && (m_modifierFactor < 0)))
-                                                   ))
-            // re-establish > 0 as better
-            distance *= -1;
-
-        //we treat the "perfect" distance as "50 % off" to not move too quickly
-        double perfectDistance = 0.5 * m_modifierFactor;
-
-        bool violated = false;
-
-        if (perfectDistance < 0) {
-            if (distance < 0) {
-                distance *= -1;
-                perfectDistance *= -1;
             } else
-                violated = true;
+                distance = 0.5 - distance;
+            //qDebug() << "plain distance: " << distance << " adjusted: " << (0.5 - distance) * m_modifierFactor << " comparing: " << offerAttribute->toString() << " to " << goal->toString();
+            out += distance;
         }
-        if (perfectDistance > 0 && distance < 0) {
-            violated = true;
-        }
-        if (violated) {
-            distance = -fabs(distance - perfectDistance);
-        } else {
-            //both perfectDistance and distance are > 0;
-            // calculate distance smartly
-            if (distance < perfectDistance)
-                 distance = sqrt(distance / perfectDistance);
-            else
-                distance = fmax(perfectDistance - distance + 1, 0.00001);
-        }
-        //qDebug() << "Returning distance for" << offerAttribute->toString() << m_attribute.toString() << distance;
-        return distance; //fmax(-0.1, distance);
-    } else {
-        return 0.0;
     }
-#endif
+    qDebug() << toString() << " distance for offer " << offer.getName() << ": " << out;
+    return logisticScale(out) * m_modifierFactor;
 }
 
 bool Relationship::supersedes(const Relationship& other) const
@@ -158,7 +136,8 @@ bool Relationship::supersedes(const Relationship& other) const
     if (m_type & Relationship::Equality)
         return true;
 
-    if (*m_attribute == *(other.m_attribute))
+    if ((m_attribute.isNull() && other.m_attribute.isNull()) ||
+            (!m_attribute.isNull() && !other.m_attribute.isNull() && (*m_attribute == *(other.m_attribute))))
         return true;
 
     //same type, same attribute

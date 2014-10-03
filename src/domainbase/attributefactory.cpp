@@ -191,6 +191,22 @@ QSharedPointer<Attribute> AttributeFactory::getSmallestInstance(const QString& i
     return creatorInfo.second->getSmallestInstance();
 }
 
+bool AttributeFactory::supportsMedianInstance(const QString& id)
+{
+    AttributeCreatorInfo creatorInfo = getCreator(id);
+    if (!creatorInfo.second)
+        return false;
+    return creatorInfo.second->supportsMedian();
+}
+
+QSharedPointer<Attribute> AttributeFactory::getMedianInstance(const QString& id)
+{
+    AttributeCreatorInfo creatorInfo = getCreator(id);
+    if (!creatorInfo.second)
+        return QSharedPointer<Attribute>();
+    return creatorInfo.second->getMedianInstance();
+}
+
 AttributeCreatorInfo AttributeFactory::getCreator(const QString& name) const
 {
     AttributeCreatorInfo creatorInfo;
@@ -231,7 +247,7 @@ AttributeCreatorInfo AttributeFactory::getCreator(const QString& name) const
 
     if (!creatorInfo.second) {
         if (!m_creators.contains(name)) {
-            qDebug() << "Didn't create attribute for " << name;
+            //qDebug() << "Didn't create attribute for " << name;
             //qDebug() << m_creators.keys();
             return qMakePair(QString(), (AttributeCreator*) 0);
         }

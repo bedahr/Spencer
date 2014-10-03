@@ -26,6 +26,12 @@ public:
     virtual QSharedPointer<Attribute> getLargestInstance() {
         return QSharedPointer<Attribute>();
     }
+    virtual QSharedPointer<Attribute> getMedianInstance() {
+        return QSharedPointer<Attribute>();
+    }
+    virtual bool supportsMedian() const {
+        return false;
+    }
     virtual QSharedPointer<Attribute> getSmallestInstance() {
         return QSharedPointer<Attribute>();
     }
@@ -84,6 +90,9 @@ public:
             value *= m_multiplier;
 
         if (okay && inDomain) {
+            QVector<double>::iterator insertionPos = qLowerBound(m_allDomainValues.begin(), m_allDomainValues.end(), value);
+            m_allDomainValues.insert(insertionPos, value);
+
             if (m_optimality == NumericalAttribute::Min) {
                 if (value < m_bestValue)
                     m_bestValue = value;
@@ -116,6 +125,13 @@ public:
     QSharedPointer<Attribute> getSmallestInstance() {
         return getAttribute(m_bestValue < m_worstValue ? m_bestValue : m_worstValue);
     }
+    virtual QSharedPointer<Attribute> getMedianInstance() {
+        double median = m_allDomainValues[m_allDomainValues.count() / 2];
+        return getAttribute(median);
+    }
+    virtual bool supportsMedian() const {
+        return true;
+    }
 
 protected:
     QString m_format;
@@ -124,6 +140,8 @@ protected:
 
     double m_bestValue;
     double m_worstValue;
+
+    QVector<double> m_allDomainValues;
 };
 
 class StringAttributeCreator : public AttributeCreator

@@ -56,6 +56,10 @@ public:
         return m_features.first().regExp.pattern();
     }
 
+    QList<LexicalFeature> lexicalFeatures() const {
+        return m_features;
+    }
+
     QList<ObservedToken*> findIn(const QString& input) const;
 
     /**

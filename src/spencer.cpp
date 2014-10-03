@@ -53,8 +53,6 @@ bool Spencer::init()
         return false;
     if (!AspectFactory::getInstance()->parseStructure(dbPath + "sentiment.xml"))
         return false;
-    if (!m_nlu->setupLanguage(dbPath + "nlp.xml", dbPath + "synsets.hierarchical"))
-        return false;
 
     if (!m_databaseConnector->init())
         return false;
@@ -66,6 +64,9 @@ bool Spencer::init()
 
     m_recommender->setupDatabase(availableOffers);
     m_recommender->init();
+
+    if (!m_nlu->setupLanguage(dbPath + "nlp.xml", dbPath + "synsets.hierarchical"))
+        return false;
 
     m_dialogManager->init(m_recommender);
     return true;

@@ -35,6 +35,8 @@ public:
     QSharedPointer<Attribute> getWorstInstance(const QString& id);
     QSharedPointer<Attribute> getLargestInstance(const QString& id);
     QSharedPointer<Attribute> getSmallestInstance(const QString& id);
+    bool supportsMedianInstance(const QString& id);
+    QSharedPointer<Attribute> getMedianInstance(const QString& id);
 
     /// Returns the list of attribute ids; Sorted as per sorting criteria
     /// defined in the db structure
