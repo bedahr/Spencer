@@ -108,7 +108,8 @@ HEADERS += \
     src/dialogmanager/simpledialogmanager.h \
     src/recommender/recommenderitem.h \
     src/recommender/mentionedaspect.h \
-    src/recommender/appliedrecommenderitem.h
+    src/recommender/appliedrecommenderitem.h \
+    src/domainbase/collectionattribute.h
 
 
 INCLUDEPATH += ../BBSimoneShared $${BBSIMONECOMMONIPATH} src/

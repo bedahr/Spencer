@@ -109,7 +109,7 @@ void SimpleDialogManager::completeTurn()
                 continue;
             QString name = r.first;
             QSharedPointer<Attribute> attr = r.second;
-            float expressedUserInterest = recommender->userInterest(r);
+            float expressedUserInterest = recommender->userInterest(key);
 
             bool showThisAttribute = true;
 
@@ -119,14 +119,17 @@ void SimpleDialogManager::completeTurn()
 
             // 2. The user expressed interest in the attribute either directly or indirectly
             showThisAttribute |= expressedUserInterest > 0.1;
+            qDebug() << "User interest for attribute " << r.first << " (" << key << ") " << expressedUserInterest << " showing: " << showThisAttribute;
 
             if (!showThisAttribute)
                 continue;
             QString value = attr->toString();
 
             float sentiment = 0;
+            float completionFactor = recommender->completionFactor(key, *o);
+            qDebug() << "Complection factor for attribute " << r.first << completionFactor;
 
-            description << new RecommendationAttribute(name, value, expressedUserInterest, sentiment);
+            description << new RecommendationAttribute(name, value, expressedUserInterest, completionFactor, sentiment);
         }
         emit recommendation(o, o->getName(), o->getPrice(), o->getRating(), o->getImages(),
                             description, o->getUserSentiment(), explanation);

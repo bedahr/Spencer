@@ -16,19 +16,23 @@ class RecommendationAttribute : public QObject
     Q_PROPERTY(QString name READ getName)
     Q_PROPERTY(QVariant value READ getValue)
     Q_PROPERTY(float expressedUserInterest READ getExpressedUserInterest)
+    Q_PROPERTY(float completionFactor READ getCompletionFactor)
     Q_PROPERTY(float reviewSentiment READ getReviewSentiment)
 public:
-    RecommendationAttribute(const QString& name, const QVariant& value, float expressedUserInterest,
+    RecommendationAttribute(const QString& name, const QVariant& value,
+                            float expressedUserInterest, float completionFactor,
                             float reviewSentiment);
     QString getName() const { return name; }
     QVariant getValue() const { return value; }
     float getExpressedUserInterest() const { return expressedUserInterest; }
+    float getCompletionFactor() const { return completionFactor; }
     float getReviewSentiment() const { return reviewSentiment; }
 
 private:
     QString name;
     QVariant value;
     float expressedUserInterest;
+    float completionFactor;
     float reviewSentiment;
 };
 

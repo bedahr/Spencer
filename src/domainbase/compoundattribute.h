@@ -4,8 +4,9 @@
 #include <QList>
 #include <QSharedPointer>
 #include "attribute.h"
+#include "collectionattribute.h"
 
-class CompoundAttribute : public Attribute
+class CompoundAttribute : public Attribute, public CollectionAttribute
 {
 public:
     CompoundAttribute(bool internal, bool shownByDefault, const QString& separator, Relationship::Type relationships, const QList<QSharedPointer<Attribute> > children) :
@@ -24,6 +25,8 @@ public:
     Relationship::Type definedRelationships() {
         return m_supportedRelationships;
     }
+
+    QSharedPointer<Attribute> getChild(int i) const;
 
 private:
     QString m_separator;

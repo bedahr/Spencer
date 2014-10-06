@@ -76,3 +76,10 @@ QString CompoundAttribute::toString() const
 
     return out.join(m_separator);
 }
+
+QSharedPointer<Attribute> CompoundAttribute::getChild(int i) const
+{
+    if (i >= m_children.size())
+        return QSharedPointer<Attribute>();
+    return m_children[i];
+}

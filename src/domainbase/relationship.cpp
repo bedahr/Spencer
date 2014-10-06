@@ -2,6 +2,7 @@
 #include "attributefactory.h"
 #include "offer.h"
 #include <math.h>
+#include <limits>
 #include <QDebug>
 
 static float logisticScale(float in)
@@ -11,17 +12,8 @@ static float logisticScale(float in)
     return 2.0 * out;
 }
 
-float Relationship::utility(const Offer& offer) const
+float Relationship::utility(const Offer& offer, const QString& id, const QSharedPointer<Attribute> &offerAttribute) const
 {
-    const QSharedPointer<Attribute> offerAttribute = offer.getRecord(m_id).second;
-    if (offerAttribute.isNull()) {
-        // doesn't even have this attribute
-        if (m_type == Relationship::IsFalse)
-            return false;
-
-        return 0.0f;
-    }
-
     float out = 0.0f;
     double attributeDistance = -10;
     if (!m_attribute.isNull())
@@ -46,14 +38,14 @@ float Relationship::utility(const Offer& offer) const
 
     if ((m_type & Relationship::Small) || (m_type & Relationship::Large)) {
         QSharedPointer<Attribute> goal;
-        bool useMedian = AttributeFactory::getInstance()->supportsMedianInstance(m_id);
+        bool useMedian = AttributeFactory::getInstance()->supportsMedianInstance(id);
         if (useMedian) {
-            goal = AttributeFactory::getInstance()->getMedianInstance(m_id);
+            goal = AttributeFactory::getInstance()->getMedianInstance(id);
         } else {
             if (m_type & Relationship::Small)
-                goal = AttributeFactory::getInstance()->getSmallestInstance(m_id);
+                goal = AttributeFactory::getInstance()->getSmallestInstance(id);
             else
-                goal = AttributeFactory::getInstance()->getLargestInstance(m_id);
+                goal = AttributeFactory::getInstance()->getLargestInstance(id);
         }
         if (!goal.isNull()) {
             // size is defined
@@ -78,14 +70,14 @@ float Relationship::utility(const Offer& offer) const
             (m_type & Relationship::BetterThan) || (m_type & Relationship::WorseThan)) {
         QSharedPointer<Attribute> goal;
         if ((m_type & Relationship::Good) || (m_type & Relationship::BetterThan))
-            goal = AttributeFactory::getInstance()->getBestInstance(m_id);
+            goal = AttributeFactory::getInstance()->getBestInstance(id);
         else
-            goal = AttributeFactory::getInstance()->getWorstInstance(m_id);
+            goal = AttributeFactory::getInstance()->getWorstInstance(id);
 
-        bool useMedian = AttributeFactory::getInstance()->supportsMedianInstance(m_id);
+        bool useMedian = AttributeFactory::getInstance()->supportsMedianInstance(id);
         QSharedPointer<Attribute> median;
         if (useMedian)
-            median = AttributeFactory::getInstance()->getMedianInstance(m_id);
+            median = AttributeFactory::getInstance()->getMedianInstance(id);
         if (!goal.isNull()) {
             // optimality is defined
             double distance = qAbs(goal->distance(*offerAttribute));
@@ -109,6 +101,61 @@ float Relationship::utility(const Offer& offer) const
     }
     qDebug() << toString() << " distance for offer " << offer.getName() << ": " << out;
     return logisticScale(out) * m_modifierFactor;
+}
+
+QList<QSharedPointer<Attribute> > getAttributes(const Offer& offer, const QString& id)
+{
+    QList<QSharedPointer<Attribute> > out;
+    int squareBracketIdx = id.indexOf("[_]");
+    if (squareBracketIdx != -1) {
+        int i = 0;
+        QList<QSharedPointer<Attribute> > child;
+        forever {
+            child = getAttributes(offer, QString(id).replace(
+                                      squareBracketIdx, 3, QString("[%1]").arg(i)));
+            if (!child.isEmpty()) {
+                out << child;
+            } else {
+                break;
+            }
+            ++i;
+        }
+    } else {
+        const QSharedPointer<Attribute> offerAttribute = offer.getRecord(id).second;
+        if (offerAttribute)
+            out << offerAttribute;
+    }
+    return out;
+}
+
+/**
+ * Call getAttributes to retrieve offer attribute(s), calls the utility function for each of them
+ * and returns either the max of those or 0 (or 1 in case the type is IsFalse) if we don't find
+ * any offer attributes
+ */
+float Relationship::utility(const Offer& offer) const
+{
+    float out;
+    QList<QSharedPointer<Attribute> > offerAttributes = getAttributes(offer, m_id);
+    //qDebug() << "Getting offer record of id " << m_id;
+    if (offerAttributes.isEmpty()) {
+        //qDebug() << " and it's null";
+        // doesn't even have this attribute
+        if (m_type == Relationship::IsFalse)
+            out = logisticScale(1.0f) * m_modifierFactor;
+        else
+            out = 0.0f;
+    } else {
+        float maxUtility = std::numeric_limits<float>::lowest();
+        foreach (const QSharedPointer<Attribute>& offerAttribute, offerAttributes) {
+            //qDebug() << " and it's " << offerAttribute->toString();
+            float thisUtility = utility(offer, m_id, offerAttribute);
+            if (thisUtility > maxUtility)
+                maxUtility = thisUtility;
+        }
+        out = maxUtility;
+    }
+    return out;
 }
 
 bool Relationship::supersedes(const Relationship& other) const

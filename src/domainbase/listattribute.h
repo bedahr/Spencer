@@ -4,8 +4,9 @@
 #include <QList>
 #include <QSharedPointer>
 #include "attribute.h"
+#include "collectionattribute.h"
 
-class ListAttribute : public Attribute
+class ListAttribute : public Attribute, public CollectionAttribute
 {
 public:
     ListAttribute(bool internal, bool shownByDefault, const QList<QSharedPointer<Attribute> > children) :
@@ -24,6 +25,8 @@ public:
     Relationship::Type definedRelationships() {
         return Relationship::Equality|Relationship::Inequality|Relationship::LargerThan|Relationship::SmallerThan;
     }
+
+    QSharedPointer<Attribute> getChild(int i) const;
 
 private:
     QList<QSharedPointer<Attribute> > m_children;

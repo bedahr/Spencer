@@ -82,6 +82,8 @@ protected:
     /// < 0 means we want to invert the result (example modifier: "not")
     double m_modifierFactor;
     bool isRelative() const;
+
+    float utility(const Offer& offer, const QString &id, const QSharedPointer<Attribute>& offerAttribute) const;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Relationship::Type)

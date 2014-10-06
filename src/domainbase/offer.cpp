@@ -1,4 +1,5 @@
 #include "offer.h"
+#include "collectionattribute.h"
 #include <QObject>
 
 static const QString nameId = QObject::tr("name");
@@ -40,10 +41,35 @@ Record Offer::getRecord(const QString& id) const
     if (id == ratingId)
         return Record(ratingName, m_rating);
 
-    if (m_records.contains(id))
-        return m_records.value(id);
+    Record fail = Record(QString(), QSharedPointer<Attribute>());
+    //decode: foo[0][1]
+    if (id.contains('[')) {
+        int idxIdx;
+        idxIdx = id.indexOf('[');
+        QString plainAttributeName = id.left(idxIdx);
+        QSharedPointer<Attribute> attr = m_records.value(plainAttributeName).second;
+        do {
+            QSharedPointer<CollectionAttribute> cAttr = attr.dynamicCast<CollectionAttribute>();
+            if (!cAttr) {
+                //qWarning() << "Not a collection attribute: " << id << " at index " << idxIdx << plainAttributeName;
+                return fail;
+            }
+            // access by index
+            bool indexExtractionOkay = true;
+            QString idxString = id.mid(idxIdx + 1, id.indexOf(']', idxIdx) - idxIdx - 1);
+            int idx = idxString.toInt(&indexExtractionOkay);
+            if (!indexExtractionOkay) {
+                qWarning() << "Index extraction failed for " << idx << idxString;
+                return fail;
+            }
+            attr = cAttr->getChild(idx);
+        } while((idxIdx = id.indexOf('[', idxIdx + 1)) != -1);
+        return Record(id /* best name substitute we have */, attr);
+    } else
+        if (m_records.contains(id))
+            return m_records.value(id);
 
-    return Record(QString(), QSharedPointer<Attribute>());
+    return fail;
 }
 
 float Offer::priorPropability() const
