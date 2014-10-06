@@ -445,7 +445,17 @@
     <attribute type="countable">
       <actOn>ports[_]</actOn>
       <names>
-        <name>(USB 3|USB 2|USB|Gigabit LAN|LAN|Thunderbolt|Firewire|Express Card|Smart Card|PCMCIA|ESATA|Micro HDMI|Mini HDMI|Mini DisplayPort|HDMI|DisplayPort|Mini VGA|VGA|DVI)</name>
+        <name value="USB3">USB 3</name>
+        <name value="USB2">USB 2</name>
+        <name value="USB3">USB</name>
+        <name value="Lan1000M">LAN</name>
+        <name value="ExpressCard54">Express Card</name>
+        <name value="SmartCard">Smart Card</name>
+        <name value="MicroHDMI">Micro HDMI</name>
+        <name value="MiniHDMI">Mini HDMI</name>
+        <name value="MiniDisplayPort">Mini DisplayPort</name>
+        <name value="MiniVGA">Mini VGA</name>
+        <name>(Thunderbolt|Firewire|PCMCIA|ESATA|HDMI|DisplayPort|VGA|DVI)</name>
       </names>
     </attribute>
 
@@ -699,6 +709,7 @@
       <names>
         <name>KLEINEN</name>
         <name>KLEINE</name>
+        <name>WENIG</name>
         <name>NIEDERER</name>
         <name>NIEDEREN</name>
         <name>NIEDERES</name>
