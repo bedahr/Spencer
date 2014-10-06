@@ -209,5 +209,5 @@ QString Relationship::toString() const
 
 bool Relationship::appliesTo(const QString& id) const
 {
-    return id == m_id;
+    return id.left(id.indexOf('[')) == m_id.left(m_id.indexOf('['));
 }

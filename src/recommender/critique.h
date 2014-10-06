@@ -37,7 +37,6 @@ public:
     void clearSuperseding() { m_supersededCritiques.clear(); }
 
     /// Returns true iff the critique makes a statement about the given record
-    bool appliesTo(const Record& record) const;
     bool appliesTo(const QString& id) const;
 
 private:

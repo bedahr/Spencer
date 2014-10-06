@@ -21,7 +21,20 @@ Item {
 
     property alias key : label.text
     property alias value : val.text
-
+    property double userInterest : 0
+    property double completionFactor : 0
+/*
+    onCompletionValueChanged: {
+        if (userInterest < 0.05) {
+            val.color = "black"
+        } else {
+            // -1 = 0 is red, 1 = 120 is green
+            val.color = Qt.hsla(60 + completionValue * 60, 100, 85)
+            //if (completionValue < 0) {
+            //}
+        }
+    }
+*/
     Text {
         id: label
         anchors.top: parent.top
@@ -29,6 +42,7 @@ Item {
         anchors.left: parent.left
         width: 160
         font.pixelSize: 18
+        font.weight: Math.round(userInterest * 50 + 25)
         horizontalAlignment: Text.AlignRight
         wrapMode : Text.WordWrap
     }
@@ -38,6 +52,8 @@ Item {
         width: parent.width - 180
         wrapMode : Text.WordWrap
         font.pixelSize: 18
+        font.weight: label.font.weight
+        color: Qt.hsla(0.166666 + completionFactor * 0.166666, userInterest, 0.25) //(userInterest < 0.05) ? "black" : val.color = Qt.hsla(0.166666 + completionValue * 0.166666, 1, 0.85)
     }
 }
 

@@ -27,16 +27,32 @@ void CritiqueRecommender::init()
     m_aspects.clear();
 }
 
-
-double CritiqueRecommender::userInterest(const Record& record) const
+double CritiqueRecommender::userInterest(const QString& id) const
 {
-    double userInterest = 0;
+    float userInterest = 0;
+    foreach (Critique* c, m_critiques)
+        if (c->appliesTo(id))
+            userInterest = qMax(c->influence(), userInterest);
+    return userInterest;
+}
+
+static float bound(float in) {
+    return qMin(1.0f, qMax(-1.0f, in));
+}
+
+double CritiqueRecommender::completionFactor(const QString& attributeId,
+                        const Offer& offer) const
+{
+    double completionFactor = 0;
+    int count = 0;
     foreach (Critique* c, m_critiques) {
-        if (c->appliesTo(record)) {
-            userInterest += c->influence();
+        if (c->appliesTo(attributeId)) {
+            float utility = c->utility(offer);
+            completionFactor += bound(utility);
+            ++count;
         }
     }
-    return userInterest;
+    return (count > 0) ? completionFactor / count : 0;
 }
 
 bool CritiqueRecommender::critique(Critique* critique)
@@ -195,6 +211,8 @@ Recommendation* CritiqueRecommender::suggestOffer()
             thisExplanations << ari;
             thisUtility += ari.utility();
         }
+        qDebug() << "Offer rating: " << o->getRating();
+        thisUtility += o->getRating() / 20.0;
         // introduce similarity
         if (m_lastRecommendation) {
             double productDistance = 0;
@@ -213,7 +231,6 @@ Recommendation* CritiqueRecommender::suggestOffer()
             double normalizedProductDistance = (productDistance / r.count()) * 2;
             thisUtility -= normalizedProductDistance;
         }
-
 
         //qDebug() << "Offer " << o->getName() << thisUtility;
         utilitiesOfConsideredProducts << thisUtility;

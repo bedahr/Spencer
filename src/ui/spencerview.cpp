@@ -87,6 +87,8 @@ void SpencerView::displayRecommendation(const QString& offerName, double price, 
                                            graphicsMemoryAttribute ? graphicsMemoryAttribute->getExpressedUserInterest() : 0);
         float reviewSentiment =  (graphicsTypeAttribute->getReviewSentiment() +
                                   graphicsModelAttribute->getReviewSentiment()) / 2;
+        float completionFactor =  (graphicsTypeAttribute->getCompletionFactor() +
+                                  graphicsModelAttribute->getCompletionFactor()) / 2;
 
         QString value = graphicsMemoryAttribute ? "%1 %2 (%3)" : "%1 %2";
         value = value.arg(graphicsTypeAttribute->getValue().toString())
@@ -97,7 +99,8 @@ void SpencerView::displayRecommendation(const QString& offerName, double price, 
         }
 
         sanitizedOffer.insert(0, new RecommendationAttribute(QObject::tr("Grafikkarte"),
-                                                         value, expressedUserInterest, reviewSentiment));
+                                                             value, expressedUserInterest,
+                                                             completionFactor, reviewSentiment));
         delete graphicsTypeAttribute;
         delete graphicsModelAttribute;
         delete graphicsMemoryAttribute;
@@ -115,6 +118,9 @@ void SpencerView::displayRecommendation(const QString& offerName, double price, 
         float reviewSentiment =  (processorTypeAttribute->getReviewSentiment() +
                                   processorNameAttribute->getReviewSentiment()+
                                   processorFrequencyAttribute->getReviewSentiment()) / 3;
+        float completionFactor =  (processorTypeAttribute->getCompletionFactor() +
+                                  processorNameAttribute->getCompletionFactor()+
+                                  processorFrequencyAttribute->getCompletionFactor()) / 3;
 
         QString coreInformation = (processorCoresAttribute) ? QString("%1x").arg(processorCoresAttribute->getValue().toString()) : "1x";
         sanitizedOffer.insert(0, new RecommendationAttribute(QObject::tr("Prozessor"),
@@ -123,6 +129,7 @@ void SpencerView::displayRecommendation(const QString& offerName, double price, 
                                                                                .arg(coreInformation)
                                                                                .arg(processorFrequencyAttribute->getValue().toString()),
                                                           expressedUserInterest,
+                                                          completionFactor,
                                                           reviewSentiment));
         delete processorTypeAttribute;
         delete processorNameAttribute;
@@ -140,12 +147,16 @@ void SpencerView::displayRecommendation(const QString& offerName, double price, 
         float reviewSentiment =  (screenSizeAttribute->getReviewSentiment() +
                                   screenSizeHResolutionAttribute->getReviewSentiment()+
                                   screenSizeVResolutionAttribute->getReviewSentiment()) / 3;
+        float completionFactor =  (screenSizeAttribute->getCompletionFactor() +
+                                  screenSizeHResolutionAttribute->getCompletionFactor()+
+                                  screenSizeVResolutionAttribute->getCompletionFactor()) / 3;
 
         sanitizedOffer.insert(0, new RecommendationAttribute(QObject::tr("Bildschirm"),
                                                           QString("%1 (%2x%3)").arg(screenSizeAttribute->getValue().toString())
                                                                                .arg(screenSizeHResolutionAttribute->getValue().toString())
                                                                                .arg(screenSizeVResolutionAttribute->getValue().toString()),
                                                           expressedUserInterest,
+                                                          completionFactor,
                                                           reviewSentiment));
         delete screenSizeAttribute;
         delete screenSizeHResolutionAttribute;

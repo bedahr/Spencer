@@ -18,7 +18,7 @@ public:
 
     /// Uses the user model to determine the expected user interest in
     /// a given attribute
-    double userInterest(const Record& record) const;
+    double userInterest(const QString &id) const;
 
     /// Returns a value between 0 and 1 telling us how much the current
     /// user model already constricts the search space (1 meaning that
@@ -36,6 +36,13 @@ public:
     /// and aspects.
     double assertUsefulness(const QStringList& attributeIds,
                             const QStringList& aspectIds) const;
+
+    /// Returns a value between -1 and 1 telling us how well this
+    /// attribute matches the user demands based on our user model
+    /// (-1 means not at all, 1 means perfectly, 0 is average /
+    /// user model makes no statement about this attribute)
+    double completionFactor(const QString& attributeId,
+                            const Offer& offer) const;
 
 public slots:
     /// Sets the product database to the given list of offers

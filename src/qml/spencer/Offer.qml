@@ -131,7 +131,9 @@ Item {
         for (var i = 0; i < data.length; ++i) {
             AttrDisplay.createDetails(
                                     i < Math.ceil(data.length / 2) ? coDetails1 : coDetails2,
-                                                                     data[i].name, data[i].value)
+                                                                     data[i].name, data[i].value,
+                                                                     data[i].expressedUserInterest,
+                                                                     data[i].completionFactor)
         }
         var pos_sentiment = []
         var neg_sentiment = []

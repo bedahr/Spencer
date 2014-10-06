@@ -21,10 +21,6 @@ bool Critique::supersedes(const Critique& other) const
     return ret;
 }
 
-bool Critique::appliesTo(const Record& record) const
-{
-    return appliesTo(record.first);
-}
 bool Critique::appliesTo(const QString& id) const
 {
     return m_relationship->appliesTo(id);

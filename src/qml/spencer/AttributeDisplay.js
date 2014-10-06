@@ -1,8 +1,10 @@
 
-function createDetails(parent, attributeName, attributeValue) {
+function createDetails(parent, attributeName, attributeValue, userInterest, completionFactor) {
 
     var component = Qt.createComponent("AttributeDelegate.qml");
-    var sprite = component.createObject(parent, { key : attributeName, value : attributeValue});
+    console.log("attribute: " + attributeName + " userInterest: " + userInterest + " completionFactor: " + completionFactor)
+    var sprite = component.createObject(parent, { key : attributeName, value : attributeValue,
+                                                  userInterest : userInterest, completionFactor: completionFactor});
 
     if (sprite == null) {
         // Error Handling
