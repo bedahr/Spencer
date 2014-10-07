@@ -92,7 +92,7 @@ float Relationship::utility(const Offer& offer, const QString& id, const QShared
                 distance = oldDistance - distance;
 
                 // rescale
-                distance *= 1 / (1 - oldDistance);
+                distance *= (oldDistance < 1) ? (1 / (1 - oldDistance)) : 1;
             } else
                 distance = 0.5 - distance;
             //qDebug() << "plain distance: " << distance << " adjusted: " << (0.5 - distance) * m_modifierFactor << " comparing: " << offerAttribute->toString() << " to " << goal->toString();
