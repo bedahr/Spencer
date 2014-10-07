@@ -77,6 +77,7 @@ bool CritiqueRecommender::critique(Critique* critique)
         if (critique->supersedes(**i)) {
             qDebug() << "deleting";
             Critique *c = *i;
+            m_userModel.removeAll(c);
             i = m_critiques.erase(i);
             if (c->getAge() == -1)
                 delete c; //added in this round
