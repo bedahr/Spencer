@@ -124,7 +124,8 @@ void CritiqueRecommender::undo()
                 }
                 c->clearSuperseding();
                 m_critiques.removeAll(c);
-            }
+            } else
+                m_aspects.removeAll(static_cast<MentionedAspect*>(r));
 
             delete r;
         } else {
@@ -140,6 +141,8 @@ void CritiqueRecommender::feedbackCycleComplete()
     while (i != m_userModel.end()) {
         if ((*i)->age() == 0) {
             RecommenderItem *c = *i;
+            m_critiques.removeAll(static_cast<Critique*>(c));
+            m_aspects.removeAll(static_cast<MentionedAspect*>(c));
             i = m_userModel.erase(i);
             delete c;
         } else
@@ -151,17 +154,24 @@ QList<Offer*> CritiqueRecommender::limitOffers(const QList<Critique*> constraint
                                                QList<Offer*> products, LimitBehavior limitBehavior) const
 {
     QList<Offer*> consideredProducts;
-    if (limitBehavior == MatchAll) {
-        consideredProducts << products;
-    }
-    foreach (Critique *c, constraints) {
-        foreach (Offer* o, products) {
-            if (c->utility(*o) >= 0) {
-                if (limitBehavior == MatchAny)
-                    consideredProducts << o;
-            } else {
-                if (limitBehavior == MatchAll)
-                    consideredProducts.removeAll(o);
+
+    //first pass, only consider products with utility > 0
+    // if we don't find any, consider products with utility >= 0 for the second pass.
+    for (int round = 0; (round < 2) && consideredProducts.empty(); ++round) {
+        consideredProducts.clear();
+        if (limitBehavior == MatchAll) {
+            consideredProducts << products;
+        }
+        foreach (Critique *c, constraints) {
+            foreach (Offer* o, products) {
+                if ((round == 0 && c->utility(*o) > 0) ||
+                        (round == 1 && c->utility(*o) >= 0)) {
+                    if (limitBehavior == MatchAny)
+                        consideredProducts << o;
+                } else {
+                    if (limitBehavior == MatchAll)
+                        consideredProducts.removeAll(o);
+                }
             }
         }
     }
