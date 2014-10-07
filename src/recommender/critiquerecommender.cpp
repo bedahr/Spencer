@@ -156,7 +156,7 @@ QList<Offer*> CritiqueRecommender::limitOffers(const QList<Critique*> constraint
     }
     foreach (Critique *c, constraints) {
         foreach (Offer* o, products) {
-            if (c->utility(*o) > 0) {
+            if (c->utility(*o) >= 0) {
                 if (limitBehavior == MatchAny)
                     consideredProducts << o;
             } else {
