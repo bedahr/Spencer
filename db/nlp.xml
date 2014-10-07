@@ -747,6 +747,7 @@
         <name>gescheit</name>
         <name>herausragend</name>
         <name>gut</name>
+        <name>cool</name>
       </names>
       <relationship>Good</relationship>
     </modifier>
