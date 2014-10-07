@@ -149,7 +149,7 @@ QList<Offer*> DatabaseConnector::loadOffers(bool* okay) const
         for (std::list<mongo::BSONElement>::const_iterator i = opticalDrivesElements.begin(); i != opticalDrivesElements.end(); ++i) {
             opticalDrives << QString::fromStdString((*i).String());
         }
-        records.insert("opticalMediaTypse", AttributeFactory::getInstance()->getAttribute("opticalMediaTypes", QVariant::fromValue(opticalDrives), true));
+        records.insert("opticalMediaTypes", AttributeFactory::getInstance()->getAttribute("opticalMediaTypes", QVariant::fromValue(opticalDrives), true));
 
         QVariantList connectivity;
         mongo::BSONObj connectivityObjects = l.getObjectField("connectivity");
@@ -227,8 +227,8 @@ QList<Offer*> DatabaseConnector::loadOffers(bool* okay) const
                 qWarning() << "Skipping unknown aspect: " << key;
         }
         QSharedPointer<Attribute> name (new StringAttribute(true, false, QString("%1 %2").arg(
-                                                                records.take("manufacturer").second->toString()).arg(
-                                                                records.take("model").second->toString())));
+                                                                records.value("manufacturer").second->toString()).arg(
+                                                                records.value("model").second->toString())));
         QSharedPointer<Attribute> price (records.take("price").second);
         QSharedPointer<Attribute> rating (records.take("rating").second);
 
