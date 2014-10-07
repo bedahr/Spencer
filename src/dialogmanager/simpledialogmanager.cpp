@@ -126,7 +126,7 @@ void SimpleDialogManager::completeTurn()
 {
     qDebug() << "Completing turn";
 
-    if (acceptedStatementsOfThisTurn == 0) {
+    if (state != DialogStrategy::InitState && acceptedStatementsOfThisTurn == 0) {
         //qDebug() << "Misunderstanding counter: " << consecutiveMisunderstandingCounter;
         ++consecutiveMisunderstandingCounter;
         ++absoluteMisunderstandingCounter;
