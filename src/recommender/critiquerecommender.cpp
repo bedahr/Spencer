@@ -216,7 +216,7 @@ Recommendation* CritiqueRecommender::suggestOffer()
         // introduce similarity
         if (m_lastRecommendation) {
             double normalizedProductDistance = o->productDistance(m_lastRecommendation->getId());
-            normalizedProductDistance *= 2;
+            //normalizedProductDistance *= 2;
             thisUtility -= normalizedProductDistance;
         }
 
