@@ -29,6 +29,7 @@ bool UsecaseStatement::act(DialogStrategy::DialogState state, DialogManager *dm,
         subStatements << new ConstraintStatement(new Relationship("warrantyType", Relationship::Good), m_lexicalPolarity, m_quality, m_importance * 0.3);
         subStatements << new ConstraintStatement(new Relationship("warrantyDuration", Relationship::Large), m_lexicalPolarity, m_quality, m_importance * 0.5);
         subStatements << new ConstraintStatement(new Relationship("averageRuntimeOnBattery", Relationship::Large), m_lexicalPolarity, m_quality, m_importance * 0.5);
+        subStatements << new ConstraintStatement(new Relationship("weight", Relationship::Small), m_lexicalPolarity, m_quality, m_importance * 0.3);
         subStatements << new ConstraintStatement(new Relationship("price", Relationship::Small), m_lexicalPolarity, m_quality, m_importance * 0.5);
         subStatements << new AspectStatement(AspectFactory::getInstance()->getAspect("Input Devices"), m_lexicalPolarity, m_quality, m_importance);
         subStatements << new AspectStatement(AspectFactory::getInstance()->getAspect("Support"), m_lexicalPolarity, m_quality, m_importance);
