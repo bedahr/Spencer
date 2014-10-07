@@ -43,6 +43,7 @@ public:
     virtual QString getDescription() const = 0;
 private:
     int m_ttl;
+protected:
     float m_baseInfluence;
 };
 
