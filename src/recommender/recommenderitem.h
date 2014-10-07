@@ -36,9 +36,6 @@ public:
     /// returns the current age
     int getAge() const;
 
-    /// returns the base influence
-    bool getIsInternal() const { return m_baseInfluence < 0.5; }
-
     /// returns a description of the constraints entailed in this critique
     virtual QString getDescription() const = 0;
 private:

@@ -16,7 +16,7 @@ bool ConstraintStatement::act(DialogStrategy::DialogState state, DialogManager *
 {
     Q_UNUSED(state);
     Q_UNUSED(currentOffer);
-    Critique *c = new Critique(m_relationship);
+    Critique *c = new Critique(m_relationship, effect());
     return dm->constrain(c);
 }
 

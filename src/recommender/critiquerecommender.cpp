@@ -32,7 +32,7 @@ double CritiqueRecommender::userInterest(const QString& id) const
     float userInterest = 0;
     foreach (Critique* c, m_critiques)
         if (c->appliesTo(id))
-            userInterest = qMax(c->influence(), userInterest);
+            userInterest = qMax(qAbs(c->influence()), userInterest);
     return userInterest;
 }
 
@@ -61,7 +61,8 @@ bool CritiqueRecommender::critique(Critique* critique)
 
     bool matchFound = false;
     foreach (const Offer* o, m_offers) {
-        if (critique->utility(*o) > 0) {
+        float u = critique->utility(*o);
+        if (u >= 0) {
             matchFound = true;
             break;
         }
@@ -154,8 +155,6 @@ QList<Offer*> CritiqueRecommender::limitOffers(const QList<Critique*> constraint
         consideredProducts << products;
     }
     foreach (Critique *c, constraints) {
-        if (c->getIsInternal())
-            continue;
         foreach (Offer* o, products) {
             if (c->utility(*o) > 0) {
                 if (limitBehavior == MatchAny)
@@ -176,7 +175,7 @@ Recommendation* CritiqueRecommender::suggestOffer()
 
     // apply m_critiques to m_offers to find best offer
     const Offer* bestOffer = 0;
-    float bestUtility = std::numeric_limits<float>::min();
+    float bestUtility = std::numeric_limits<float>::lowest();
     QList<AppliedRecommenderItem> bestOfferExplanations;
 
     //qDebug() << "Complete db: ";
@@ -190,8 +189,6 @@ Recommendation* CritiqueRecommender::suggestOffer()
     QList<Critique*> lastAddedCritiques;
     for (int i = m_critiques.count() - 1; (i >= 0) && (m_critiques[i]->getAge() <= currentAge); --i) {
         Critique *c = m_critiques[i];
-        if (c->getIsInternal())
-            continue;
         currentAge = c->getAge();
         lastAddedCritiques << c;
     }
@@ -270,13 +267,13 @@ double CritiqueRecommender::assertUsefulness(const QStringList& attributeIds,
     foreach (const QString& attribute, attributeIds) {
         foreach (Critique *c, m_critiques) {
             if (c->appliesTo(attribute))
-                usefulness -= (factor * c->influence());
+                usefulness -= (factor * qAbs(c->influence()));
         }
     }
     foreach (const QString& aspect, aspectIds) {
         foreach (MentionedAspect *m, m_aspects) {
             if (m->appliesTo(aspect))
-                usefulness -= (factor * m->influence());
+                usefulness -= (factor * qAbs(m->influence()));
         }
     }
     return usefulness;
