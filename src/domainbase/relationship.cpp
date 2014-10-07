@@ -99,7 +99,7 @@ float Relationship::utility(const Offer& offer, const QString& id, const QShared
             out += distance;
         }
     }
-    qDebug() << toString() << " distance for offer " << offer.getName() << ": " << out;
+    //qDebug() << toString() << " distance for offer " << offer.getName() << ": " << out;
     return logisticScale(out) * m_modifierFactor;
 }
 

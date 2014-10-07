@@ -211,7 +211,6 @@ Recommendation* CritiqueRecommender::suggestOffer()
             thisExplanations << ari;
             thisUtility += ari.utility();
         }
-        qDebug() << "Offer rating: " << o->getRating();
         thisUtility += o->getRating() / 20.0;
         // introduce similarity
         if (m_lastRecommendation) {
