@@ -1,6 +1,7 @@
 #include "offer.h"
 #include "collectionattribute.h"
 #include <QObject>
+#include <cassert>
 
 static const QString nameId = QObject::tr("name");
 static const QString nameName = QObject::tr("Name");
@@ -13,10 +14,12 @@ int Offer::maxRank = 0;
 Offer::Offer(QSharedPointer<Attribute> name, QSharedPointer<Attribute> price,
              QSharedPointer<Attribute> rating,
              int priorRank, const QStringList &images,
-             const RecordMap records, const SentimentMap &userSentiment) :
+             const RecordMap records, const SentimentMap &userSentiment,
+             const QHash<QString, double> productDistances) :
     m_name(name), m_price(price), m_rating(rating),
     m_priorRank(priorRank), m_images(images), m_records(records),
-    m_userSentiment(userSentiment)
+    m_userSentiment(userSentiment),
+    m_productDistances(productDistances)
 {
     maxRank = (maxRank > m_priorRank) ? maxRank : m_priorRank;
 }
@@ -28,7 +31,6 @@ Offer::~Offer()
 QString Offer::getName() const
 {
     return m_name->toString();
-    return static_cast<StringAttribute*>(m_name.data())->toString();
 }
 Record Offer::getRecord(const QString& id) const
 {
@@ -72,7 +74,19 @@ Record Offer::getRecord(const QString& id) const
     return fail;
 }
 
+QString Offer::getId() const
+{
+    QSharedPointer<Attribute> idAttr = getRecord("_id").second;
+    assert(idAttr);
+    return idAttr->toString();
+}
+
 float Offer::priorPropability() const
 {
     return (maxRank - m_priorRank) / ((float) maxRank);
+}
+
+double Offer::productDistance(const QString& otherId) const
+{
+    return m_productDistances.value(QString(otherId).replace('.', '-'), 0.0);
 }

@@ -22,19 +22,23 @@ public:
           QSharedPointer<Attribute> rating,
           int priorRank, const QStringList &images,
           const RecordMap records,
-          const SentimentMap& userSentiment);
+          const SentimentMap& userSentiment,
+          const QHash<QString, double> productDistances);
     ~Offer();
 
     /// returns an attribute record or an invalid one if there is no such attribute
     Record getRecord(const QString& id) const;
 
     QString getName() const;
+    QString getId() const;
     double getRating() const { return static_cast<NumericalAttribute*>(m_rating.data())->getValue(); }
     double getPrice() const { return static_cast<NumericalAttribute*>(m_price.data())->getValue(); }
     QStringList getImages() const { return m_images; }
     float priorPropability() const;
     RecordMap getRecords() const { return m_records; }
     SentimentMap getUserSentiment() const { return m_userSentiment; }
+
+    double productDistance(const QString& otherId) const;
 
 private:
     /// User visible name of the offer (product)
@@ -58,6 +62,10 @@ private:
 
     /// user sentiment
     SentimentMap m_userSentiment;
+
+    /// Contains a distance metric from this product to all other products in the casebase
+    /// The lower this value, the more similar the products are.
+    QHash<QString, double> m_productDistances;
 
     static int maxRank;
 };

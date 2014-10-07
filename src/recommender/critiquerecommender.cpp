@@ -215,20 +215,8 @@ Recommendation* CritiqueRecommender::suggestOffer()
         thisUtility += o->getRating() / 20.0;
         // introduce similarity
         if (m_lastRecommendation) {
-            double productDistance = 0;
-            const RecordMap& r = m_lastRecommendation->getRecords();
-            for (RecordMap::const_iterator i = r.begin(); i != r.end(); ++i) {
-                QString fieldId = i.key();
-                Record offerRecord = o->getRecord(fieldId);
-                if (offerRecord.first.isNull()) {
-                    productDistance += 0.1;
-                    continue;
-                }
-
-                double thisAttributeDistance = qAbs(offerRecord.second->distance(*(i.value().second)));
-                productDistance += thisAttributeDistance;
-            }
-            double normalizedProductDistance = (productDistance / r.count()) * 2;
+            double normalizedProductDistance = o->productDistance(m_lastRecommendation->getId());
+            normalizedProductDistance *= 2;
             thisUtility -= normalizedProductDistance;
         }
 

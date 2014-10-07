@@ -8,6 +8,8 @@
 #include "mongo/client/dbclient.h"
 #include "mongo/client/dbclientcursor.h"
 
+//#define BUILD_SIMILARITY_CACHE
+
 DatabaseConnector::DatabaseConnector() : c(new mongo::DBClientConnection)
 {
 }
@@ -187,6 +189,18 @@ QList<Offer*> DatabaseConnector::loadOffers(bool* okay) const
             int rating = reviewObject.getIntField("rating");
         }*/
 
+        mongo::BSONObj distanceObjects = l.getObjectField("distance");
+
+        mongo::BSONObjIterator distanceFieldIteror(distanceObjects);
+        QHash<QString, double> productDistances;
+        while(distanceFieldIteror.more())
+        {
+          mongo::BSONElement distanceElement(distanceFieldIteror.next());
+          QString otherId(QString::fromUtf8(distanceElement.fieldName()));
+          double distance = distanceElement.Double();
+          productDistances.insert(otherId, distance);
+        }
+
         QStringList imageSrcs;
         std::vector<mongo::BSONElement> imageSrcsElements = l.getField("imageSrcs").Array();
         for (std::vector<mongo::BSONElement>::const_iterator i = imageSrcsElements.begin(); i != imageSrcsElements.end(); ++i) {
@@ -241,7 +255,7 @@ QList<Offer*> DatabaseConnector::loadOffers(bool* okay) const
         //    continue;
         //}
 
-        availableOffers << new Offer(name, price, rating, priorRank, imageSrcs, records, extractedSentiment);
+        availableOffers << new Offer(name, price, rating, priorRank, imageSrcs, records, extractedSentiment, productDistances);
         ++products;
     }
 
@@ -249,5 +263,39 @@ QList<Offer*> DatabaseConnector::loadOffers(bool* okay) const
     //qDebug() << "Median dedicated graphics memory: " << AttributeFactory::getInstance()->getMedianInstance("dedicatedGraphicsMemoryCapacity")->toString();
     qDebug() << "Total products: " << products;
     *okay = true;
+
+
+#ifdef BUILD_SIMILARITY_CACHE
+    foreach (Offer* o, availableOffers) {
+        qDebug() << "Analyzing offer " << o->getName();
+        foreach (Offer* b, availableOffers) {
+            if (o == b)
+                continue;
+
+            double productDistance = 0;
+            const RecordMap& r = b->getRecords();
+            for (RecordMap::const_iterator i = r.begin(); i != r.end(); ++i) {
+                QString fieldId = i.key();
+                Record offerRecord = o->getRecord(fieldId);
+                if (offerRecord.first.isNull()) {
+                    productDistance += 0.1;
+                    continue;
+                }
+
+                double thisAttributeDistance = qAbs(offerRecord.second->distance(*(i.value().second)));
+                productDistance += thisAttributeDistance;
+            }
+            double normalizedProductDistance = (productDistance / r.count());
+            QString oId = o->getRecord("_id").second->toString();
+            QString bId = b->getRecord("_id").second->toString();
+            c->update("legilimens.laptops", BSON("_id" << oId.toUtf8().constData()),
+                      BSON("$set" << BSON(QString("distance."+bId.replace('.', '-')).toUtf8().constData() << normalizedProductDistance)));
+        }
+    }
+    qDebug() << "Distance calculation complete";
+
+    exit(0);
+#endif
+
     return availableOffers;
 }
