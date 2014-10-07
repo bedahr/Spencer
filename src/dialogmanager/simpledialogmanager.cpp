@@ -32,6 +32,7 @@ SimpleDialogManager::SimpleDialogManager() :
     previousState(DialogStrategy::InitState), recommender(0),
     currentOffer(0), oldOffer(0), acceptedStatementsOfThisTurn(0),
     consecutiveMisunderstandingCounter(0),
+    absoluteMisunderstandingCounter(0),
     allAskedDomainQuestion(0),
     lastAskedDomainQuestion(DialogStrategy::InitState)
 {
@@ -51,9 +52,6 @@ void SimpleDialogManager::userFinishedTalking()
 
 void SimpleDialogManager::userInput(const QList<Statement*> statements)
 {
-    if (state == DialogStrategy::FinalState)
-        return;
-
     qDebug() << "Got statements: " << statements.count();
     int acceptedStatements = 0;
     foreach (Statement *s, statements) {
@@ -127,41 +125,47 @@ void SimpleDialogManager::processRecommendation(Recommendation* r)
 void SimpleDialogManager::completeTurn()
 {
     qDebug() << "Completing turn";
-    Recommendation* r = 0;
 
     if (acceptedStatementsOfThisTurn == 0) {
         //qDebug() << "Misunderstanding counter: " << consecutiveMisunderstandingCounter;
         ++consecutiveMisunderstandingCounter;
+        ++absoluteMisunderstandingCounter;
     } else {
         consecutiveMisunderstandingCounter = 0;
+        if ((upcomingState == DialogStrategy::NullState) || (upcomingState == DialogStrategy::Recommendation)) {
+            Recommendation* r = 0;
+            //we don't have any plans yet, default to Recommedation
+            recommender->feedbackCycleComplete();
+            r = recommender->suggestOffer();
+
+            if (r)
+                processRecommendation(r);
+            else
+                qDebug() << "No recommendation at this point";
+
+            delete r;
+        }
     }
 
     qDebug() << "Current state " << state << " upcoming state " << upcomingState;
+    // (still) no plan?
     if (upcomingState == DialogStrategy::NullState) {
-        //we don't have any plans yet, default to Recommedation
-        recommender->feedbackCycleComplete();
-        r = recommender->suggestOffer();
-
-        if (r) {
-            processRecommendation(r);
-        } else {
-            qDebug() << "No recommendation at this point";
-            switch (consecutiveMisunderstandingCounter) {
-            case 0:
-                // no misunderstanding but no recommendation -> ask domain question
-                askDomainQuestion();
-                break;
-            case 1:
+        switch (consecutiveMisunderstandingCounter) {
+        case 0:
+            // no misunderstanding but no recommendation -> ask domain question
+            askDomainQuestion();
+            break;
+        case 1:
+            //if we have too many misunderstandings in one session, just take initiative
+            if (absoluteMisunderstandingCounter < 3) {
                 queueState(DialogStrategy::MisunderstoodInput);
                 break;
-            default:
-                // too many misunderstandings -> ask domain question
-                askDomainQuestion();
-                break;
             }
+        default:
+            // too many misunderstandings -> ask domain question
+            askDomainQuestion();
+            break;
         }
-
-        delete r;
     }
 
     enterState();
@@ -236,6 +240,8 @@ void SimpleDialogManager::init(CritiqueRecommender *recommender)
     upcomingState = DialogStrategy::InitState;
     lastAskedDomainQuestion = DialogStrategy::InitState;
     allAskedDomainQuestion = 0;
+    consecutiveMisunderstandingCounter = 0;
+    absoluteMisunderstandingCounter = 0;
     enterState();
 }
 
@@ -327,17 +333,20 @@ bool SimpleDialogManager::undo()
 
 bool SimpleDialogManager::constrain(Critique* c)
 {
+    queueState(DialogStrategy::Recommendation);
     return recommender->critique(c);
 }
 
 bool SimpleDialogManager::applyAspect(MentionedAspect* a)
 {
+    queueState(DialogStrategy::Recommendation);
     return recommender->applyAspect(a);
 }
 bool SimpleDialogManager::accept(double strength)
 {
     // TODO: experiment with cutoff
-    if (strength > 0.5) {
+    qDebug() << "accept Strength: " << strength;
+    if ((strength >= 0.8) && (upcomingState == DialogStrategy::NullState)) {
         queueState(DialogStrategy::FinalState);
         return true;
     }
