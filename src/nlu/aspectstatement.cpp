@@ -25,3 +25,8 @@ bool AspectStatement::comparePrivate(const Statement *s) const
         return false;
     return (other->m_aspect == m_aspect);
 }
+
+bool AspectStatement::overrides(const Statement *s) const
+{
+    return comparePrivate(s) && (quality() > s->quality());
+}

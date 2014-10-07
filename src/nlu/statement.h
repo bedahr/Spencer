@@ -33,6 +33,8 @@ public:
             m_lexicalPolarity -= diff;
     }
 
+    virtual bool overrides(const Statement *s) const = 0;
+
     bool compare(const Statement *s) const;
 
     /// Total, combined effect of this statements

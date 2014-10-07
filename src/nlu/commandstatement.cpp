@@ -108,3 +108,9 @@ bool CommandStatement::comparePrivate(const Statement *s) const
         return false;
     return other->m_type == m_type;
 }
+
+bool CommandStatement::overrides(const Statement *) const
+{
+    // no command overrides any other
+    return false;
+}

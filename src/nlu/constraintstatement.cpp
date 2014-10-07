@@ -26,8 +26,13 @@ bool ConstraintStatement::comparePrivate(const Statement *s) const
     const ConstraintStatement* other = dynamic_cast<const ConstraintStatement*>(s);
     if (!other)
         return false;
-    qDebug() << "Constraint statement: ";
-    qDebug() << other->m_relationship->toString();
-    qDebug() << m_relationship->toString();
     return other->m_relationship->toString() == m_relationship->toString();
+}
+
+bool ConstraintStatement::overrides(const Statement *s) const
+{
+    const ConstraintStatement* other = dynamic_cast<const ConstraintStatement*>(s);
+    if (!other)
+        return false;
+    return (other->m_relationship->appliesTo(m_relationship->attributeId())) && (other->quality() < quality());
 }

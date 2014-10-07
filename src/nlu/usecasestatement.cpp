@@ -79,3 +79,9 @@ bool UsecaseStatement::comparePrivate(const Statement *s) const
         return false;
     return other->m_useCase == m_useCase;
 }
+
+bool UsecaseStatement::overrides(const Statement *) const
+{
+    // no use case overrides any other
+    return false;
+}

@@ -552,6 +552,23 @@ QList<Statement*> NLU::interpret(const Offer *currentRecommendation, const QStri
     double errors = 0;
     int dispersion = 0;
     foundStatements << findOptimalStatementAssociation(saneInput.length(), currentRecommendation, foundTokens, errors, dispersion);
+
+    // 4. Reduce statements to only leave the highest quality statement about any mentioned attribute
+    for (auto i = foundStatements.begin(); i != foundStatements.end();) {
+        bool isSuperseded = false;
+        foreach (Statement *s, foundStatements) {
+            if ((s != *i) && s->overrides(*i)) {
+                isSuperseded = true;
+                break;
+            }
+        }
+        if (isSuperseded) {
+            delete *i;
+            i = foundStatements.erase(i);
+        } else
+            ++i;
+    }
+
     qDebug() << "Found " << foundStatements.size() << " matching statements; " << errors << " errors, dispersion: " << dispersion;
     foreach (Statement* s, foundStatements) {
         qDebug() << "   " << s->toString();
