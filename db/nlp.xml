@@ -332,9 +332,9 @@
       <actOn>processorName</actOn>
       <names>
         <name>Prozessor Name</name>
-        <name value=".*core.*i3.*">i3</name>
-        <name value=".*core.*i5.*">i5</name>
-        <name value=".*core.*i7.*">i7</name>
+        <name value="*core*i3*">i3</name>
+        <name value="*core*i5*">i5</name>
+        <name value="*core*i7*">i7</name>
       </names>
     </attribute>
     <attribute type="countable">
