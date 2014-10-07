@@ -28,9 +28,9 @@ static const QStringList portabilityAspects(QStringList() << "Portability");
 
 
 SimpleDialogManager::SimpleDialogManager() :
-    state(DialogStrategy::InitState), upcomingState(DialogStrategy::InitState),
+    state(DialogStrategy::NullState), upcomingState(DialogStrategy::InitState),
     previousState(DialogStrategy::InitState), recommender(0),
-    currentOffer(0), acceptedStatementsOfThisTurn(0),
+    currentOffer(0), oldOffer(0), acceptedStatementsOfThisTurn(0),
     consecutiveMisunderstandingCounter(0),
     allAskedDomainQuestion(0),
     lastAskedDomainQuestion(DialogStrategy::InitState)
@@ -79,6 +79,51 @@ void SimpleDialogManager::userInput(const QList<Statement*> statements)
     turnCompletionTimer.start();
 }
 
+void SimpleDialogManager::processRecommendation(Recommendation* r)
+{
+    oldOffer = currentOffer;
+    currentOffer = r->offer();
+    QString explanation = "Explanations not implemented yet."; // TODO
+
+    const Offer *o = r->offer();
+    QList<RecommendationAttribute*> description;
+
+    foreach (const QString& key, AttributeFactory::getInstance()->getAttributeIds()) {
+        Record r(o->getRecord(key));
+        if (!r.second)
+            continue;
+
+        if (r.second->getInternal())
+            continue;
+        QString name = r.first;
+        QSharedPointer<Attribute> attr = r.second;
+        float expressedUserInterest = recommender->userInterest(key);
+
+        bool showThisAttribute = true;
+
+        // there are two reasons that warrant showing the attribute:
+        // 1. A certain set of attributes is shown by default.
+        showThisAttribute = attr->getShownByDefault();
+
+        // 2. The user expressed interest in the attribute either directly or indirectly
+        showThisAttribute |= expressedUserInterest > 0.1;
+        qDebug() << "User interest for attribute " << r.first << " (" << key << ") " << expressedUserInterest << " showing: " << showThisAttribute;
+
+        if (!showThisAttribute)
+            continue;
+        QString value = attr->toString();
+
+        float sentiment = 0;
+        float completionFactor = recommender->completionFactor(key, *o);
+        qDebug() << "Complection factor for attribute " << r.first << completionFactor;
+
+        description << new RecommendationAttribute(name, value, expressedUserInterest, completionFactor, sentiment);
+    }
+    emit recommendation(o, o->getName(), o->getPrice(), o->getRating(), o->getImages(),
+                        description, o->getUserSentiment(), explanation);
+    queueState(DialogStrategy::Recommendation);
+}
+
 void SimpleDialogManager::completeTurn()
 {
     qDebug() << "Completing turn";
@@ -89,77 +134,36 @@ void SimpleDialogManager::completeTurn()
         ++consecutiveMisunderstandingCounter;
     } else {
         consecutiveMisunderstandingCounter = 0;
+    }
+
+    qDebug() << "Current state " << state << " upcoming state " << upcomingState;
+    if (upcomingState == DialogStrategy::NullState) {
+        //we don't have any plans yet, default to Recommedation
         recommender->feedbackCycleComplete();
         r = recommender->suggestOffer();
+
+        if (r) {
+            processRecommendation(r);
+        } else {
+            qDebug() << "No recommendation at this point";
+            switch (consecutiveMisunderstandingCounter) {
+            case 0:
+                // no misunderstanding but no recommendation -> ask domain question
+                askDomainQuestion();
+                break;
+            case 1:
+                queueState(DialogStrategy::MisunderstoodInput);
+                break;
+            default:
+                // too many misunderstandings -> ask domain question
+                askDomainQuestion();
+                break;
+            }
+        }
+
+        delete r;
     }
 
-    if (r) {
-        currentOffer = r->offer();
-        QString explanation = "Explanations not implemented yet."; // TODO
-
-        const Offer *o = r->offer();
-        QList<RecommendationAttribute*> description;
-
-        foreach (const QString& key, AttributeFactory::getInstance()->getAttributeIds()) {
-            Record r(o->getRecord(key));
-            if (!r.second)
-                continue;
-
-            if (r.second->getInternal())
-                continue;
-            QString name = r.first;
-            QSharedPointer<Attribute> attr = r.second;
-            float expressedUserInterest = recommender->userInterest(key);
-
-            bool showThisAttribute = true;
-
-            // there are two reasons that warrant showing the attribute:
-            // 1. A certain set of attributes is shown by default.
-            showThisAttribute = attr->getShownByDefault();
-
-            // 2. The user expressed interest in the attribute either directly or indirectly
-            showThisAttribute |= expressedUserInterest > 0.1;
-            qDebug() << "User interest for attribute " << r.first << " (" << key << ") " << expressedUserInterest << " showing: " << showThisAttribute;
-
-            if (!showThisAttribute)
-                continue;
-            QString value = attr->toString();
-
-            float sentiment = 0;
-            float completionFactor = recommender->completionFactor(key, *o);
-            qDebug() << "Complection factor for attribute " << r.first << completionFactor;
-
-            description << new RecommendationAttribute(name, value, expressedUserInterest, completionFactor, sentiment);
-        }
-        emit recommendation(o, o->getName(), o->getPrice(), o->getRating(), o->getImages(),
-                            description, o->getUserSentiment(), explanation);
-        queueState(DialogStrategy::Recommendation);
-    } else {
-        qDebug() << "No recommendation at this point";
-        switch (consecutiveMisunderstandingCounter) {
-        case 0:
-            // no misunderstanding but no recommendation -> ask domain question
-            askDomainQuestion();
-            break;
-        case 1:
-            queueState(DialogStrategy::MisunderstoodInput);
-            break;
-        default:
-            // too many misunderstandings -> ask domain question
-            askDomainQuestion();
-            break;
-        }
-    }
-
-    //based on the assumption that the user wouldn't have critizised the
-    // model if he was interested in it, add a *slight* bias against it
-    //m_recommender->critique(new Critique(new Relationship(modelName,
-    //               Relationship::Inequality, m_currentRecommendation->getAttribute(modelName)), 0.1));
-
-    delete r;
-
-    previousState = state;
-    state = upcomingState;
     enterState();
     turnCompletionTimer.setInterval(turnTimeoutWithoutStatements);
     acceptedStatementsOfThisTurn = 0;
@@ -167,6 +171,9 @@ void SimpleDialogManager::completeTurn()
 
 void SimpleDialogManager::enterState()
 {
+    previousState = state;
+    state = upcomingState;
+    upcomingState = DialogStrategy::NullState;
     switch (state) {
     case DialogStrategy::InitState:
         greet();
@@ -193,7 +200,11 @@ void SimpleDialogManager::enterState()
         break;
 
     case DialogStrategy::Recommendation:
-        emit elicit(AvatarTask(AvatarTask::PresentItem), false);
+        if (currentOffer == oldOffer) {
+            emit elicit(AvatarTask(AvatarTask::Custom, tr("Ich denke noch immer, dass dieses Produkt am besten "
+                                                          "zu Ihren Anforderungen passen würde."), tr("Empfehlung gleich geblieben")), false);
+        } else
+            emit elicit(AvatarTask(AvatarTask::PresentItem), false);
         break;
 
     case DialogStrategy::MisunderstoodInput:
@@ -208,7 +219,8 @@ void SimpleDialogManager::enterState()
         break;
 
     case DialogStrategy::FinalState:
-        emit elicit(AvatarTask(AvatarTask::Custom, tr("Vielen Dank für Ihre Teilnahme an dieser Studie"), tr("Aufgabe abgeschlossen")));
+        emit elicit(AvatarTask(AvatarTask::Custom, tr("Sollten Sie dieses Produkt auswählen wollen, sagen Sie dies bitte dem Studienbetreuer. "
+                                                      "Ansonsten können Sie sich natürlich auch gerne noch weiter umsehen."), tr("Produkt akzeptieren?")));
         break;
     }
 }
@@ -217,7 +229,7 @@ void SimpleDialogManager::init(CritiqueRecommender *recommender)
 {
     this->recommender = recommender;
     previousState = state;
-    state = DialogStrategy::InitState;
+    state = DialogStrategy::NullState;
     upcomingState = DialogStrategy::InitState;
     lastAskedDomainQuestion = DialogStrategy::InitState;
     allAskedDomainQuestion = 0;

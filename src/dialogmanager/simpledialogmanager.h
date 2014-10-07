@@ -53,6 +53,7 @@ private:
     DialogStrategy::DialogState previousState;
     CritiqueRecommender *recommender;
     const Offer* currentOffer;
+    const Offer* oldOffer;
     QTimer turnCompletionTimer;
     int acceptedStatementsOfThisTurn;
     int consecutiveMisunderstandingCounter;
@@ -65,6 +66,8 @@ private:
 
     /// queues the most appropriate domain question for execution
     void askDomainQuestion();
+
+    void processRecommendation(Recommendation* r);
 
 private slots:
     void completeTurn();

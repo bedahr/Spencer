@@ -5,6 +5,7 @@
 
 namespace DialogStrategy {
     enum DialogState {
+        NullState = 0,
         InitState = 1,
         AskForUseCase = 2,
         AskForImportantAttribute = 4,
