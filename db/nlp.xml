@@ -782,12 +782,11 @@
   <metaModifiers>
     <metaModifier>
       <names>
-        <name>1 BISSCHEN</name>
-        <name>1 BISSERL</name>
-        <name>1 WENIG</name>
+        <name>BISSCHEN</name>
+        <name>BISSERL</name>
+        <name>WENIG</name>
         <name>ETWAS</name>
-	<name>EINE SPUR</name>
-        <name>1 BISSERL</name>
+	<name>SPUR</name>
         <name>MARGINAL</name>
         <name>RELATIV</name>
         <name>RECHT</name>
