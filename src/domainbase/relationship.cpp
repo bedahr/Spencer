@@ -160,7 +160,7 @@ float Relationship::utility(const Offer& offer) const
 
 bool Relationship::supersedes(const Relationship& other) const
 {
-    if (other.m_id != m_id) {
+    if ((other.m_id != m_id) || (m_id.contains("[_]"))) {
         return false;
     }
     if (other.m_type != m_type) {
