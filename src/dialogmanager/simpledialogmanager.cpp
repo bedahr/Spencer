@@ -175,6 +175,9 @@ void SimpleDialogManager::enterState()
     state = upcomingState;
     upcomingState = DialogStrategy::NullState;
     switch (state) {
+    case DialogStrategy::NullState:
+        qFatal("Attempted to enter null state");
+        break;
     case DialogStrategy::InitState:
         greet();
         break;
