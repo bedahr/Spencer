@@ -209,8 +209,8 @@
       <names>
         <name>Betriebssystem</name>
         <name>OS</name>
-	<name value="OSX">Mac</name>
-	<name value="OSX">Mac Os</name>
+	<name value="Mac OS X">Mac</name>
+	<name value="Mac OS X">Mac Os</name>
 	<name>(Linux|Windows|Windows 8|Windows 7|Windows 8.1)</name>
 	<name>(Linux|Windows|Windows 8|Windows 7|Windows 8.1) Betriebssystem</name>
       </names>
