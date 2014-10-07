@@ -41,7 +41,6 @@ public:
 
 private:
     int m_ttl;
-    float m_baseInfluence;
 
     const QString m_name;
     const Relationship* m_relationship;
