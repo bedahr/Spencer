@@ -27,19 +27,18 @@ void CritiqueRecommender::init()
     m_aspects.clear();
 }
 
+static float bound(float in) {
+    return qMin(1.0f, qMax(-1.0f, in));
+}
+
 double CritiqueRecommender::userInterest(const QString& id) const
 {
     float userInterest = 0;
     foreach (Critique* c, m_critiques)
         if (c->appliesTo(id))
             userInterest = qMax(qAbs(c->influence()), userInterest);
-    return userInterest;
+    return bound(userInterest);
 }
-
-static float bound(float in) {
-    return qMin(1.0f, qMax(-1.0f, in));
-}
-
 double CritiqueRecommender::completionFactor(const QString& attributeId,
                         const Offer& offer) const
 {
@@ -47,7 +46,7 @@ double CritiqueRecommender::completionFactor(const QString& attributeId,
     int count = 0;
     foreach (Critique* c, m_critiques) {
         if (c->appliesTo(attributeId)) {
-            float utility = c->utility(offer);
+            float utility = bound(c->utility(offer) / c->influence());
             completionFactor += bound(utility);
             ++count;
         }
