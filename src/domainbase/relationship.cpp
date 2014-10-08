@@ -17,24 +17,41 @@ float Relationship::utility(const Offer& offer, const QString& id, const QShared
 {
     float out = 0.0f;
     double attributeDistance = -10;
-    if (!m_attribute.isNull())
-        attributeDistance = m_attribute->distance(*offerAttribute);
+    if (m_type & (Relationship::Equality|Relationship::Inequality|Relationship::LargerThan|Relationship::SmallerThan)) {
+        if (!m_attribute.isNull()) {
+            attributeDistance = m_attribute->distance(*offerAttribute);
+            //scale based on available room
+            QSharedPointer<Attribute> bound;
 
-    if (m_type & Relationship::Equality) {
-        // distance is non directional for equality
-        double eqDistance = qAbs(attributeDistance);
-        out += (0.5 - eqDistance) * 2;
-    }
-    if (m_type & Relationship::Inequality) {
-        // distance is non directional for inequality
-        double ineqDistance = qAbs(attributeDistance);
-        out += (ineqDistance - 0.5) * 2;
-    }
-    if (m_type & Relationship::LargerThan) {
-        out += attributeDistance;
-    }
-    if (m_type & Relationship::SmallerThan) {
-        out += (-attributeDistance);
+            if (attributeDistance > 0) {
+                bound = AttributeFactory::getInstance()->getLargestInstance(id);
+                // m_attribute < offerAttribute
+            } else
+                bound = AttributeFactory::getInstance()->getSmallestInstance(id);
+            if (bound) {
+                double boundDistance = qAbs(m_attribute->distance(*bound));
+                attributeDistance /= boundDistance == 0 ? 1 : boundDistance;
+            }
+        } else
+            assert(false);
+
+        if (m_type & Relationship::Equality) {
+            // distance is non directional for equality
+            double eqDistance = qAbs(attributeDistance);
+            qDebug() << "Equality divergence: " << eqDistance;
+            out += (0.5 - eqDistance) * 2;
+        }
+        if (m_type & Relationship::Inequality) {
+            // distance is non directional for inequality
+            double ineqDistance = qAbs(attributeDistance);
+            out += (ineqDistance - 0.5) * 2;
+        }
+        if (m_type & Relationship::LargerThan) {
+            out += attributeDistance;
+        }
+        if (m_type & Relationship::SmallerThan) {
+            out += (-attributeDistance);
+        }
     }
 
     if ((m_type & Relationship::Small) || (m_type & Relationship::Large)) {
@@ -100,8 +117,9 @@ float Relationship::utility(const Offer& offer, const QString& id, const QShared
             out += distance;
         }
     }
-    //qDebug() << toString() << " distance for offer " << offer.getName() << ": " << out;
-    return logisticScale(out) * m_modifierFactor;
+    qDebug() << toString() << " utility for offer " << offer.getName() << ": " << out << " -> " << logisticScale(out) * m_modifierFactor;
+    out = logisticScale(out);
+    return out * m_modifierFactor;
 }
 
 QList<QSharedPointer<Attribute> > getAttributes(const Offer& offer, const QString& id)
