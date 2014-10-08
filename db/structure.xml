@@ -84,7 +84,7 @@
     </feature>
     <feature nr="62" shownByDefault="false">
       <id>processorSpeed</id>
-      <name>Prozessorkerne</name>
+      <name>Prozessorgeschwindigkeit</name>
       <type>
         <number optimality="max" />
       </type>
