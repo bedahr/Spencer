@@ -34,5 +34,6 @@ bool ConstraintStatement::overrides(const Statement *s) const
     const ConstraintStatement* other = dynamic_cast<const ConstraintStatement*>(s);
     if (!other)
         return false;
-    return (other->m_relationship->appliesTo(m_relationship->attributeId())) && (other->quality() < quality());
+    return ((other->m_relationship->appliesTo(m_relationship->attributeId())) && (other->quality() < quality())) ||
+            (m_relationship->supersedes(*(other->m_relationship)) && (other->quality() <= quality()));
 }
