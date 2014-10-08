@@ -76,7 +76,7 @@ QList<Offer*> DatabaseConnector::loadOffers(bool* okay) const
     QStringList  optionalSentimentDimensions = buildOptionalSentimentDimensions();
     *okay = false;
 
-    std::auto_ptr<mongo::DBClientCursor> cursor = c->query("legilimens.laptops", mongo::BSONObj());
+    std::unique_ptr<mongo::DBClientCursor> cursor = c->query("legilimens.laptops", mongo::BSONObj());
 
     int products = 0;
     while (cursor->more()) {

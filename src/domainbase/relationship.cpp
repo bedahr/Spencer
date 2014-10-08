@@ -13,7 +13,7 @@ static float logisticScale(float in)
     return 2.0 * out;
 }
 
-float Relationship::utility(const Offer& offer, const QString& id, const QSharedPointer<Attribute> &offerAttribute) const
+float Relationship::utility(const QString& id, const QSharedPointer<Attribute> &offerAttribute) const
 {
     float out = 0.0f;
     double attributeDistance = -10;
@@ -167,7 +167,7 @@ float Relationship::utility(const Offer& offer) const
         float maxUtility = std::numeric_limits<float>::lowest();
         foreach (const QSharedPointer<Attribute>& offerAttribute, offerAttributes) {
             //qDebug() << " and it's " << offerAttribute->toString();
-            float thisUtility = utility(offer, m_id, offerAttribute);
+            float thisUtility = utility(m_id, offerAttribute);
             if (thisUtility > maxUtility)
                 maxUtility = thisUtility;
         }

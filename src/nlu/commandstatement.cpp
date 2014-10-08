@@ -50,6 +50,14 @@ bool CommandStatement::act(DialogStrategy::DialogState state, DialogManager *dm,
             break;
         case CommandStatement::Yes:
             switch (state) {
+            case DialogStrategy::NullState:
+            case DialogStrategy::InitState:
+            case DialogStrategy::AskForUseCase:
+            case DialogStrategy::AskForImportantAttribute:
+            case DialogStrategy::AskForHelp:
+            case DialogStrategy::FinalState:
+                break;
+            case DialogStrategy::MisunderstoodInput:
             case DialogStrategy::Recommendation:
                 dm->accept(effect());
                 return true;
@@ -81,11 +89,14 @@ bool CommandStatement::act(DialogStrategy::DialogState state, DialogManager *dm,
             break;
         case CommandStatement::No:
             switch (state) {
+                case DialogStrategy::MisunderstoodInput:
                 case DialogStrategy::Recommendation:
-                  if (currentOffer)
-                      subStatements << new ConstraintStatement(new Relationship("name", Relationship::Inequality,
+                    if (currentOffer)
+                        subStatements << new ConstraintStatement(new Relationship("name", Relationship::Inequality,
                                                                                 AttributeFactory::getInstance()->getAttribute("name", currentOffer->getName()).second));
-                  break;
+                    break;
+                default:
+                    break;
             }
     }
 

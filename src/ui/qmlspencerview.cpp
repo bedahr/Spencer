@@ -144,6 +144,7 @@ void QMLSpencerView::displayStatus(const QString& status)
 
 void QMLSpencerView::displayError(const QString& error)
 {
+    Q_UNUSED(error);
     //qDebug() << "Error: " << error;
     //QMetaObject::invokeMethod(viewer->rootObject()->findChild<QObject*>("errorDialog"),
     //                          "show", Q_ARG(QVariant, error));
@@ -151,6 +152,7 @@ void QMLSpencerView::displayError(const QString& error)
 
 void QMLSpencerView::displayExecutedAction(const QString& action)
 {
+    Q_UNUSED(action);
     //QMetaObject::invokeMethod(viewer->rootObject()->findChild<QObject*>("recognitionResultBanner"),
     //                          "recognized", Q_ARG(QVariant, action));
 }
