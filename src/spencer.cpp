@@ -10,6 +10,7 @@
 #include "domainbase/attributefactory.h"
 #include "domainbase/stringattribute.h"
 #include "dialogmanager/simpledialogmanager.h"
+#include "logger/logger.h"
 #include <QHash>
 #include <QFile>
 #include <QSet>
@@ -49,6 +50,8 @@ Spencer::~Spencer()
 
 bool Spencer::init()
 {
+    if (!Logger::init())
+        return false;
     if (!AttributeFactory::getInstance()->parseStructure(dbPath + "structure.xml"))
         return false;
     if (!AspectFactory::getInstance()->parseStructure(dbPath + "sentiment.xml"))
@@ -69,6 +72,8 @@ bool Spencer::init()
         return false;
 
     m_dialogManager->init(m_recommender);
+
+    Logger::log("Successfully initialized Spencer");
     return true;
 }
 

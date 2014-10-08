@@ -8,6 +8,7 @@
 #include "domainbase/offer.h"
 #include "domainbase/attribute.h"
 #include "domainbase/attributefactory.h"
+#include "logger/logger.h"
 #include <iostream>
 #include <limits>
 #include <QRegExp>
@@ -521,6 +522,7 @@ QList<Statement*> findOptimalStatementAssociation(int maxPos, const Offer *curre
 
 QList<Statement*> NLU::interpret(const Offer *currentRecommendation, const QString& input)
 {
+    Logger::log("Received user input \"" + input + '"');
     qDebug() << "Interpreting: " << input;
     QList<Statement*> foundStatements;
     QString saneInput(input);
@@ -530,7 +532,9 @@ QList<Statement*> NLU::interpret(const Offer *currentRecommendation, const QStri
     // 1. Extract list of largest, non overlapping token observations
     QList<ObservedToken*> foundTokens = findTokens(saneInput);
     qDebug() << "Found " << foundTokens.size() << " matching tokens";
+    Logger::log("Found " + QString::number(foundTokens.size()) + " matching tokens:");
     foreach (ObservedToken* t, foundTokens) {
+        Logger::log("  " + t->toString());
         qDebug() << "   " << t->toString();
     }
 
@@ -548,7 +552,9 @@ QList<Statement*> NLU::interpret(const Offer *currentRecommendation, const QStri
     qSort(foundTokens.begin(), foundTokens.end(), matchSizeLargerThan);
     qStableSort(foundTokens.begin(), foundTokens.end(), occuredBefore);
     qDebug() << "Parsing on " << foundTokens.size() << " matching tokens";
+    Logger::log("Selected optimal association consisting of " + QString::number(foundTokens.size()) + " matching tokens:");
     foreach (ObservedToken* t, foundTokens) {
+        Logger::log("  " + t->toString());
         qDebug() << "   " << t->toString();
     }
     double errors = 0;
@@ -571,8 +577,10 @@ QList<Statement*> NLU::interpret(const Offer *currentRecommendation, const QStri
             ++i;
     }
 
-    qDebug() << "Found " << foundStatements.size() << " matching statements; " << errors << " errors, dispersion: " << dispersion;
+    qDebug() << "Found " << QString::number(foundStatements.size()) << " matching statements; " << errors << " errors, dispersion: " << dispersion;
+    Logger::log("Identified " + QString::number(foundStatements.size()) + " statements:");
     foreach (Statement* s, foundStatements) {
+        Logger::log("  " + s->toString());
         qDebug() << "   " << s->toString();
     }
     return foundStatements;

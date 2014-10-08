@@ -50,7 +50,7 @@ bool CommandStatement::act(DialogStrategy::DialogState state, DialogManager *dm,
             break;
         case CommandStatement::Yes:
             switch (state) {
-              case DialogStrategy::Recommendation:
+            case DialogStrategy::Recommendation:
                 dm->accept(effect());
                 return true;
               case DialogStrategy::AskForPerformanceImportant:

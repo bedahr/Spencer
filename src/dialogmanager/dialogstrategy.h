@@ -2,6 +2,7 @@
 #define DIALOGSTRATEGY_H
 
 #include <QFlags>
+#include <QString>
 
 namespace DialogStrategy {
     enum DialogState {
@@ -19,6 +20,8 @@ namespace DialogStrategy {
     };
     Q_DECLARE_FLAGS(DialogStates, DialogState)
     Q_DECLARE_OPERATORS_FOR_FLAGS(DialogStates)
+
+    QString dialogStrategyString(DialogState s);
 }
 
 #endif // DIALOGSTRATEGY_H

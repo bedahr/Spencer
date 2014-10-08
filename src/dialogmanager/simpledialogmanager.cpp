@@ -3,6 +3,7 @@
 #include "domainbase/attributefactory.h"
 #include "recommender/critiquerecommender.h"
 #include "recommender/recommendation.h"
+#include "logger/logger.h"
 #include <QDebug>
 #include <QEventLoop>
 
@@ -85,7 +86,7 @@ void SimpleDialogManager::processRecommendation(Recommendation* r)
 
     const Offer *o = r->offer();
     QList<RecommendationAttribute*> description;
-
+    Logger::log("New recommendation: " + o->getId());
     foreach (const QString& key, AttributeFactory::getInstance()->getAttributeIds()) {
         Record r(o->getRecord(key));
         if (!r.second)
@@ -105,14 +106,18 @@ void SimpleDialogManager::processRecommendation(Recommendation* r)
 
         // 2. The user expressed interest in the attribute either directly or indirectly
         showThisAttribute |= expressedUserInterest > 0.1;
+        float sentiment = 0;
+        float completionFactor = recommender->completionFactor(key, *o);
+        QString value = attr->toString();
         qDebug() << "User interest for attribute " << r.first << " (" << key << ") " << expressedUserInterest << " showing: " << showThisAttribute;
+
+        Logger::log("  " + r.first + " (\"" + key + "\") = \"" + value + "\"; user interest: " +
+                    QString::number(expressedUserInterest) + " show: " + (showThisAttribute ? "yes" : "no") +
+                    " completion factor: " + QString::number(completionFactor));
 
         if (!showThisAttribute)
             continue;
-        QString value = attr->toString();
 
-        float sentiment = 0;
-        float completionFactor = recommender->completionFactor(key, *o);
         qDebug() << "Complection factor for attribute " << r.first << completionFactor;
 
         description << new RecommendationAttribute(name, value, expressedUserInterest, completionFactor, sentiment);
@@ -177,6 +182,8 @@ void SimpleDialogManager::enterState()
 {
     previousState = state;
     state = upcomingState;
+    Logger::log("Changed state from " + DialogStrategy::dialogStrategyString(previousState)
+                + " to " + DialogStrategy::dialogStrategyString(state));
     upcomingState = DialogStrategy::NullState;
     switch (state) {
     case DialogStrategy::NullState:

@@ -5,6 +5,7 @@
 #include "critique.h"
 #include "mentionedaspect.h"
 #include "recommenderitem.h"
+#include "logger/logger.h"
 #include <limits>
 #include <QDebug>
 
@@ -91,7 +92,6 @@ bool CritiqueRecommender::critique(Critique* critique)
     return true;
 }
 
-
 bool CritiqueRecommender::applyAspect(MentionedAspect *a)
 {
     Q_ASSERT(a);
@@ -138,6 +138,7 @@ void CritiqueRecommender::undo()
 
 void CritiqueRecommender::feedbackCycleComplete()
 {
+    Logger::log("Recommender feedback cycle completed:");
     QList<RecommenderItem*>::iterator i = m_userModel.begin();
     while (i != m_userModel.end()) {
         if ((*i)->age() == 0) {
@@ -146,8 +147,10 @@ void CritiqueRecommender::feedbackCycleComplete()
             m_aspects.removeAll(static_cast<MentionedAspect*>(c));
             i = m_userModel.erase(i);
             delete c;
-        } else
+        } else {
+            Logger::log("  " + (*i)->getDescription() + " influence: " + QString::number((*i)->influence()));
             ++i;
+        }
     }
 }
 

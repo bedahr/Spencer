@@ -65,7 +65,9 @@ SOURCES += src/main.cpp \
     src/nlu/aspectstatement.cpp \
     src/dialogmanager/simpledialogmanager.cpp \
     src/recommender/recommenderitem.cpp \
-    src/recommender/mentionedaspect.cpp
+    src/recommender/mentionedaspect.cpp \
+    src/logger/logger.cpp \
+    src/dialogmanager/dialogstrategy.cpp
 
 HEADERS += \
         src/spencer.h \
@@ -109,7 +111,8 @@ HEADERS += \
     src/recommender/recommenderitem.h \
     src/recommender/mentionedaspect.h \
     src/recommender/appliedrecommenderitem.h \
-    src/domainbase/collectionattribute.h
+    src/domainbase/collectionattribute.h \
+    src/logger/logger.h
 
 
 INCLUDEPATH += ../BBSimoneShared $${BBSIMONECOMMONIPATH} src/
