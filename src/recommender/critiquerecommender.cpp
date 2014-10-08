@@ -215,18 +215,19 @@ Recommendation* CritiqueRecommender::suggestOffer()
     // select the one offer with the highest combined utility
     QList<float> utilitiesOfConsideredProducts;
     foreach (const Offer* o, consideredProducts) {
-        double thisUtility = o->priorPropability();
+        //double thisUtility = o->priorPropability() * .1;
+        double thisUtility = o->getRating() / 100.0 + o->priorPropability() * 0.001;
         QList<AppliedRecommenderItem> thisExplanations;
         foreach (const RecommenderItem* ri, m_userModel) {
             AppliedRecommenderItem ari(ri, *o);
             thisExplanations << ari;
             thisUtility += ari.utility();
         }
-        thisUtility += o->getRating() / 20.0;
         // introduce similarity
         if (m_lastRecommendation) {
             double normalizedProductDistance = o->productDistance(m_lastRecommendation->getId());
             //normalizedProductDistance *= 2;
+            normalizedProductDistance *= 0.5;
             thisUtility -= normalizedProductDistance;
         }
 
