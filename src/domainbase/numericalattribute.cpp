@@ -59,7 +59,9 @@ QString NumericalAttribute::toString() const
            out = QString::number((int) rounded);
 
         //somehow Qt's QLocale doesn't seem to like the German decimal separator "," very much; enforce it
-        out = QString::number(m_value, 'f', 1).replace('.', ',');
+        // that comment is a bad idea ...
+        //.replace('.', ',')
+        out = QString::number(m_value, 'f', 1);
     }
     return out;
 }
