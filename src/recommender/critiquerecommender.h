@@ -3,6 +3,7 @@
 
 #include "domainbase/offer.h"
 #include "domainbase/attribute.h"
+#include <QStack>
 
 class Recommendation;
 class Critique;
@@ -79,7 +80,7 @@ private:
     QList<MentionedAspect*> m_aspects;
     QList<RecommenderItem*> m_userModel;
     QList<Offer*> m_offers;
-    const Offer* m_lastRecommendation;
+    QStack<const Offer*> m_lastRecommendation;
 
     enum LimitBehavior {
         MatchAny,

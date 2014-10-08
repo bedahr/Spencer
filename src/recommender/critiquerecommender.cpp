@@ -8,7 +8,7 @@
 #include <limits>
 #include <QDebug>
 
-CritiqueRecommender::CritiqueRecommender() : m_lastRecommendation(0)
+CritiqueRecommender::CritiqueRecommender()
 {
     qsrand(5);
 }
@@ -132,6 +132,8 @@ void CritiqueRecommender::undo()
              ++i;
         }
     }
+    if (!m_lastRecommendation.isEmpty())
+        m_lastRecommendation.pop();
 }
 
 void CritiqueRecommender::feedbackCycleComplete()
@@ -224,8 +226,8 @@ Recommendation* CritiqueRecommender::suggestOffer()
             thisUtility += ari.utility();
         }
         // introduce similarity
-        if (m_lastRecommendation) {
-            double normalizedProductDistance = o->productDistance(m_lastRecommendation->getId());
+        if (!m_lastRecommendation.isEmpty()) {
+            double normalizedProductDistance = o->productDistance(m_lastRecommendation.top()->getId());
             //normalizedProductDistance *= 2;
             normalizedProductDistance *= 0.5;
             thisUtility -= normalizedProductDistance;
@@ -265,7 +267,9 @@ Recommendation* CritiqueRecommender::suggestOffer()
         else
             overallScore = (runnerUpCount * overallScore) / discreditation;
 
-        m_lastRecommendation = bestOffer;
+        m_lastRecommendation.push(bestOffer);
+        if (m_lastRecommendation.count() > RecommenderItem::maxTTL)
+            m_lastRecommendation.removeFirst();
         return new Recommendation(bestOffer, overallScore, bestOfferExplanations);
     } else
         qWarning() << "No best offer!";
