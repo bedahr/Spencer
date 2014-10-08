@@ -109,7 +109,8 @@ void SimpleDialogManager::processRecommendation(Recommendation* r)
         float sentiment = 0;
         float completionFactor = recommender->completionFactor(key, *o);
         QString value = attr->toString();
-        qDebug() << "User interest for attribute " << r.first << " (" << key << ") " << expressedUserInterest << " showing: " << showThisAttribute;
+        qDebug() << "User interest for attribute " << r.first << " (" << key << " = " <<
+                    value << ")" << expressedUserInterest << " showing: " << showThisAttribute;
 
         Logger::log("  " + r.first + " (\"" + key + "\") = \"" + value + "\"; user interest: " +
                     QString::number(expressedUserInterest) + " show: " + (showThisAttribute ? "yes" : "no") +
