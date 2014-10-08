@@ -211,8 +211,10 @@
         <name>OS</name>
 	<name value="Mac OS X">Mac</name>
 	<name value="Mac OS X">Mac Os</name>
-	<name>(Linux|Windows|Windows 8|Windows 7|Windows 8.1)</name>
-	<name>(Linux|Windows|Windows 8|Windows 7|Windows 8.1) Betriebssystem</name>
+	<name value="Windows*">Windows</name>
+	<name value="Windows*">Windows Betriebssystem</name>
+	<name>(Linux|Windows 8|Windows 7|Windows 8.1)</name>
+	<name>(Linux|Windows 8|Windows 7|Windows 8.1) Betriebssystem</name>
       </names>
     </attribute>
     <attribute type="countable">
@@ -476,7 +478,7 @@
       </names>
       <relationship>Inequal</relationship>
     </modifier>
-    <modifier on="countable,unOpinionatedCountable,uncountable,unOpinionatedUnountable,boolean" binding="post">
+    <modifier on="countable,unOpinionatedCountable,uncountable,unOpinionatedUnountable" binding="post">
       <names>
         <name>KEINEN</name>
         <name>KEINE</name>
@@ -493,6 +495,9 @@
     <modifier on="boolean" binding="post">
       <names>
         <name>OHNE</name>
+        <name>KEINEN</name>
+        <name>KEINE</name>
+        <name>KEIN</name>
       </names>
       <relationship>IsFalse</relationship>
     </modifier>
@@ -1252,9 +1257,11 @@
     </command>
     <command>
       <names>
-        <name>filme</name>
-        <name>film</name>
+        <name polarity="0.5">filme</name>
+        <name polarity="0.5">film</name>
+        <name>video</name>
         <name>videos</name>
+        <name>schnitt</name>
         <name>musik</name>
         <name>grafikbearbeitung</name>
         <name>fotos</name>
