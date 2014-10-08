@@ -33,3 +33,9 @@ float Critique::utility(const Offer& offer) const
     //qDebug() << "Relationship utility: " << relUtility << " critique: " << critUtility;
     return critUtility;
 }
+
+bool Critique::equals(const Critique& o) const
+{
+    return ((o.m_relationship == o.m_relationship) &&
+            (((o.influence() < 0 && influence()) < 0) || (o.influence() >= 0 && influence() >= 0)));
+}

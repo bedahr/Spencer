@@ -39,6 +39,8 @@ public:
     /// Returns true iff the critique makes a statement about the given record
     bool appliesTo(const QString& id) const;
 
+    bool equals(const Critique& o) const;
+
 private:
     int m_ttl;
 

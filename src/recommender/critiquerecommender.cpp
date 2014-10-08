@@ -78,6 +78,10 @@ bool CritiqueRecommender::critique(Critique* critique)
         if (critique->supersedes(**i)) {
             qDebug() << "deleting";
             Critique *c = *i;
+            if (c->equals(*critique)) {
+                critique->bumpBaseInfluence(c->baseInfluence());
+            }
+
             m_userModel.removeAll(c);
             i = m_critiques.erase(i);
             if (c->getAge() == -1)
@@ -227,6 +231,7 @@ Recommendation* CritiqueRecommender::suggestOffer()
             AppliedRecommenderItem ari(ri, *o);
             thisExplanations << ari;
             thisUtility += ari.utility();
+            qDebug() << "Utility for offer " << o->getId() << ri->influence() << ri->getDescription() << ari.utility();
         }
         // introduce similarity
         if (!m_lastRecommendation.isEmpty()) {
@@ -269,6 +274,7 @@ Recommendation* CritiqueRecommender::suggestOffer()
             overallScore *= 3;
         else
             overallScore = (runnerUpCount * overallScore) / discreditation;
+
 
         m_lastRecommendation.push(bestOffer);
         if (m_lastRecommendation.count() > RecommenderItem::maxTTL)

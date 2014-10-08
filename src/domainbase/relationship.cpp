@@ -17,23 +17,21 @@ float Relationship::utility(const QString& id, const QSharedPointer<Attribute> &
 {
     float out = 0.0f;
     double attributeDistance = -10;
-    if (m_type & (Relationship::Equality|Relationship::Inequality|Relationship::LargerThan|Relationship::SmallerThan)) {
-        if (!m_attribute.isNull()) {
-            attributeDistance = m_attribute->distance(*offerAttribute);
-            //scale based on available room
-            QSharedPointer<Attribute> bound;
+    if (m_type & (Relationship::Equality|Relationship::Inequality|Relationship::LargerThan|Relationship::SmallerThan) &&
+            !m_attribute.isNull()) {
+        attributeDistance = m_attribute->distance(*offerAttribute);
+        //scale based on available room
+        QSharedPointer<Attribute> bound;
 
-            if (attributeDistance > 0) {
-                bound = AttributeFactory::getInstance()->getLargestInstance(id);
-                // m_attribute < offerAttribute
-            } else
-                bound = AttributeFactory::getInstance()->getSmallestInstance(id);
-            if (bound) {
-                double boundDistance = qAbs(m_attribute->distance(*bound));
-                attributeDistance /= boundDistance == 0 ? 1 : boundDistance;
-            }
+        if (attributeDistance > 0) {
+            bound = AttributeFactory::getInstance()->getLargestInstance(id);
+            // m_attribute < offerAttribute
         } else
-            assert(false);
+            bound = AttributeFactory::getInstance()->getSmallestInstance(id);
+        if (bound) {
+            double boundDistance = qAbs(m_attribute->distance(*bound));
+            attributeDistance /= boundDistance == 0 ? 1 : boundDistance;
+        }
 
         if (m_type & Relationship::Equality) {
             // distance is non directional for equality
@@ -116,7 +114,7 @@ float Relationship::utility(const QString& id, const QSharedPointer<Attribute> &
             out += distance;
         }
     }
-    //qDebug() << toString() << " utility for offer " << offer.getName() << ": " << out << " -> " << logisticScale(out) * m_modifierFactor;
+    qDebug() << toString() << " utility: " << out << " -> " << logisticScale(out) * m_modifierFactor;
     out = logisticScale(out);
     return out * m_modifierFactor;
 }
@@ -162,7 +160,7 @@ float Relationship::utility(const Offer& offer) const
         if (m_type == Relationship::IsFalse)
             out = logisticScale(1.0f) * m_modifierFactor;
         else
-            out = 0.0f;
+            out = -1.0f * m_modifierFactor;
     } else {
         float maxUtility = std::numeric_limits<float>::lowest();
         foreach (const QSharedPointer<Attribute>& offerAttribute, offerAttributes) {
@@ -174,6 +172,12 @@ float Relationship::utility(const Offer& offer) const
         out = maxUtility;
     }
     return out;
+}
+
+bool Relationship::equals(const Relationship& other) const
+{
+    return ((other.m_id == m_id) && (other.m_type == m_type) &&
+            ((other.m_modifierFactor < 0 && m_modifierFactor < 0) || (other.m_modifierFactor >= 0 && m_modifierFactor >= 0)));
 }
 
 bool Relationship::supersedes(const Relationship& other) const

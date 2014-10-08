@@ -38,6 +38,11 @@ public:
 
     /// returns a description of the constraints entailed in this critique
     virtual QString getDescription() const = 0;
+
+    float baseInfluence() const { return m_baseInfluence; }
+    void bumpBaseInfluence(float baseInfluence) {
+        m_baseInfluence += baseInfluence;
+    }
 private:
     int m_ttl;
 protected:

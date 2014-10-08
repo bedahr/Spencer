@@ -67,6 +67,7 @@ public:
     /// (in the same dimension) than  the given relationship
     /// Ex.: (Price > 100).supersedes(Price > 50) == true
     virtual bool supersedes(const Relationship& other) const;
+    virtual bool equals(const Relationship& other) const;
     virtual ~Relationship() {}
 
 protected:
