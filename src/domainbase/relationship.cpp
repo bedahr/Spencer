@@ -64,9 +64,9 @@ float Relationship::utility(const Offer& offer, const QString& id, const QShared
     }
 
     if (m_type & Relationship::IsTrue)
-        out += offerAttribute->booleanValue() ? 1 : 0;
+        out += offerAttribute->booleanValue() ? 0.5 : -0.5;
     if (m_type & Relationship::IsFalse)
-        out += offerAttribute->booleanValue() ? 0 : 1;
+        out += offerAttribute->booleanValue() ? -0.5 : 0.5;
     if ((m_type & Relationship::Good) || (m_type & Relationship::Bad) ||
             (m_type & Relationship::BetterThan) || (m_type & Relationship::WorseThan)) {
         QSharedPointer<Attribute> goal;
