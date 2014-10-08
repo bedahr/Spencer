@@ -3,6 +3,7 @@
 #include "offer.h"
 #include <math.h>
 #include <limits>
+#include <cassert>
 #include <QDebug>
 
 static float logisticScale(float in)
@@ -180,7 +181,8 @@ bool Relationship::supersedes(const Relationship& other) const
     }
 
     //qDebug() << m_type << other.m_type << m_attribute.toString() << other.m_attribute.toString();
-    if (m_type & Relationship::Equality)
+    if (m_type & Relationship::Equality || m_type & Relationship::IsTrue || m_type & Relationship::IsFalse ||
+            m_type & Relationship::Good || m_type & Relationship::Bad)
         return true;
 
     if ((m_attribute.isNull() && other.m_attribute.isNull()) ||
@@ -194,6 +196,20 @@ bool Relationship::supersedes(const Relationship& other) const
             return true;
         }
     }
+
+    //better than, new attribute is "better"
+    if (m_type & Relationship::BetterThan || m_type & Relationship::WorseThan) {
+        // determine optimality
+        QSharedPointer<Attribute> goal;
+        if (m_type & Relationship::BetterThan)
+            goal = AttributeFactory::getInstance()->getBestInstance(m_id);
+        else
+            goal = AttributeFactory::getInstance()->getWorstInstance(other.m_id);
+
+        return (qAbs(m_attribute->distance(*goal)) <=
+                    qAbs(other.m_attribute->distance(*goal)));
+    }
+
     if (m_type & Relationship::LargerThan) {
         //qDebug() << "largerThan";
         if (*m_attribute < *(other.m_attribute)) {
