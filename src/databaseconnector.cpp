@@ -274,8 +274,16 @@ QList<Offer*> DatabaseConnector::loadOffers(bool* okay) const
 
             double productDistance = 0;
             const RecordMap& r = b->getRecords();
+            int recordCount = 0;
             for (RecordMap::const_iterator i = r.begin(); i != r.end(); ++i) {
                 QString fieldId = i.key();
+                if (!(*i).second->getShownByDefault() && fieldId != "manufacturer") {
+                    //qDebug() << "              " << fieldId;
+                    continue;
+                } else {
+                    ++recordCount;
+                    //qDebug() << fieldId;
+                }
                 Record offerRecord = o->getRecord(fieldId);
                 if (offerRecord.first.isNull()) {
                     productDistance += 0.1;
@@ -285,7 +293,7 @@ QList<Offer*> DatabaseConnector::loadOffers(bool* okay) const
                 double thisAttributeDistance = qAbs(offerRecord.second->distance(*(i.value().second)));
                 productDistance += thisAttributeDistance;
             }
-            double normalizedProductDistance = (productDistance / r.count());
+            double normalizedProductDistance = (productDistance / recordCount);
             QString oId = o->getRecord("_id").second->toString();
             QString bId = b->getRecord("_id").second->toString();
             c->update("legilimens.laptops", BSON("_id" << oId.toUtf8().constData()),
