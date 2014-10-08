@@ -35,33 +35,35 @@ static QList<LexicalFeature> parseNames(const QDomElement& namesElem)
     return names;
 }
 
-static Relationship::Type getRelationshipType(const QString& relationshipTypeStr)
+static Relationship::Type getRelationshipType(const QString& relationshipTypesStr)
 {
     Relationship::Type relationshipType;
-    if (relationshipTypeStr == "Inequal")
-        relationshipType = Relationship::Inequality;
-    else if (relationshipTypeStr == "Equal")
-        relationshipType = Relationship::Equality;
-    else if (relationshipTypeStr == "SmallerThan")
-        relationshipType = Relationship::SmallerThan;
-    else if (relationshipTypeStr == "LargerThan")
-        relationshipType = Relationship::LargerThan;
-    else if (relationshipTypeStr == "IsTrue")
-        relationshipType = Relationship::IsTrue;
-    else if (relationshipTypeStr == "IsFalse")
-        relationshipType = Relationship::IsFalse;
-    else if (relationshipTypeStr == "Better")
-        relationshipType = Relationship::BetterThan;
-    else if (relationshipTypeStr == "Good")
-        relationshipType = Relationship::Good;
-    else if (relationshipTypeStr == "Worse")
-        relationshipType = Relationship::WorseThan;
-    else if (relationshipTypeStr == "Bad")
-        relationshipType = Relationship::Bad;
-    else if (relationshipTypeStr == "Small")
-        relationshipType = Relationship::Small;
-    else if (relationshipTypeStr == "Large")
-        relationshipType = Relationship::Large;
+    foreach (const QString& relationshipTypeStr, relationshipTypesStr.split('|')) {
+        if (relationshipTypeStr == "Inequal")
+            relationshipType |= Relationship::Inequality;
+        else if (relationshipTypeStr == "Equal")
+            relationshipType |= Relationship::Equality;
+        else if (relationshipTypeStr == "SmallerThan")
+            relationshipType |= Relationship::SmallerThan;
+        else if (relationshipTypeStr == "LargerThan")
+            relationshipType |= Relationship::LargerThan;
+        else if (relationshipTypeStr == "IsTrue")
+            relationshipType |= Relationship::IsTrue;
+        else if (relationshipTypeStr == "IsFalse")
+            relationshipType |= Relationship::IsFalse;
+        else if (relationshipTypeStr == "Better")
+            relationshipType |= Relationship::BetterThan;
+        else if (relationshipTypeStr == "Good")
+            relationshipType |= Relationship::Good;
+        else if (relationshipTypeStr == "Worse")
+            relationshipType |= Relationship::WorseThan;
+        else if (relationshipTypeStr == "Bad")
+            relationshipType |= Relationship::Bad;
+        else if (relationshipTypeStr == "Small")
+            relationshipType |= Relationship::Small;
+        else if (relationshipTypeStr == "Large")
+            relationshipType |= Relationship::Large;
+    }
     return relationshipType;
 }
 

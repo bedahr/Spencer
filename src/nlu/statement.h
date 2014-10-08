@@ -15,6 +15,7 @@ class Statement
 {
 public:
     Statement(double lexicalPolarity, double statementQuality, double statementImportance = defaultImportance);
+    virtual ~Statement() {}
     virtual QString toString() const=0;
     virtual bool act(DialogStrategy::DialogState state, DialogManager* dm, const Offer *currentOffer) const=0;
     void setLexicalPolarity(double polarity) {

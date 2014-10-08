@@ -8,7 +8,7 @@ class Offer;
 class RecommenderItem
 {
 public:
-    static const int maxTTL = 8;
+    static const int maxTTL = 15;
 
     virtual ~RecommenderItem() {}
 

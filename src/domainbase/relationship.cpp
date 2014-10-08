@@ -38,7 +38,6 @@ float Relationship::utility(const Offer& offer, const QString& id, const QShared
         if (m_type & Relationship::Equality) {
             // distance is non directional for equality
             double eqDistance = qAbs(attributeDistance);
-            qDebug() << "Equality divergence: " << eqDistance;
             out += (0.5 - eqDistance) * 2;
         }
         if (m_type & Relationship::Inequality) {

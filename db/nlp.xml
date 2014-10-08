@@ -593,12 +593,18 @@
 	<name polarity="0.4">ETWAS WENIG</name>
 	<name polarity="0.4">ETWAS NIEDRIG</name>
 	<name>HÖHERES</name>
-	<name>MINDESTENS</name>
 	<name>ÜBER</name>
+      </names>
+      <relationship>LargerThan</relationship>
+    </modifier>
+
+    <modifier on="countable,unOpinionatedCountable" binding="pre,post">
+      <names>
+	<name>MINDESTENS</name>
 	<name>WENIGSTENS</name>
 	<name>ZUMINDEST</name>
       </names>
-      <relationship>LargerThan</relationship>
+      <relationship>LargerThan|Equal</relationship>
     </modifier>
 
     <modifier on="countable,unOpinionatedCountable" binding="post" default="screenSize">
@@ -650,10 +656,15 @@
       <name>WENIGER WIE</name>
       <name>NIEDRIGER WIE</name>
       <name>WENIGER</name>
+      </names>
+      <relationship>SmallerThan</relationship>
+    </modifier>
+    <modifier on="countable,unOpinionatedCountable" binding="pre,post">
+      <names>
       <name>MAXIMAL</name>
       <name>HÖCHSTENS</name>
       </names>
-      <relationship>SmallerThan</relationship>
+      <relationship>SmallerThan|Equal</relationship>
     </modifier>
 
     <modifier on="countable,unOpinionatedCountable" binding="pre">
