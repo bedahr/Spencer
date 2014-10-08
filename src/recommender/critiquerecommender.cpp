@@ -51,7 +51,7 @@ double CritiqueRecommender::completionFactor(const QString& attributeId,
             ++count;
         }
     }
-    return (count > 0) ? completionFactor / count : 0;
+    return (count > 0) ? completionFactor / count : 1;
 }
 
 bool CritiqueRecommender::critique(Critique* critique)
