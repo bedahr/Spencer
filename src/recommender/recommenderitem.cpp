@@ -3,7 +3,7 @@
 float RecommenderItem::influence() const
 {
     float inf = ((float) m_ttl) / maxTTL;
-    return inf * m_baseInfluence;
+    return inf * inf * m_baseInfluence;
 }
 
 int RecommenderItem::age()
