@@ -308,7 +308,6 @@ void QMLSpencerView::displayRecommendationPrivate(const QString& offerName, doub
     foreach (const Aspect& a, userSentiment.keys()) {
         userSentimentMap.insert(a.name(), userSentiment.value(a));
     }
-    qDebug() << "Rating: " << rating << images;
 
     QMetaObject::invokeMethod(viewer->rootObject()->findChild<QObject*>("console"),
                               "recommend",
