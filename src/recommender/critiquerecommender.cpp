@@ -154,6 +154,9 @@ QList<Offer*> CritiqueRecommender::limitOffers(const QList<Critique*> constraint
 {
     QList<Offer*> consideredProducts;
 
+    qDebug() << "Limiting offers by: ";
+    foreach (Critique *c, constraints)
+        qDebug() << "  " << c->getDescription();
     //first pass, only consider products with utility > 0
     // if we don't find any, consider products with utility >= 0 for the second pass.
     for (int round = 0; (round < 2) && consideredProducts.empty(); ++round) {
@@ -173,6 +176,7 @@ QList<Offer*> CritiqueRecommender::limitOffers(const QList<Critique*> constraint
                 }
             }
         }
+        qDebug() << "Round: " << round;
     }
     return consideredProducts;
 }
