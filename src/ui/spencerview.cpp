@@ -18,6 +18,7 @@
  */
 
 #include "spencerview.h"
+#include <cassert>
 
 SpencerView::SpencerView(bool voiceControlled, QObject *parent) :
     QObject(parent),
@@ -48,6 +49,7 @@ void SpencerView::displayRecommendation(const QString& offerName, double price, 
     RecommendationAttribute *processorTypeAttribute = 0;
     RecommendationAttribute *processorNameAttribute = 0;
     RecommendationAttribute *processorCoresAttribute = 0;
+    RecommendationAttribute *processorSpeedAttribute = 0;
     RecommendationAttribute *processorFrequencyAttribute = 0;
     RecommendationAttribute *screenSizeAttribute = 0;
     RecommendationAttribute *screenSizeHResolutionAttribute = 0;
@@ -60,6 +62,8 @@ void SpencerView::displayRecommendation(const QString& offerName, double price, 
             processorTypeAttribute = a;
         else if (a->getName() == QObject::tr("Prozessor"))
             processorNameAttribute = a;
+        else if (a->getName() == QObject::tr("Prozessorgeschwindigkeit"))
+            processorSpeedAttribute = a;
         else if (a->getName() == QObject::tr("Prozessorkerne"))
             processorCoresAttribute = a;
         else if (a->getName() == QObject::tr("Prozessortakt"))
@@ -77,6 +81,7 @@ void SpencerView::displayRecommendation(const QString& offerName, double price, 
         else if (a->getName() == QObject::tr("Dedizierter Grafikkartenspeicher"))
             graphicsMemoryAttribute = a;
     }
+    qDebug () << "Processor core attribute: " << processorCoresAttribute->getValue();
     if (graphicsTypeAttribute && graphicsModelAttribute) {
         sanitizedOffer.removeAll(graphicsTypeAttribute);
         sanitizedOffer.removeAll(graphicsModelAttribute);
@@ -110,17 +115,28 @@ void SpencerView::displayRecommendation(const QString& offerName, double price, 
         sanitizedOffer.removeAll(processorNameAttribute);
         sanitizedOffer.removeAll(processorFrequencyAttribute);
         sanitizedOffer.removeAll(processorCoresAttribute);
+        sanitizedOffer.removeAll(processorSpeedAttribute);
 
-        float expressedUserInterest = qMax(qMax(qMax(processorTypeAttribute->getExpressedUserInterest(),
+        float expressedUserInterest = qMax(qMax(qMax(qMax(processorTypeAttribute->getExpressedUserInterest(),
                                                 processorNameAttribute->getExpressedUserInterest()),
                                                 processorFrequencyAttribute->getExpressedUserInterest()),
+                                           (processorSpeedAttribute ? processorSpeedAttribute->getExpressedUserInterest() : 0)),
                                            (processorCoresAttribute ? processorCoresAttribute->getExpressedUserInterest() : 0));
         float reviewSentiment =  (processorTypeAttribute->getReviewSentiment() +
                                   processorNameAttribute->getReviewSentiment()+
                                   processorFrequencyAttribute->getReviewSentiment()) / 3;
-        float completionFactor =  (processorTypeAttribute->getCompletionFactor() +
-                                  processorNameAttribute->getCompletionFactor()+
-                                  processorFrequencyAttribute->getCompletionFactor()) / 3;
+        float completionFactor = 0;
+        QList<float> completionFactors;
+        completionFactors << processorTypeAttribute->getCompletionFactor();
+        completionFactors << processorNameAttribute->getCompletionFactor();
+        if (processorSpeedAttribute)
+            completionFactors << processorSpeedAttribute->getCompletionFactor();
+        completionFactors << processorFrequencyAttribute->getCompletionFactor();
+        if (processorCoresAttribute)
+            completionFactors << processorCoresAttribute->getCompletionFactor();
+        foreach (float cF, completionFactors)
+            completionFactor += cF;
+        completionFactor /= (float) completionFactors.count();
 
         QString coreInformation = (processorCoresAttribute) ? QString("%1x").arg(processorCoresAttribute->getValue().toString()) : "1x";
         sanitizedOffer.insert(0, new RecommendationAttribute(QObject::tr("Prozessor"),
@@ -135,6 +151,7 @@ void SpencerView::displayRecommendation(const QString& offerName, double price, 
         delete processorNameAttribute;
         delete processorCoresAttribute;
         delete processorFrequencyAttribute;
+        delete processorSpeedAttribute;
     }
     if (screenSizeAttribute && screenSizeHResolutionAttribute && screenSizeVResolutionAttribute) {
         sanitizedOffer.removeAll(screenSizeAttribute);
