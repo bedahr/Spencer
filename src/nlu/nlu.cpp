@@ -264,11 +264,11 @@ static QStringList expandNumbers(const QStringList& modifierList, const QStringL
     foreach (const QString& modifier, modifierList) {
         foreach (const QString& inv, numberInvitations) {
             if (modifier.endsWith(inv)) {
-                for (int i = (int) min; i < (int) ceil(max); ++i)
+                for (int i = (int) min; i <= (int) ceil(max); ++i)
                     additions << modifier + ' ' + QString::number(i);
 
                 if (range < 10) {
-                    for (int i = (int) min; i < (int) ceil(max); ++i)
+                    for (int i = (int) min; i <= (int) ceil(max); ++i)
                         for (int j = 1; j <= 9; ++j)
                             additions << modifier + ' ' + QString::number(i) + " KOMMA " + QString::number(j);
                 }
