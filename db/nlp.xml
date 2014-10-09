@@ -236,8 +236,11 @@
       <names>
         <name>Hersteller</name>
         <name>Marke</name>
-        <name>(Apple|Lenovo|Samsung|HP)</name>
+        <name>(Apple|Lenovo|Lenovo|Samsung|Sony|Dell|Acer|Fujitsu|Toshiba|Compaq|MSI|Medion|Gigabyte|Terra|Panasonic|Wortmann|Terra)</name>
         <name value="Apple">Macbook</name>
+        <name value="Hewlett-Packard">HP</name>
+        <name value="ASUS Computer">ASUS</name>
+        <name value="TAROX AG">TAROX</name>
       </names>
     </attribute>
     <attribute type="unOpinionatedUnountable">
