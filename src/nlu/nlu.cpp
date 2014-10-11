@@ -520,7 +520,7 @@ QList<Statement*> findOptimalStatementAssociation(int maxPos, const Offer *curre
     return bestStatements;
 }
 
-QList<Statement*> NLU::interpret(const Offer *currentRecommendation, const QString& input)
+QList<Statement*> NLU::interpret(const Offer *currentRecommendation, const QString &input)
 {
     Logger::log("Received user input \"" + input + '"');
     qDebug() << "Interpreting: " << input;

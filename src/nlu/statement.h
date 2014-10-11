@@ -34,6 +34,10 @@ public:
             m_lexicalPolarity -= diff;
     }
 
+    void adjustImportance(double importance) {
+        m_importance *= importance;
+    }
+
     virtual bool overrides(const Statement *s) const = 0;
 
     bool compare(const Statement *s) const;

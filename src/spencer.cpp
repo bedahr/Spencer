@@ -77,10 +77,21 @@ bool Spencer::init()
     return true;
 }
 
-void Spencer::userInput(const QString& input)
+void Spencer::userInput(const RecognitionResultList& input)
 {
+    if (input.empty())
+        return;
+
+    RecognitionResult asrResult = input.first();
+
     // NLU
-    QList<Statement*> statements = m_nlu->interpret(m_currentRecommendation, input);
+    QList<Statement*> statements = m_nlu->interpret(m_currentRecommendation, asrResult.sentence());
+
+    float arousal = 1.0 + asrResult.arousal();
+    qDebug() << "Adjusting statement importance based on arousal: " << arousal;
+    Logger::log("Adjusting polarity based on arousal:" + QString::number(arousal));
+    foreach (Statement *s, statements)
+        s->adjustImportance(arousal);
 
     // Dialog Manager
     m_dialogManager->userInput(statements);

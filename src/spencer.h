@@ -4,6 +4,7 @@
 #include "ui/avatar/avatartask.h"
 #include "domainbase/offer.h"
 #include "domainbase/recommendationattribute.h"
+#include <recognitionresult.h>
 #include <QObject>
 #include <QList>
 #include <QtDBus>
@@ -36,7 +37,7 @@ public slots:
     bool init();
     void reset();
 
-    void userInput(const QString& input);
+    void userInput(const RecognitionResultList &input);
 
     /// This is just here for wizard of oz testing
     void overwriteDialogStrategy(int code);

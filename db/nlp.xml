@@ -402,13 +402,6 @@
         <name>mattes display</name>
       </names>
     </attribute>
-    <attribute type="countable">
-      <actOn>Bestseller Rank</actOn>
-      <names>
-        <name>Verkaufsrang</name>
-        <name>Bestseller</name>
-      </names>
-    </attribute>
     <attribute type="uncountable">
       <actOn>processorCores</actOn>
       <names>

@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
         //QObject::connect(connector, SIGNAL(recognized(QString)), view, SLOT(displayExecutedAction(QString)));
     }
 
-    QObject::connect(connector, SIGNAL(recognized(QString)), spencer, SLOT(userInput(QString)));
+    QObject::connect(connector, SIGNAL(recognized(RecognitionResultList)), spencer, SLOT(userInput(RecognitionResultList)));
     QObject::connect(spencer, SIGNAL(elicit(AvatarTask, bool)), view, SLOT(actOut(AvatarTask, bool)));
 
     QObject::connect(spencer, SIGNAL(recommend(QString, double, double, QStringList,
