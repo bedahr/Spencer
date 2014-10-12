@@ -40,9 +40,9 @@ int main(int argc, char *argv[])
         connector = 0;
 
     Spencer* spencer = new Spencer;
-    new SpencerAdapter(spencer);
+    SpencerAdapter *adapter = new SpencerAdapter(spencer);
     QDBusConnection::sessionBus().registerService("at.tugraz.Spencer");
-    QDBusConnection::sessionBus().registerObject("/Spencer", spencer, QDBusConnection::ExportAllSlots);
+    QDBusConnection::sessionBus().registerObject("/Spencer", adapter, QDBusConnection::ExportAllSlots);
     QMLSpencerView* view = new QMLSpencerView(spencer, voiceControlled);
 
     if (voiceControlled) {

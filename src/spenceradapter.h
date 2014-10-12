@@ -7,6 +7,7 @@ class Spencer;
 class SpencerAdapter : public QDBusAbstractAdaptor
 {
     Q_OBJECT
+    Q_CLASSINFO("Spencer", "at.tugraz.Spencer")
 
 public:
     SpencerAdapter(Spencer* spencer);
