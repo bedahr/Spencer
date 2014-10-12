@@ -138,6 +138,7 @@ bool AttributeFactory::parseStructure(const QString& path)
         m_attributeKeys << attributes[nr];
     }
 
+    /*
     //debug
     foreach (const QString& id, m_creators.keys()) {
         QString name = m_creators.value(id).first;
@@ -146,6 +147,7 @@ bool AttributeFactory::parseStructure(const QString& path)
             type = "countable";
         }
     }
+    */
 
     return true;
 }

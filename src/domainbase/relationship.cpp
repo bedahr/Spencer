@@ -114,7 +114,7 @@ float Relationship::utility(const QString& id, const QSharedPointer<Attribute> &
             out += distance;
         }
     }
-    qDebug() << toString() << " utility: " << out << " -> " << logisticScale(out) * m_modifierFactor;
+    //qDebug() << toString() << " utility: " << out << " -> " << logisticScale(out) * m_modifierFactor;
     out = logisticScale(out);
     return out * m_modifierFactor;
 }
