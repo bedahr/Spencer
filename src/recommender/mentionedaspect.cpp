@@ -4,7 +4,12 @@
 
 float MentionedAspect::utility(const Offer& offer) const
 {
-    float u = offer.getUserSentiment().value(*m_aspect, 0) * influence() * 0.1;
+    float u = offer.getUserSentiment().value(*m_aspect, 0);
+
+#ifdef SPENCER_UNNUANCED
+    u = (u < 0) ? -1 : ((u > 0) ? 1 : 0);
+#endif
+    u *=  influence() * 0.1;
     //qDebug() << "Aspect utility: " << u;
     return u;
 }

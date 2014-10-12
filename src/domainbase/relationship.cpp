@@ -116,7 +116,12 @@ float Relationship::utility(const QString& id, const QSharedPointer<Attribute> &
     }
     //qDebug() << toString() << " utility: " << out << " -> " << logisticScale(out) * m_modifierFactor;
     out = logisticScale(out);
-    return out * m_modifierFactor;
+    out *= m_modifierFactor;
+
+#ifdef SPENCER_UNNUANCED
+    out = (out < 0) ? -1 : ((out > 0) ? 1 : 0);
+#endif
+    return out;
 }
 
 QList<QSharedPointer<Attribute> > getAttributes(const Offer& offer, const QString& id)

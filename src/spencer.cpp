@@ -74,6 +74,11 @@ bool Spencer::init()
     m_dialogManager->init(m_recommender);
 
     Logger::log("Successfully initialized Spencer");
+#ifdef SPENCER_UNNUANCED
+    Logger::log("Nuances ignored");
+#else
+    Logger::log("Using full Spencer capabilities");
+#endif
     return true;
 }
 

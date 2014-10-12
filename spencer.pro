@@ -2,6 +2,8 @@ TEMPLATE = app
 TARGET = Spencer
 DEPENDPATH += .
 
+#DEFINES += SPENCER_UNNUANCED
+
 BBSIMONECOMMONIPATH = /home/bedahr/ownCloud/simon/src/tools/Simone/BlackBerry/BBSimoneShared
 BBSIMONECOMMONPATH  = /home/bedahr/ownCloud/simon/src/tools/Simone/BlackBerry/BBSimoneShared
 QT += quick xml multimedia dbus
