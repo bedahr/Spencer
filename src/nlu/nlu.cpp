@@ -544,6 +544,7 @@ QString NLU::mergeNumbers(const QString& input) const
         out.replace(matchIndex, numbersToJoin.matchedLength(), newNumber);
         offset = matchIndex + newNumber.length();
     }
+    out.replace(" KOMMA ", ".");
     return out;
 }
 
