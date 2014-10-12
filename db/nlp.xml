@@ -720,7 +720,14 @@
     <modifier on="countable,unOpinionatedCountable" binding="post" default="screenSize">
       <names>
         <name>KLEINEN</name>
+        <name>KLEINEM</name>
+        <name>KLEINES</name>
         <name>KLEINE</name>
+      </names>
+      <relationship>Small</relationship>
+    </modifier>
+    <modifier on="countable,unOpinionatedCountable" binding="post">
+      <names>
         <name>WENIG</name>
         <name>NIEDERER</name>
         <name>NIEDEREN</name>
