@@ -52,7 +52,7 @@ double CompoundAttribute::value() const
     if (m_children.isEmpty())
         return 0;
 
-    double value;
+    double value = 0;
     foreach (QSharedPointer<Attribute> c, m_children)
         value += c->value();
     return (value /m_children.count());
