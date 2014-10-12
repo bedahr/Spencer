@@ -28,6 +28,8 @@ private:
     bool setupNLP(const QString& path);
     bool setupAspects(const QString& path);
 
+    QString mergeNumbers(const QString& input) const;
+
     QList<Relationship*> buildRelationships(const Offer *offer,
                                         const AttributeToken* attributeToken,
                                         const QString& attributeValue,

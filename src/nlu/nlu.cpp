@@ -11,6 +11,7 @@
 #include "logger/logger.h"
 #include <iostream>
 #include <limits>
+#include <cmath>
 #include <QRegExp>
 #include <QFile>
 #include <QStringList>
@@ -520,6 +521,32 @@ QList<Statement*> findOptimalStatementAssociation(int maxPos, const Offer *curre
     return bestStatements;
 }
 
+QString NLU::mergeNumbers(const QString& input) const
+{
+    QString out = input;
+    //merge e.g., "100 50" to "150"
+    QRegExp numbersToJoin("(\\d+)\\s+(\\d+)");
+    int matchIndex = -1;
+    int offset = 0;
+    while ((matchIndex = numbersToJoin.indexIn(out, offset)) != -1) {
+        int numberOne = numbersToJoin.cap(1).toInt();
+        int numberTwo = numbersToJoin.cap(2).toInt();
+        int digitsOne = (int) log10(numberOne);
+        int digitsTwo = (int) log10(numberTwo);
+        if (digitsOne <= digitsTwo || pow(10, digitsOne) != numberOne) {
+            // joining e.g., "1 10" doesn't work and should stay the same
+            // also, we don't join stuff like "15 5"
+            offset += matchIndex + numbersToJoin.matchedLength();
+            continue;
+        }
+        QString newNumber = QString::number(numberOne + numberTwo);
+        qDebug() << "Combined " << numberOne << " and " << numberTwo << " to " << newNumber;
+        out.replace(matchIndex, numbersToJoin.matchedLength(), newNumber);
+        offset = matchIndex + newNumber.length();
+    }
+    return out;
+}
+
 QList<Statement*> NLU::interpret(const Offer *currentRecommendation, const QString &input)
 {
     Logger::log("Received user input \"" + input + '"');
@@ -527,7 +554,9 @@ QList<Statement*> NLU::interpret(const Offer *currentRecommendation, const QStri
     QList<Statement*> foundStatements;
     QString saneInput(input);
     saneInput.replace("ß", "ss");
+    saneInput = mergeNumbers(saneInput);
     //QString saneInput = input;
+    Logger::log("Merged numbers to get \"" + saneInput + '"');
 
     // 1. Extract list of largest, non overlapping token observations
     QList<ObservedToken*> foundTokens = findTokens(saneInput);
