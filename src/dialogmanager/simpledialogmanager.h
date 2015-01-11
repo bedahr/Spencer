@@ -48,12 +48,14 @@ public slots:
     void userFinishedTalking();
 
 private:
+    bool userCurrentlyTalking;
     DialogStrategy::DialogState state;
     DialogStrategy::DialogState upcomingState;
     DialogStrategy::DialogState previousState;
     CritiqueRecommender *recommender;
     const Offer* currentOffer;
     const Offer* oldOffer;
+    QTimer failedRecognitionTimer;
     QTimer turnCompletionTimer;
     int acceptedStatementsOfThisTurn;
     int consecutiveMisunderstandingCounter;

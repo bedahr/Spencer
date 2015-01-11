@@ -9,13 +9,13 @@
 
 // after we received at least one actionable statement, we wait this long
 // for the user to speak again, otherwise we act on what we got.
-static const int turnTimeoutAfterStatements = 1500;
+static const int turnTimeoutAfterStatements = 1400;
 
 // if we receive input that doesn't contain any useful statement we (initially) wait
 // for a pause this long before we act (likely by taking initiative)
 // This pause will decrease after every non-statement utterance from the user down to
 // a minimum of tunTimeoutAfterStatements
-static const int turnTimeoutWithoutStatements = 6000;
+static const int turnTimeoutWithoutStatements = 5000;
 static const int turnTimeoutWithoutStatementsDecay = 2000;
 
 static const QStringList performanceAttributes(QStringList() << "processorSpeed");
@@ -29,6 +29,7 @@ static const QStringList portabilityAspects(QStringList() << "Portability");
 
 
 SimpleDialogManager::SimpleDialogManager() :
+    userCurrentlyTalking(false),
     state(DialogStrategy::NullState), upcomingState(DialogStrategy::InitState),
     previousState(DialogStrategy::InitState), recommender(0),
     currentOffer(0), oldOffer(0), acceptedStatementsOfThisTurn(0),
@@ -38,21 +39,28 @@ SimpleDialogManager::SimpleDialogManager() :
     lastAskedDomainQuestion(DialogStrategy::InitState)
 {
     connect(&turnCompletionTimer, SIGNAL(timeout()), this, SLOT(completeTurn()));
+    connect(&failedRecognitionTimer, SIGNAL(timeout()), this, SLOT(completeTurn()));
     turnCompletionTimer.setSingleShot(true);
+    failedRecognitionTimer.setSingleShot(true);
 }
 
 void SimpleDialogManager::userIsTalking()
 {
+    userCurrentlyTalking = true;
     turnCompletionTimer.stop();
+    failedRecognitionTimer.stop();
 }
 
 void SimpleDialogManager::userFinishedTalking()
 {
+    userCurrentlyTalking = false;
+    failedRecognitionTimer.start(3000);
     //turnCompletionTimer.start();
 }
 
 void SimpleDialogManager::userInput(const QList<Statement*> statements)
 {
+    failedRecognitionTimer.stop();
     qDebug() << "Got statements: " << statements.count();
     int acceptedStatements = 0;
     foreach (Statement *s, statements) {
@@ -75,7 +83,8 @@ void SimpleDialogManager::userInput(const QList<Statement*> statements)
                                              turnCompletionTimer.interval() - turnTimeoutWithoutStatementsDecay));
     }
     acceptedStatementsOfThisTurn += acceptedStatements;
-    turnCompletionTimer.start();
+    if (!userCurrentlyTalking)
+        turnCompletionTimer.start();
 }
 
 void SimpleDialogManager::processRecommendation(Recommendation* r)
@@ -131,6 +140,7 @@ void SimpleDialogManager::processRecommendation(Recommendation* r)
 void SimpleDialogManager::completeTurn()
 {
     qDebug() << "Completing turn";
+    failedRecognitionTimer.stop();
 
     if (state != DialogStrategy::InitState && acceptedStatementsOfThisTurn == 0) {
         //qDebug() << "Misunderstanding counter: " << consecutiveMisunderstandingCounter;
@@ -144,10 +154,13 @@ void SimpleDialogManager::completeTurn()
             recommender->feedbackCycleComplete();
             r = recommender->suggestOffer();
 
-            if (r)
+            if (r) {
                 processRecommendation(r);
-            else
+            } else {
                 qDebug() << "No recommendation at this point";
+                if (upcomingState == DialogStrategy::Recommendation)
+                    upcomingState = DialogStrategy::NullState;
+            }
 
             delete r;
         }
@@ -354,7 +367,8 @@ bool SimpleDialogManager::accept(double strength)
 {
     // TODO: experiment with cutoff
     qDebug() << "accept Strength: " << strength;
-    if ((strength >= 0.8) && (upcomingState == DialogStrategy::NullState)) {
+    if (currentOffer && (strength >= 0.8) &&
+            (upcomingState == DialogStrategy::NullState)) {
         queueState(DialogStrategy::FinalState);
         return true;
     }
