@@ -76,6 +76,9 @@ QMLSpencerView::QMLSpencerView(Spencer *spencer, bool voiceControlled, QObject *
     state(Unconnected),
     skipNonEssentialUIUpdates(false)
 {
+    viewer->setFlags(Qt::Window);
+    viewer->show();
+    viewer->showFullScreen();
     avatar = new Avatar();
     //viewer->setOrientation(QmlApplicationViewer::ScreenOrientationAuto);
     viewer->rootContext()->setContextProperty("spencerView", this);
@@ -252,7 +255,20 @@ void QMLSpencerView::storeConfiguration()
 
     emit configurationChanged();
 }
+#include <QTimer>
+void QMLSpencerView::show()
+{
+#ifndef Q_OS_BLACKBERRY
+    //viewer->showNormal();
+#else
+    viewer-> showNormal();
+    QTimer::singleShot(100, viewer, showFullScreen());
+#endif
 
+#ifdef Q_OS_DARWIN
+    //QTimer::singleShot(5000, viewer, SLOT(showFullScreen()));
+#endif
+}/*
 void QMLSpencerView::show()
 {
 #ifndef Q_OS_BLACKBERRY
@@ -260,7 +276,7 @@ void QMLSpencerView::show()
 #else
     viewer->showFullScreen();
 #endif
-}
+}*/
 
 QObject* QMLSpencerView::connectButton()
 {

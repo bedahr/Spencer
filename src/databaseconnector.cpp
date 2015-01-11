@@ -204,7 +204,8 @@ QList<Offer*> DatabaseConnector::loadOffers(bool* okay) const
         QStringList imageSrcs;
         std::vector<mongo::BSONElement> imageSrcsElements = l.getField("imageSrcs").Array();
         for (std::vector<mongo::BSONElement>::const_iterator i = imageSrcsElements.begin(); i != imageSrcsElements.end(); ++i) {
-            imageSrcs << QString::fromStdString((*i).String());
+            imageSrcs << QString::fromStdString((*i).String()).replace("/home/bedahr/ownCloud/Daten/TU/Master/casebase/images",
+                                                                       "/Users/bedahr/Spencer/casebase/images");
         }
 
         SentimentMap extractedSentiment;
@@ -254,7 +255,6 @@ QList<Offer*> DatabaseConnector::loadOffers(bool* okay) const
         //    qWarning() << "Poor sentiment coverage for offer " << name->toString();
         //    continue;
         //}
-
         availableOffers << new Offer(name, price, rating, priorRank, imageSrcs, records, extractedSentiment, productDistances);
         ++products;
     }

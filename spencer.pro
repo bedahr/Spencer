@@ -3,9 +3,14 @@ TARGET = Spencer
 DEPENDPATH += .
 
 #DEFINES += SPENCER_UNNUANCED
+CONFIG += c++11
 
-BBSIMONECOMMONIPATH = /home/bedahr/ownCloud/simon/src/tools/Simone/BlackBerry/BBSimoneShared
-BBSIMONECOMMONPATH  = /home/bedahr/ownCloud/simon/src/tools/Simone/BlackBerry/BBSimoneShared
+BBSIMONECOMMONIPATH = /Users/bedahr/ownCloud/simon/src/tools/Simone/BlackBerry/BBSimoneShared
+BBSIMONECOMMONPATH  = /Users/bedahr/ownCloud/simon/src/tools/Simone/BlackBerry/build-BBSimoneShared-Desktop_Qt_5_3_clang_64bit-Release
+INCLUDEPATH += /usr//local/Cellar/libmongoclient/2.6.1/include
+INCLUDEPATH += /usr/local/Cellar/boost/1.55.0_2/include
+LIBS += -L/usr//local/Cellar/libmongoclient/2.6.1/lib
+LIBS += -L/usr/local/Cellar/boost/1.55.0_2/lib
 QT += quick xml multimedia dbus
 
 OTHER_FILES += \
@@ -118,5 +123,5 @@ HEADERS += \
 
 
 INCLUDEPATH += ../BBSimoneShared $${BBSIMONECOMMONIPATH} src/
-LIBS += -L$${BBSIMONECOMMONPATH} -lSimoneShared -lmongoclient -lboost_thread -lboost_system -lboost_filesystem
+LIBS += -L$${BBSIMONECOMMONPATH} -lSimoneShared -lmongoclient -lboost_thread-mt -lboost_system -lboost_filesystem
 QMAKE_CXXFLAGS += -std=c++11

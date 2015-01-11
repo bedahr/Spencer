@@ -14,7 +14,8 @@
 #include <QNetworkAccessManager>
 
 //set at compile time
-static const QString mediaPath = "/home/bedahr/ownCloud/Daten/TU/Master/avatar/videos_new/";
+static const QString mediaPath = "/Users/bedahr/Spencer/Avatar/videos_new/";
+
 static const QString maryUrl = "http://localhost:59125";
 static int fps = 30;
 static int updateInterval = (1000 / fps);
@@ -182,8 +183,6 @@ QString Avatar::getTaskDirectory(const AvatarTask& task) {
                 qWarning() << "Failed to make working directory: " << workDir;
                 return QString();
             }
-
-
             // Design query for openmary
             QString wavQuery = getMaryRequestUrl(task.text(), true);
 

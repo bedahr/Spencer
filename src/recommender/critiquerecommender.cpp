@@ -161,6 +161,9 @@ void CritiqueRecommender::feedbackCycleComplete()
 QList<Offer*> CritiqueRecommender::limitOffers(const QList<Critique*> constraints,
                                                QList<Offer*> products, LimitBehavior limitBehavior) const
 {
+    if (constraints.isEmpty())
+        return products;
+
     QList<Offer*> consideredProducts;
 
     qDebug() << "Limiting offers by: ";
@@ -192,6 +195,9 @@ QList<Offer*> CritiqueRecommender::limitOffers(const QList<Critique*> constraint
 
 Recommendation* CritiqueRecommender::suggestOffer()
 {
+    if (m_userModel.isEmpty())
+        return 0;
+
     //random selection
     //return new Recommendation(m_offers[qrand() % m_offers.size()], 0, QList<AppliedCritique>());
 
@@ -231,7 +237,7 @@ Recommendation* CritiqueRecommender::suggestOffer()
             AppliedRecommenderItem ari(ri, *o);
             thisExplanations << ari;
             thisUtility += ari.utility();
-            qDebug() << "Utility for offer " << o->getId() << ri->influence() << ri->getDescription() << ari.utility();
+            //qDebug() << "Utility for offer " << o->getId() << ri->influence() << ri->getDescription() << ari.utility();
         }
         // introduce similarity
         if (!m_lastRecommendation.isEmpty()) {
