@@ -84,8 +84,11 @@ bool Spencer::init()
 
 void Spencer::userInput(const RecognitionResultList& input)
 {
-    if (input.empty())
+    if (input.empty()) {
+        Logger::log("Received empty ASR result");
+        m_dialogManager->userInput(QList<Statement*>());
         return;
+    }
 
     RecognitionResult asrResult = input.first();
 

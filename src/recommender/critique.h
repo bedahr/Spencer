@@ -42,8 +42,6 @@ public:
     bool equals(const Critique& o) const;
 
 private:
-    int m_ttl;
-
     const QString m_name;
     const Relationship* m_relationship;
 
