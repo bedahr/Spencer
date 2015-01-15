@@ -533,7 +533,8 @@ QString NLU::mergeNumbers(const QString& input) const
         int numberTwo = numbersToJoin.cap(2).toInt();
         int digitsOne = (int) log10(numberOne);
         int digitsTwo = (int) log10(numberTwo);
-        if (digitsOne <= digitsTwo || pow(10, digitsOne) != numberOne) {
+        int baseOne = pow(10, digitsOne);
+        if (digitsOne <= digitsTwo || numberOne != (numberOne / baseOne) * baseOne ) {
             // joining e.g., "1 10" doesn't work and should stay the same
             // also, we don't join stuff like "15 5"
             offset += matchIndex + numbersToJoin.matchedLength();
