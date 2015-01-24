@@ -70,5 +70,7 @@ const Aspect* AspectFactory::getAspect(const QString& id)
 }
 const Aspect* AspectFactory::getAspectByName(const QString& name)
 {
-    return findAspect(name, m_aspects, false);
+    const Aspect* out = findAspect(name, m_aspects, false);
+    Q_ASSERT(out);
+    return out;
 }
